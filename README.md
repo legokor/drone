@@ -1,0 +1,1 @@
+This repository houses all the essential project files for the drone project. It encompasses schematics, PCB designs, and firmwares. 

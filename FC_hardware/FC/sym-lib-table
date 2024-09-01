@@ -1,0 +1,6 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Regulator_Linear1")(type "KiCad")(uri "${KIPRJMOD}/Symbols/Regulator_Linear.kicad_sym")(options "")(descr ""))
+  (lib (name "local")(type "KiCad")(uri "${KIPRJMOD}/Symbols/local.kicad_sym")(options "")(descr ""))
+  (lib (name "custom")(type "KiCad")(uri "${KIPRJMOD}/Symbols/custom.kicad_sym")(options "")(descr ""))
+)

@@ -57,6 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define BAR_CSB_Pin GPIO_PIN_13
+#define BAR_CSB_GPIO_Port GPIOC
 #define ADC_U_Pin GPIO_PIN_1
 #define ADC_U_GPIO_Port GPIOC
 #define ADC_I_Pin GPIO_PIN_2
@@ -79,8 +81,8 @@ void Error_Handler(void);
 #define ESC_2_GPIO_Port GPIOA
 #define LORA_IRQ_Pin GPIO_PIN_4
 #define LORA_IRQ_GPIO_Port GPIOC
-#define IMU_SS_Pin GPIO_PIN_5
-#define IMU_SS_GPIO_Port GPIOC
+#define ESC_RX_Pin GPIO_PIN_5
+#define ESC_RX_GPIO_Port GPIOC
 #define ESC_3_Pin GPIO_PIN_0
 #define ESC_3_GPIO_Port GPIOB
 #define ESC_4_Pin GPIO_PIN_1
@@ -107,10 +109,10 @@ void Error_Handler(void);
 #define GEN_TIM8_4_GPIO_Port GPIOC
 #define GEN_TIM1_1_Pin GPIO_PIN_8
 #define GEN_TIM1_1_GPIO_Port GPIOA
-#define GEN_TIM1_2_Pin GPIO_PIN_9
-#define GEN_TIM1_2_GPIO_Port GPIOA
-#define GEN_TIM1_3_Pin GPIO_PIN_10
-#define GEN_TIM1_3_GPIO_Port GPIOA
+#define DEBUG_TX_Pin GPIO_PIN_9
+#define DEBUG_TX_GPIO_Port GPIOA
+#define DEBUG_RX_Pin GPIO_PIN_10
+#define DEBUG_RX_GPIO_Port GPIOA
 #define GEN_SCK_Pin GPIO_PIN_10
 #define GEN_SCK_GPIO_Port GPIOC
 #define GEN_MISO_Pin GPIO_PIN_11
@@ -125,10 +127,10 @@ void Error_Handler(void);
 #define IMU_MISO_GPIO_Port GPIOB
 #define IMU_MOSI_Pin GPIO_PIN_5
 #define IMU_MOSI_GPIO_Port GPIOB
-#define DEBUG_TX_Pin GPIO_PIN_6
-#define DEBUG_TX_GPIO_Port GPIOB
-#define DEBUG_RX_Pin GPIO_PIN_7
-#define DEBUG_RX_GPIO_Port GPIOB
+#define GEN_TIM4_1_Pin GPIO_PIN_6
+#define GEN_TIM4_1_GPIO_Port GPIOB
+#define GEN_TIM4_2_Pin GPIO_PIN_7
+#define GEN_TIM4_2_GPIO_Port GPIOB
 #define MAG_SCL_Pin GPIO_PIN_8
 #define MAG_SCL_GPIO_Port GPIOB
 #define MAG_SDA_Pin GPIO_PIN_9

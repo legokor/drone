@@ -89,8 +89,8 @@ void Error_Handler(void);
 #define ESC_4_GPIO_Port GPIOB
 #define GEN_MOSI_Pin GPIO_PIN_2
 #define GEN_MOSI_GPIO_Port GPIOB
-#define UTIL_SCL_Pin GPIO_PIN_10
-#define UTIL_SCL_GPIO_Port GPIOB
+#define GEN_SCL_Pin GPIO_PIN_10
+#define GEN_SCL_GPIO_Port GPIOB
 #define LED_Pin GPIO_PIN_12
 #define LED_GPIO_Port GPIOB
 #define LORA_BAR_SCK_Pin GPIO_PIN_13
@@ -99,10 +99,10 @@ void Error_Handler(void);
 #define LORA_BAR_MISO_GPIO_Port GPIOB
 #define LORA_BAR_MOSI_Pin GPIO_PIN_15
 #define LORA_BAR_MOSI_GPIO_Port GPIOB
-#define UTIL_TX_Pin GPIO_PIN_6
-#define UTIL_TX_GPIO_Port GPIOC
-#define UTIL_RX_Pin GPIO_PIN_7
-#define UTIL_RX_GPIO_Port GPIOC
+#define GEN_TX_Pin GPIO_PIN_6
+#define GEN_TX_GPIO_Port GPIOC
+#define GEN_RX_Pin GPIO_PIN_7
+#define GEN_RX_GPIO_Port GPIOC
 #define GEN_TIM8_3_Pin GPIO_PIN_8
 #define GEN_TIM8_3_GPIO_Port GPIOC
 #define GEN_TIM8_4_Pin GPIO_PIN_9
@@ -117,8 +117,8 @@ void Error_Handler(void);
 #define GEN_SCK_GPIO_Port GPIOC
 #define GEN_MISO_Pin GPIO_PIN_11
 #define GEN_MISO_GPIO_Port GPIOC
-#define UTIL_SDA_Pin GPIO_PIN_12
-#define UTIL_SDA_GPIO_Port GPIOC
+#define GEN_SDA_Pin GPIO_PIN_12
+#define GEN_SDA_GPIO_Port GPIOC
 #define IMU_IRQ_Pin GPIO_PIN_2
 #define IMU_IRQ_GPIO_Port GPIOD
 #define IMU_SCK_Pin GPIO_PIN_3

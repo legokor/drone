@@ -7549,6 +7549,70 @@
 		(color 0 0 0 0)
 		(uuid "fbe623ea-e7f8-4e4c-9b76-1652bab467e7")
 	)
+	(no_connect
+		(at 55.88 27.94)
+		(uuid "02a9c6cb-db39-4d6b-90e2-d56e7bb0e796")
+	)
+	(no_connect
+		(at 240.03 265.43)
+		(uuid "072e0121-6aa9-43cb-b772-fd8142525dcc")
+	)
+	(no_connect
+		(at 62.23 118.11)
+		(uuid "15348ed5-3fa1-4d67-a74f-7fb66f3386e6")
+	)
+	(no_connect
+		(at 275.59 273.05)
+		(uuid "1dc20083-940e-472f-9fa6-6498633d8485")
+	)
+	(no_connect
+		(at 62.23 128.27)
+		(uuid "42d91f6f-8513-41d8-bc6a-2f793cb6e6a9")
+	)
+	(no_connect
+		(at 62.23 123.19)
+		(uuid "454e960c-b52a-4a81-b516-59d82f5f3372")
+	)
+	(no_connect
+		(at 241.3 119.38)
+		(uuid "50d39e12-ab9b-4fbd-a873-0cc576ed0772")
+	)
+	(no_connect
+		(at 241.3 121.92)
+		(uuid "7ea05239-5561-4bc5-a178-6478da52f51e")
+	)
+	(no_connect
+		(at 240.03 293.37)
+		(uuid "9e4cc610-aa3d-4942-bd63-1c671d5c24b6")
+	)
+	(no_connect
+		(at 240.03 295.91)
+		(uuid "ab40f638-2a86-4b6e-afe7-00d71bc70b53")
+	)
+	(no_connect
+		(at 240.03 257.81)
+		(uuid "b175b45e-2793-42ed-9cf2-6d8764a33540")
+	)
+	(no_connect
+		(at 240.03 57.15)
+		(uuid "c2fd28a7-1de5-41f3-8a02-dccac180ddcc")
+	)
+	(no_connect
+		(at 275.59 234.95)
+		(uuid "cc8c6c08-89b2-4465-bb8f-470bab238d19")
+	)
+	(no_connect
+		(at 62.23 125.73)
+		(uuid "e0a2f491-8b05-4b00-a8bb-c56eb07d2be6")
+	)
+	(no_connect
+		(at 62.23 120.65)
+		(uuid "e0e77203-c82f-4d94-bf5f-87479ad8097d")
+	)
+	(no_connect
+		(at 199.39 57.15)
+		(uuid "e7125e5d-7d7e-41c6-a543-3ffd8008c16e")
+	)
 	(wire
 		(pts
 			(xy 367.03 74.93) (xy 367.03 67.31)
@@ -12115,7 +12179,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 490.22 67.31 0)
 			(effects
 				(font
@@ -12285,7 +12349,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 358.14 67.31 0)
 			(effects
 				(font
@@ -12350,7 +12414,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 490.22 82.55 0)
 			(effects
 				(font
@@ -12482,7 +12546,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 521.97 97.79 0)
 			(effects
 				(font
@@ -13054,7 +13118,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 358.14 74.93 0)
 			(effects
 				(font
@@ -13119,7 +13183,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 337.82 67.31 0)
 			(effects
 				(font
@@ -14426,7 +14490,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 318.77 67.31 0)
 			(effects
 				(font
@@ -15284,7 +15348,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 381 63.5 0)
 			(effects
 				(font
@@ -15486,7 +15550,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 396.24 63.5 0)
 			(effects
 				(font
@@ -15621,7 +15685,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 396.24 71.12 0)
 			(effects
 				(font
@@ -15752,7 +15816,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 490.22 74.93 0)
 			(effects
 				(font
@@ -16473,7 +16537,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 381 71.12 0)
 			(effects
 				(font
@@ -16670,7 +16734,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 521.97 74.93 0)
 			(effects
 				(font
@@ -16867,7 +16931,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 337.82 74.93 0)
 			(effects
 				(font
@@ -17258,7 +17322,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "ac59ef87-c994-4ad1-bebb-98244eb9f676")
 		(property "Reference" "J26"
 			(at 522.605 85.09 0)
@@ -17276,7 +17339,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 521.97 90.17 0)
 			(effects
 				(font
@@ -17680,7 +17743,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 521.97 67.31 0)
 			(effects
 				(font
@@ -17815,7 +17878,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 521.97 59.69 0)
 			(effects
 				(font
@@ -18221,7 +18284,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SMC"
+		(property "Footprint" "Diode_SMD:D_SMA"
 			(at 250.19 32.385 0)
 			(effects
 				(font
@@ -19053,7 +19116,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 490.22 59.69 0)
 			(effects
 				(font
@@ -19186,7 +19249,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 521.97 82.55 0)
 			(effects
 				(font
@@ -19251,7 +19314,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 490.22 90.17 0)
 			(effects
 				(font
@@ -19383,7 +19446,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.1sqmm_1x01_D0.4mm_OD1mm"
+		(property "Footprint" "footprints:1.27mm_pin"
 			(at 490.22 97.79 0)
 			(effects
 				(font

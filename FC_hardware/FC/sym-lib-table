@@ -7,4 +7,5 @@
   (lib (name "530480810")(type "KiCad")(uri "${KIPRJMOD}/Symbols/snapeda/symbols/530480810.kicad_sym")(options "")(descr ""))
   (lib (name "ABM8G-25.000MHZ-4Y-T3")(type "KiCad")(uri "${KIPRJMOD}/Symbols/snapeda/symbols/ABM8G-25.000MHZ-4Y-T3.kicad_sym")(options "")(descr ""))
   (lib (name "EVQ-P7L01P")(type "KiCad")(uri "${KIPRJMOD}/Symbols/snapeda/symbols/EVQ-P7L01P.kicad_sym")(options "")(descr ""))
+  (lib (name "530481410")(type "KiCad")(uri "${KIPRJMOD}/Symbols/snapeda/symbols/530481410.kicad_sym")(options "")(descr ""))
 )

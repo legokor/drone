@@ -137,13 +137,21 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     /* SPI1 clock enable */
     __HAL_RCC_SPI1_CLK_ENABLE();
 
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**SPI1 GPIO Configuration
-    PB3     ------> SPI1_SCK
+    PA5     ------> SPI1_SCK
     PB4     ------> SPI1_MISO
     PB5     ------> SPI1_MOSI
     */
-    GPIO_InitStruct.Pin = IMU_SCK_Pin|IMU_MISO_Pin|IMU_MOSI_Pin;
+    GPIO_InitStruct.Pin = IMU_BAR_SCK_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+    HAL_GPIO_Init(IMU_BAR_SCK_GPIO_Port, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = IMU_BAR_MISO_Pin|IMU_BAR_MOSI_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -168,7 +176,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     PB14     ------> SPI2_MISO
     PB15     ------> SPI2_MOSI
     */
-    GPIO_InitStruct.Pin = LORA_BAR_SCK_Pin|LORA_BAR_MISO_Pin|LORA_BAR_MOSI_Pin;
+    GPIO_InitStruct.Pin = LORA_SCK_Pin|LORA_MISO_Pin|LORA_MOSI_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -191,8 +199,8 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     __HAL_RCC_GPIOC_CLK_ENABLE();
     /**SPI3 GPIO Configuration
     PB2     ------> SPI3_MOSI
-    PC10     ------> SPI3_SCK
     PC11     ------> SPI3_MISO
+    PB3     ------> SPI3_SCK
     */
     GPIO_InitStruct.Pin = GEN_MOSI_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -201,12 +209,19 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_SPI3;
     HAL_GPIO_Init(GEN_MOSI_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GEN_SCK_Pin|GEN_MISO_Pin;
+    GPIO_InitStruct.Pin = GEN_MISO_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(GEN_MISO_GPIO_Port, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GEN_SCK_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
+    HAL_GPIO_Init(GEN_SCK_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN SPI3_MspInit 1 */
 
@@ -226,11 +241,13 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
     __HAL_RCC_SPI1_CLK_DISABLE();
 
     /**SPI1 GPIO Configuration
-    PB3     ------> SPI1_SCK
+    PA5     ------> SPI1_SCK
     PB4     ------> SPI1_MISO
     PB5     ------> SPI1_MOSI
     */
-    HAL_GPIO_DeInit(GPIOB, IMU_SCK_Pin|IMU_MISO_Pin|IMU_MOSI_Pin);
+    HAL_GPIO_DeInit(IMU_BAR_SCK_GPIO_Port, IMU_BAR_SCK_Pin);
+
+    HAL_GPIO_DeInit(GPIOB, IMU_BAR_MISO_Pin|IMU_BAR_MOSI_Pin);
 
   /* USER CODE BEGIN SPI1_MspDeInit 1 */
 
@@ -249,7 +266,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
     PB14     ------> SPI2_MISO
     PB15     ------> SPI2_MOSI
     */
-    HAL_GPIO_DeInit(GPIOB, LORA_BAR_SCK_Pin|LORA_BAR_MISO_Pin|LORA_BAR_MOSI_Pin);
+    HAL_GPIO_DeInit(GPIOB, LORA_SCK_Pin|LORA_MISO_Pin|LORA_MOSI_Pin);
 
   /* USER CODE BEGIN SPI2_MspDeInit 1 */
 
@@ -265,12 +282,12 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
     /**SPI3 GPIO Configuration
     PB2     ------> SPI3_MOSI
-    PC10     ------> SPI3_SCK
     PC11     ------> SPI3_MISO
+    PB3     ------> SPI3_SCK
     */
-    HAL_GPIO_DeInit(GEN_MOSI_GPIO_Port, GEN_MOSI_Pin);
+    HAL_GPIO_DeInit(GPIOB, GEN_MOSI_Pin|GEN_SCK_Pin);
 
-    HAL_GPIO_DeInit(GPIOC, GEN_SCK_Pin|GEN_MISO_Pin);
+    HAL_GPIO_DeInit(GEN_MISO_GPIO_Port, GEN_MISO_Pin);
 
   /* USER CODE BEGIN SPI3_MspDeInit 1 */
 

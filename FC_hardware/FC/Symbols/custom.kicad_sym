@@ -1,0 +1,469 @@
+(kicad_symbol_lib
+	(version 20231120)
+	(generator "kicad_symbol_editor")
+	(generator_version "8.0")
+	(symbol "MP2348"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MP2348"
+			(at 0.508 -16.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-583-8"
+			(at 0.254 -31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.monolithicpower.com/en/documentview/productdocument/index/version/2/document_type/Datasheet/lang/en/sku/MP2348GTL/?srsltid=AfmBOopeSdJrNWDcoHVGmHVf5T_E8K1lx_JAve7PW2n65fwNXN7O9atF"
+			(at -0.254 -21.082 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "High-Efficiency, 4A, 24V, 650kHz, Synchronous Step-Down Converter"
+			(at -0.508 -26.924 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "MP2348_0_1"
+			(rectangle
+				(start -8.89 -1.27)
+				(end 10.16 -17.78)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "MP2348_1_1"
+			(pin input line
+				(at -11.43 -3.81 0)
+				(length 2.54)
+				(name "MODE"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "RCC_OSC32_IN" bidirectional line)
+				(alternate "RCC_OSC_IN" bidirectional line)
+				(alternate "TIM1_BK2" bidirectional line)
+			)
+			(pin power_in line
+				(at -11.43 -7.62 0)
+				(length 2.54)
+				(name "VIN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at -11.43 -11.43 0)
+				(length 2.54)
+				(name "SW"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "RCC_MCO" bidirectional line)
+			)
+			(pin power_in line
+				(at -11.43 -15.24 0)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 -15.24 180)
+				(length 2.54)
+				(name "BST"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC1_IN8" bidirectional line)
+				(alternate "I2S1_WS" bidirectional line)
+				(alternate "LPTIM1_OUT" bidirectional line)
+				(alternate "SPI1_NSS" bidirectional line)
+				(alternate "TIM1_CH2N" bidirectional line)
+				(alternate "TIM3_CH3" bidirectional line)
+			)
+			(pin input line
+				(at 12.7 -11.43 180)
+				(length 2.54)
+				(name "EN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC1_IN18" bidirectional line)
+				(alternate "SYS_SWCLK" bidirectional line)
+				(alternate "USART2_TX" bidirectional line)
+			)
+			(pin input line
+				(at 12.7 -7.62 180)
+				(length 2.54)
+				(name "SS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC1_IN17" bidirectional line)
+				(alternate "IR_OUT" bidirectional line)
+				(alternate "SYS_SWDIO" bidirectional line)
+			)
+			(pin input line
+				(at 12.7 -3.81 180)
+				(length 2.54)
+				(name "FB"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC1_IN16" bidirectional line)
+				(alternate "I2C2_SDA" bidirectional line)
+				(alternate "I2S1_SD" bidirectional line)
+				(alternate "I2S_CKIN" bidirectional line)
+				(alternate "SPI1_MOSI" bidirectional line)
+				(alternate "TIM1_ETR" bidirectional line)
+				(alternate "USART1_CK" bidirectional line)
+				(alternate "USART1_DE" bidirectional line)
+				(alternate "USART1_RTS" bidirectional line)
+			)
+		)
+	)
+	(symbol "XL2011"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0.762 -1.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "XL2011"
+			(at 0.508 -4.318 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "SO8"
+			(at 1.016 -17.526 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "5V/ 2.1A 150KHz 45V Buck DC to DC Converter"
+			(at 2.54 -21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "XL2011_0_1"
+			(rectangle
+				(start -8.89 -2.54)
+				(end 10.16 -19.05)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "XL2011_1_1"
+			(pin input line
+				(at -11.43 -5.08 0)
+				(length 2.54)
+				(name "FB"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "RCC_OSC32_IN" bidirectional line)
+				(alternate "RCC_OSC_IN" bidirectional line)
+				(alternate "TIM1_BK2" bidirectional line)
+			)
+			(pin no_connect line
+				(at -11.43 -8.89 0)
+				(length 2.54)
+				(name "NC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -11.43 -12.7 0)
+				(length 2.54)
+				(name "VC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "RCC_MCO" bidirectional line)
+			)
+			(pin power_in line
+				(at -11.43 -16.51 0)
+				(length 2.54)
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at 12.7 -16.51 180)
+				(length 2.54)
+				(name "SW"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC1_IN8" bidirectional line)
+				(alternate "I2S1_WS" bidirectional line)
+				(alternate "LPTIM1_OUT" bidirectional line)
+				(alternate "SPI1_NSS" bidirectional line)
+				(alternate "TIM1_CH2N" bidirectional line)
+				(alternate "TIM3_CH3" bidirectional line)
+			)
+			(pin power_out line
+				(at 12.7 -12.7 180)
+				(length 2.54)
+				(name "SW"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC1_IN18" bidirectional line)
+				(alternate "SYS_SWCLK" bidirectional line)
+				(alternate "USART2_TX" bidirectional line)
+			)
+			(pin power_in line
+				(at 12.7 -8.89 180)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC1_IN17" bidirectional line)
+				(alternate "IR_OUT" bidirectional line)
+				(alternate "SYS_SWDIO" bidirectional line)
+			)
+			(pin power_in line
+				(at 12.7 -5.08 180)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(alternate "ADC1_IN16" bidirectional line)
+				(alternate "I2C2_SDA" bidirectional line)
+				(alternate "I2S1_SD" bidirectional line)
+				(alternate "I2S_CKIN" bidirectional line)
+				(alternate "SPI1_MOSI" bidirectional line)
+				(alternate "TIM1_ETR" bidirectional line)
+				(alternate "USART1_CK" bidirectional line)
+				(alternate "USART1_DE" bidirectional line)
+				(alternate "USART1_RTS" bidirectional line)
+			)
+		)
+	)
+)

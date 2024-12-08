@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "gps")(type "KiCad")(uri "${KIPRJMOD}/TESEO-LIV4F")(options "")(descr ""))
+)

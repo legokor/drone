@@ -4,4 +4,5 @@
 void tel_Init(tel_Tel* tel) {
     log_Debug("Initalizing tel...");
 
+    tel->destination = lora;
 }

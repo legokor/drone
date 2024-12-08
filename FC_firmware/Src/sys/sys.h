@@ -1,5 +1,5 @@
-#ifndef MGMT_H
-#define MGMT_H
+#ifndef SYS_H
+#define SYS_H
 
 #include "acc.h"
 #include "bar.h"
@@ -17,7 +17,7 @@
 #include "llc.h"
 #include "tel.h"
 
-typedef struct mgmt_System {
+typedef struct sys_System {
     gps_Gps gps;
     mag_Mag mag;
     acc_Acc acc;
@@ -33,8 +33,8 @@ typedef struct mgmt_System {
     llc_Llc llc;
     tel_Tel tel;
     guide_Guide guide;
-} mgmt_System;
+} sys_System;
 
-void mgmt_Entry(void);
+void sys_Entry(void);
 
-#endif // MGMT_H
+#endif // SYS_H

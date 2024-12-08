@@ -1,7 +1,7 @@
-#include "mgmt.h"
+#include "sys.h"
 #include "log.h"
 
-void init_hardware(mgmt_System* sys) {
+void init_hardware(sys_System* sys) {
     log_Debug("Initalizing hardware...");
 
     lora_Init(&sys->lora);
@@ -14,7 +14,7 @@ void init_hardware(mgmt_System* sys) {
     acc_Init(&sys->acc);
 }
 
-void init_modules(mgmt_System* sys) {
+void init_modules(sys_System* sys) {
     log_Debug("Initalizing software modules...");
 
     tel_Init(&sys->tel);
@@ -25,17 +25,15 @@ void init_modules(mgmt_System* sys) {
     dsp_Init(&sys->dsp);
 }
 
-void init(mgmt_System* sys) {
-#ifdef CONFIG
-    puts("Initalizing...");
-#endif
+void init(sys_System* sys) {
+    log_Debug("Initalizing...");
 
     init_hardware(sys);
     init_modules(sys);
 }
 
-void mgmt_Entry(void) {
-    mgmt_System sys;
+void sys_Entry(void) {
+    sys_System sys;
 
     init(&sys);
 }

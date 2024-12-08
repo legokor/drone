@@ -80,7 +80,7 @@ dirs = {
         Module('llc'),
         Module('tel'),
         Module('guide'),
-        Module('mgmt', struct=False),
+        Module('sys', struct=False),
         Module('log', struct=False, init=False),
     ]
 }

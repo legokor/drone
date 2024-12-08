@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "mgmt.h"
+#include "sys.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,7 +107,7 @@ int main(void)
   MX_TIM10_Init();
   MX_UART5_Init();
   /* USER CODE BEGIN 2 */
-  mgmt_Entry();
+  sys_Entry();
   /* USER CODE END 2 */
 
   /* Infinite loop */

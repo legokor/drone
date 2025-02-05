@@ -1,0 +1,10 @@
+#include "{{name}}.h"
+#include "log.h"
+
+void {{name}}_Init(
+    {%- if struct -%} {{name}}_{{Name}}* {{name}}
+        {%- else -%} void {%- endif -%}
+) {
+    log_Debug("Initalizing {{name}}...");
+}
+

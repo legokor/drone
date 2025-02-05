@@ -1,0 +1,18 @@
+#ifndef {{NAME}}_H
+#define {{NAME}}_H
+
+{% if struct -%}
+typedef struct {{name}}_{{Name}} {
+    
+} {{name}}_{{Name}};
+{%- endif %}
+
+{% if init -%}
+void {{name}}_Init(
+    {%- if struct -%} {{name}}_{{Name}} *{{name}}
+        {%- else -%} void {%- endif -%}
+);
+{%- endif %}
+
+#endif // {{NAME}}_H
+

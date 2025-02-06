@@ -35,6 +35,8 @@ typedef struct sys_System {
     guide_Guide guide;
 } sys_System;
 
+sys_System sys_Instance;
+
 void sys_Entry(void);
 
 #endif // SYS_H

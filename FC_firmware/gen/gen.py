@@ -35,6 +35,7 @@ dirs = {
         Module('rc',   True, True),
         Module('sd',   True, True),
         Module('uart', True, True),
+        Module('usb',  True, True),
     ],
 
     'Src': [ #          struct init
@@ -46,6 +47,7 @@ dirs = {
         Module('guide', False, True),
         Module('sys',   False, True),
         Module('log',   False, True),
+        Module('utils', False, False),
     ]
 }
 

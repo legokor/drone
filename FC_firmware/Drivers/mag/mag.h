@@ -1,4 +1,4 @@
-#ifndef MAG_H 
+#ifndef MAG_H
 #define MAG_H
 
 typedef struct mag_Mag {

@@ -1,5 +1,5 @@
-#include "sys.h"
-#include "log.h"
+#include "sys/sys.h"
+#include "log/log.h"
 
 void init_hardware(sys_System* sys) {
     log_Debug("Initalizing hardware...");

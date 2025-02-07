@@ -1,7 +1,6 @@
-#include "act.h"
-#include "log.h"
+#include "act/act.h"
+#include "log/log.h"
 
-void act_Init(act_Act* act) {
+void act_Init(void) {
     log_Debug("Initalizing act...");
-
 }

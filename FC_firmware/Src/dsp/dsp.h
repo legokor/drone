@@ -1,9 +1,8 @@
-#ifndef DSP_H 
+#ifndef DSP_H
 #define DSP_H
 
-typedef struct dsp_Dsp {
-} dsp_Dsp;
 
-void dsp_Init(dsp_Dsp* dsp);
+
+void dsp_Init(void);
 
 #endif // DSP_H

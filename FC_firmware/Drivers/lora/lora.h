@@ -1,4 +1,4 @@
-#ifndef LORA_H 
+#ifndef LORA_H
 #define LORA_H
 
 typedef struct lora_Lora {

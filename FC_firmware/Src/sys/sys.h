@@ -1,21 +1,21 @@
 #ifndef SYS_H
 #define SYS_H
 
-#include "acc.h"
-#include "bar.h"
-#include "esc.h"
-#include "gps.h"
-#include "imu.h"
-#include "lora.h"
-#include "mag.h"
-#include "rc.h"
+#include "acc/acc.h"
+#include "bar/bar.h"
+#include "esc/esc.h"
+#include "gps/gps.h"
+#include "imu/imu.h"
+#include "lora/lora.h"
+#include "mag/mag.h"
+#include "rc/rc.h"
 
-#include "act.h"
-#include "ctrl.h"
-#include "dsp.h"
-#include "guide.h"
-#include "llc.h"
-#include "tel.h"
+#include "act/act.h"
+#include "ctrl/ctrl.h"
+#include "dsp/dsp.h"
+#include "guide/guide.h"
+#include "llc/llc.h"
+#include "tel/tel.h"
 
 typedef struct sys_System {
     gps_Gps gps;

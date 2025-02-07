@@ -1,4 +1,4 @@
-#ifndef ACC_H 
+#ifndef ACC_H
 #define ACC_H
 
 typedef struct acc_Acc {

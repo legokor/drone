@@ -1,7 +1,6 @@
-#include "lora.h"
-#include "log.h"
+#include "lora/lora.h"
+#include "log/log.h"
 
 void lora_Init(lora_Lora* lora) {
     log_Debug("Initalizing lora...");
-
 }

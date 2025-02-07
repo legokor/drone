@@ -1,7 +1,6 @@
-#include "ctrl.h"
-#include "log.h"
+#include "ctrl/ctrl.h"
+#include "log/log.h"
 
-void ctrl_Init(ctrl_Ctrl* ctrl) {
+void ctrl_Init(void) {
     log_Debug("Initalizing ctrl...");
-
 }

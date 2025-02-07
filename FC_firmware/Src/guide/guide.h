@@ -1,9 +1,8 @@
-#ifndef GUIDE_H 
+#ifndef GUIDE_H
 #define GUIDE_H
 
-typedef struct guide_Guide {
-} guide_Guide;
 
-void guide_Init(guide_Guide* guide);
+
+void guide_Init(void);
 
 #endif // GUIDE_H

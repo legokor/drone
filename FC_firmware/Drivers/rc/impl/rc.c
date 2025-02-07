@@ -1,7 +1,6 @@
-#include "rc.h"
-#include "log.h"
+#include "rc/rc.h"
+#include "log/log.h"
 
 void rc_Init(rc_Rc* rc) {
     log_Debug("Initalizing rc...");
-
 }

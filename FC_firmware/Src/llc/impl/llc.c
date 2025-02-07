@@ -1,7 +1,6 @@
-#include "llc.h"
-#include "log.h"
+#include "llc/llc.h"
+#include "log/log.h"
 
-void llc_Init(llc_Llc* llc) {
+void llc_Init(void) {
     log_Debug("Initalizing llc...");
-
 }

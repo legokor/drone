@@ -1,4 +1,4 @@
-#ifndef GPS_H 
+#ifndef GPS_H
 #define GPS_H
 
 typedef struct gps_Gps {

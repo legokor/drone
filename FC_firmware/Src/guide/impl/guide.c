@@ -1,7 +1,6 @@
-#include "guide.h"
-#include "log.h"
+#include "guide/guide.h"
+#include "log/log.h"
 
-void guide_Init(guide_Guide* guide) {
+void guide_Init(void) {
     log_Debug("Initalizing guide...");
-
 }

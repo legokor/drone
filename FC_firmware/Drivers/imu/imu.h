@@ -1,4 +1,4 @@
-#ifndef IMU_H 
+#ifndef IMU_H
 #define IMU_H
 
 typedef struct imu_Imu {

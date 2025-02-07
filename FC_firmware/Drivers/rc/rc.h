@@ -1,4 +1,4 @@
-#ifndef RC_H 
+#ifndef RC_H
 #define RC_H
 
 typedef struct rc_Rc {

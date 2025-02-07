@@ -1,4 +1,4 @@
-#ifndef ESC_H 
+#ifndef ESC_H
 #define ESC_H
 
 typedef struct esc_Esc {

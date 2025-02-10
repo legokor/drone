@@ -2,10 +2,13 @@
 #define BAR_H
 
 #include <stdint.h>
+#include "spi.h"
 
 typedef enum bar_Mode { Standby, Command, Background } bar_Mode;
 
 typedef struct bar_Bar {
+    SPI_HandleTypeDef* hspi;
+
     bar_Mode mode;
 } bar_Bar;
 

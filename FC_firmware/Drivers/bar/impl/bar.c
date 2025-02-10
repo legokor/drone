@@ -2,7 +2,6 @@
 
 #include "bar/bar.h"
 #include "log/log.h"
-#include "spi.h"
 
 // Register addresses, field offsets and lengths
 
@@ -57,16 +56,17 @@ bar_Mode bar_GetMode(bar_Bar* bar) {
     return bar->mode;
 }
 
-uint8_t _spi_read8(uint8_t reg) {
+uint8_t _spi_read8(SPI_HandleTypeDef* spi, uint8_t reg) {
     uint8_t ret;
-    _spi_read(reg, &ret, 1);
+    _spi_read(spi, reg, &ret, 1);
     return ret;
 }
-void _spi_write8(uint8_t reg, uint8_t data) {
-    _spi_write(reg, &data, 1);
+
+void _spi_write8(SPI_HandleTypeDef* spi, uint8_t reg, uint8_t data) {
+    _spi_write(spi, reg, &data, 1);
 }
 
-void _spi_read(uint8_t reg, uint8_t* data, size_t len) {
+void _spi_read(SPI_HandleTypeDef* spi, uint8_t reg, uint8_t* data, size_t len) {
     HAL_GPIO_WritePin(BAR_CS_GPIO_Port, BAR_CS_Pin, GPIO_PIN_SET);
 
     const uint8_t ctrl[] = { reg | 0b10000000 };
@@ -76,7 +76,8 @@ void _spi_read(uint8_t reg, uint8_t* data, size_t len) {
 
     HAL_GPIO_WritePin(BAR_CS_GPIO_Port, BAR_CS_Pin, GPIO_PIN_RESET);
 }
-void _spi_write(uint8_t reg, uint8_t* data, size_t len) {
+
+void _spi_write(SPI_HandleTypeDef* spi, uint8_t reg, uint8_t* data, size_t len) {
     HAL_GPIO_WritePin(BAR_CS_GPIO_Port, BAR_CS_Pin, GPIO_PIN_SET);
 
     const uint8_t ctrl[] = { reg & (~0b10000000) };
@@ -87,18 +88,18 @@ void _spi_write(uint8_t reg, uint8_t* data, size_t len) {
     HAL_GPIO_WritePin(BAR_CS_GPIO_Port, BAR_CS_Pin, GPIO_PIN_RESET);
 }
 
-void _spi_write_masked(uint8_t reg, uint8_t value, uint8_t mask) {
-    uint8_t old = _spi_read8(reg);
+void _spi_write_masked(SPI_HandleTypeDef* spi, uint8_t reg, uint8_t value, uint8_t mask) {
+    uint8_t old = _spi_read8(spi, reg);
 
     uint8_t oldMasked = ~mask & old;
     uint8_t valMasked = value & mask;
 
-    _spi_write8(reg, oldMasked | valMasked);
+    _spi_write8(spi, reg, oldMasked | valMasked);
 }
 
-void _spi_write_bits(uint8_t reg, uint8_t value, uint8_t offset, uint8_t count) {
+void _spi_write_bits(SPI_HandleTypeDef* spi, uint8_t reg, uint8_t value, uint8_t offset, uint8_t count) {
     uint8_t n_bits = (1 << count) - 1;
-    _spi_write_masked(reg, value << offset, n_bits << offset);
+    _spi_write_masked(spi, reg, value << offset, n_bits << offset);
 }
 
 void bar_SetMode(bar_Bar* bar, bar_Mode mode) {
@@ -107,30 +108,30 @@ void bar_SetMode(bar_Bar* bar, bar_Mode mode) {
 
 uint32_t bar_GetPressure(bar_Bar* bar) {
     uint32_t data;
-    _spi_read(_bar_REG_PSR_B2, &data + 1, 3);
+    _spi_read(bar->hspi, _bar_REG_PSR_B2, &data + 1, 3);
     return data;
 }
 
 uint32_t bar_GetTemperature(bar_Bar* bar) {
     uint32_t data;
-    _spi_read(_bar_REG_TMP_B2, &data + 1, 3);
+    _spi_read(bar->hspi, _bar_REG_TMP_B2, &data + 1, 3);
     return data;
 }
 
 void bar_SetPressureMeasurementRate(bar_Bar* bar, uint8_t r) {
-    _spi_write_bits(_bar_REG_PRS_CFG, r, _bar_REG_PRS_CFG__RATE_OFFSET, _bar_REG_PRS_CFG__RATE_LENGTH);
+    _spi_write_bits(bar->hspi, _bar_REG_PRS_CFG, r, _bar_REG_PRS_CFG__RATE_OFFSET, _bar_REG_PRS_CFG__RATE_LENGTH);
 }
 
 void bar_SetTemperatureMeasurementRate(bar_Bar* bar, uint8_t r) {
-    _spi_write_bits(_bar_REG_TMP_CFG, r, _bar_REG_TMP_CFG__RATE_OFFSET, _bar_REG_TMP_CFG__RATE_LENGTH);
+    _spi_write_bits(bar->hspi, _bar_REG_TMP_CFG, r, _bar_REG_TMP_CFG__RATE_OFFSET, _bar_REG_TMP_CFG__RATE_LENGTH);
 }
 
 void bar_SetPressurePrecision(bar_Bar* bar, uint8_t p) {
-    _spi_write_bits(_bar_REG_PRS_CFG, p, _bar_REG_PRS_CFG__PREC_OFFSET, _bar_REG_PRS_CFG__PREC_LENGTH);
+    _spi_write_bits(bar->hspi, _bar_REG_PRS_CFG, p, _bar_REG_PRS_CFG__PREC_OFFSET, _bar_REG_PRS_CFG__PREC_LENGTH);
 }
 
 void bar_SetTemperaturePrecision(bar_Bar* bar, uint8_t p) {
-    _spi_write_bits(_bar_REG_TMP_CFG, p, _bar_REG_TMP_CFG__PREC_OFFSET, _bar_REG_TMP_CFG__PREC_LENGTH);
+    _spi_write_bits(bar->hspi, _bar_REG_TMP_CFG, p, _bar_REG_TMP_CFG__PREC_OFFSET, _bar_REG_TMP_CFG__PREC_LENGTH);
 }
 
 float bar_CalculateAltitude(uint32_t p, uint32_t t) {

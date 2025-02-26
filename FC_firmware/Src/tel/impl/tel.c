@@ -79,7 +79,7 @@ static uint8_t _tel_GetDataSize(tel_DataType type) {
 }
 
 void tel_WriteArray(tel_Topic topic, const void* arr, uint8_t len, tel_DataType type) {
-    _tel_WriteMessage(topic, arr, len * _tel_GetDataSize(type), Array);
+    _tel_WriteMessage(topic, (const char*)arr, len * _tel_GetDataSize(type), Array);
 }
 
 void tel_WriteString(tel_Topic topic, const char* str) {

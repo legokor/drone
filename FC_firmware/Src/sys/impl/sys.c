@@ -1,49 +1,35 @@
 #include "sys/sys.h"
 #include "log/log.h"
 
-#include "act/act.h"
-#include "ctrl/ctrl.h"
-#include "dsp/dsp.h"
-#include "guide/guide.h"
-#include "llc/llc.h"
-#include "tel/tel.h"
+sys_System sys_Instance;
 
-static gps_Gps _sys_Gps;
-static mag_Mag _sys_Mag;
-static acc_Acc _sys_Acc;
-static imu_Imu _sys_Imu;
-static bar_Bar _sys_Bar;
-static lora_Lora _sys_Lora;
-static esc_Esc _sys_Esc;
-static rc_Rc _sys_Rc;
-static sd_Sd _sys_Sd;
-
-void init_hardware(void) {
+void init_hardware() {
     log_Debug("Initalizing hardware...");
 
-    lora_Init(&_sys_Lora);
-    sd_Init(&_sys_Sd);
-    imu_Init(&_sys_Imu);
-    rc_Init(&_sys_Rc);
-    gps_Init(&_sys_Gps);
-    mag_Init(&_sys_Mag);
-    bar_Init(&_sys_Bar);
-    esc_Init(&_sys_Esc);
-    acc_Init(&_sys_Acc);
+//    lora_Init(&sys_Instance.lora);
+//    sd_Init(&sys_Instance.sd);
+//    rc_Init(&sys_Instance.rc);
+//    gps_Init(&sys_Instance.gps);
+//    mag_Init(&sys_Instance.mag);
+//    bar_Init(&sys_Instance.bar);
+//    esc_Init(&sys_Instance.esc);
+//    acc_Init(&sys_Instance.acc);
+    imu_Init(&sys_Instance.imu);
+    uart_Init(&sys_Instance.uart);
 }
 
-void init_modules(void) {
+void init_modules() {
     log_Debug("Initalizing software modules...");
 
-    tel_Init();
-    act_Init();
-    llc_Init();
-    guide_Init();
-    ctrl_Init();
-    dsp_Init();
+//    tel_Init();
+//    act_Init();
+//    llc_Init();
+//    guide_Init();
+//    ctrl_Init();
+//    dsp_Init();
 }
 
-void init(void) {
+void init() {
     log_Debug("Initalizing...");
 
     init_hardware();

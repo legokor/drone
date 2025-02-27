@@ -1,5 +1,9 @@
 #include "sys/sys.h"
 #include "log/log.h"
+#include "stm32f4xx_hal.h"
+#include "usart.h"
+#include "spi.h"
+#include "tim.h"
 
 sys_System sys_Instance;
 
@@ -14,8 +18,20 @@ void init_hardware() {
 //    bar_Init(&sys_Instance.bar);
 //    esc_Init(&sys_Instance.esc);
 //    acc_Init(&sys_Instance.acc);
-    imu_Init(&sys_Instance.imu);
-    uart_Init(&sys_Instance.uart);
+    imu_Init(&sys_Instance.imu, &hspi2, SPI2_IRQn, &htim9);
+
+    {
+        uart_UartInitParams uartInitParams = {
+            .huart = &huart1,
+            .uartIr = USART1_IRQn,
+            .txDmaIr = DMA2_Stream7_IRQn,
+            .txBufferLength = 256,
+            .rxBufferLength = 256,
+            .ignorableChars = "\r",
+            .endOfMsgChar = '\n'
+        };
+        uart_Init(&sys_Instance.uart, uartInitParams);
+    }
 }
 
 void init_modules() {

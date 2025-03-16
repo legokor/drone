@@ -7,11 +7,10 @@
 typedef struct {
     UART_HandleTypeDef* huart;
     IRQn_Type uartIr;
-    IRQn_Type txDmaIr;
     uint16_t txBufferLength;
     uint16_t rxBufferLength;
-    const char* ignorableChars;			// ignore these characters when receiving data
-    char endOfMsgChar;					// end of message character, it is not included in the received data
+    const char* ignorableChars; // ignore these characters when receiving data
+    char endOfMsgChar;          // end of message character, it is not included in the received data
 } uart_UartInitParams;
 
 typedef struct {
@@ -28,15 +27,15 @@ typedef struct {
     volatile uint8_t txInProgress;
 
     volatile char* rxCircularBuffer;
-	uint32_t rxStartOfData;
+    uint32_t rxStartOfData;
 
     const char* ignorableChars;
     char endOfMsgChar;
 } uart_Uart;
 
 typedef struct {
-	uint32_t size;
-	uint8_t eomReached;
+    uint32_t size;
+    uint8_t eomReached;
 } uart_ReceiveStatus;
 
 /**

@@ -34,10 +34,10 @@ void log_Write(log_LogLevel level, const char* format, ...) {
 }
 
 void log_Debug(const char* format, ...) {
-    va_list args;
-    va_start(args, format);
-    log_Write(Debug, format, args);
-    va_end(args);
+    // va_list args;
+    // va_start(args, format);
+    // log_Write(Debug, format, args);
+    // va_end(args);
 }
 
 void log_Info(const char* format, ...) {

@@ -10,31 +10,33 @@
  * The implementation heavily relies on the HAL STM32 drivers.
  */
 typedef struct {
-	SPI_HandleTypeDef* hspi;
-    TIM_HandleTypeDef* htim;
+    SPI_HandleTypeDef* hspi;
 
-	float accSensitivity;
-	float gyroSensitivity;
+    float accSensitivity;
+    float gyroSensitivity;
 
-	float gyroOffsetX, gyroOffsetY, gyroOffsetZ;
-	uint8_t useGyroOffsets;
+    float gyroOffsetX, gyroOffsetY, gyroOffsetZ;
+    uint8_t useGyroOffsets;
 
-	volatile uint8_t imuData[14];
+    volatile uint8_t imuData[14];
     uint8_t readMemAddress;
 
+    GPIO_TypeDef* csPort;
+    uint16_t csPin;
+
 #ifdef ASYNC_IMU
-	volatile uint8_t imuBuffer[14];
-	volatile uint8_t newData;
+    volatile uint8_t imuBuffer[14];
+    volatile uint8_t newData;
 
-	IRQn_Type readIr;
+    IRQn_Type readIr;
 
-	volatile uint8_t readEnabled;
-	volatile uint8_t readInProgress;
+    volatile uint8_t readEnabled;
+    volatile uint8_t readInProgress;
 #endif
 } imu_Imu;
 
 typedef struct {
-	float x, y, z;
+    float x, y, z;
 } imu_Vec3;
 
 #ifdef ASYNC_IMU
@@ -44,19 +46,24 @@ typedef struct {
  * @param hspi - the SPI handle for the IMU
  * @param dmaIr - the IRQn_Type handle of the SPI event interrupt
  * @param htim - the timer handle for the periodical data read
- * 
+ *
  * @return 1 on success, else 0
  */
-uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, IRQn_Type readIr, TIM_HandleTypeDef* htim);
+uint8_t imu_Init(imu_Imu* imu,
+                 SPI_HandleTypeDef* hspi,
+                 GPIO_TypeDef* csPort,
+                 uint16_t csPin,
+                 IRQn_Type readIr,
+                 TIM_HandleTypeDef* htim);
 #else
 /**
  * @brief Initializes the MPU9250 IMU driver for sync (blocking) data retrieval.
  * @param imu - the IMU instance
  * @param hspi - the SPI handle for the IMU
- * 
+ *
  * @return 1 on success, else 0
  */
-uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi);
+uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint16_t csPin);
 #endif
 
 /**
@@ -163,7 +170,7 @@ uint8_t imu_NewDataAvailable(imu_Imu* imu);
 /**
  * @brief Returns a vector containing the gyro data.
  * @param imu - the IMU instance
- * 
+ *
  * @return the gyro data in °/s.
  */
 imu_Vec3 imu_ReadGyroData(imu_Imu* imu);
@@ -171,7 +178,7 @@ imu_Vec3 imu_ReadGyroData(imu_Imu* imu);
 /**
  * @brief Returns a vector containing the accelerometer data.
  * @param imu - the IMU instance
- * 
+ *
  * @return the accelerometer data in g's.
  */
 imu_Vec3 imu_ReadAccData(imu_Imu* imu);
@@ -179,7 +186,7 @@ imu_Vec3 imu_ReadAccData(imu_Imu* imu);
 /**
  * @brief Returns the temperature data.
  * @param imu - the IMU instance
- * 
+ *
  * @return the temperature in °C.
  */
 float imu_ReadTempData(imu_Imu* imu);

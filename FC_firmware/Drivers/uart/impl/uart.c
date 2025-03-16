@@ -29,7 +29,6 @@ uint8_t uart_Init(uart_Uart* uart, uart_UartInitParams uartInitParams) {
     uart->txBufferLength = uartInitParams.txBufferLength;
     uart->rxBufferLength = uartInitParams.rxBufferLength;
     uart->uartIr = uartInitParams.uartIr;
-    uart->txDmaIr = uartInitParams.txDmaIr;
 
     uart->txStartOfData = -1;
     uart->txEndOfData = uartInitParams.txBufferLength - 1;
@@ -74,7 +73,6 @@ uint8_t uart_Transmit(uart_Uart* uart, const char* data, const uint32_t size) {
     if (spaceTillBufferEnd >= size) {
         memcpy((void*) uart->txCircularBuffer + uart->txEndOfData + 1, (const void*) data, size);
         HAL_NVIC_DisableIRQ(uart->uartIr);
-        HAL_NVIC_DisableIRQ(uart->txDmaIr);
         if (uart->txStartOfData == -1) {
             if (uart->txInProgress) {
                 uart->txStartOfData = uart->txEndOfData + 1;
@@ -87,13 +85,11 @@ uint8_t uart_Transmit(uart_Uart* uart, const char* data, const uint32_t size) {
         }
         uart->txEndOfData = uart->txEndOfData + size;
         HAL_NVIC_EnableIRQ(uart->uartIr);
-        HAL_NVIC_EnableIRQ(uart->txDmaIr);
     } else {
         if (spaceTillBufferEnd > 0)
             memcpy((void*) uart->txCircularBuffer + uart->txEndOfData + 1, (const void*) data, spaceTillBufferEnd);
         memcpy((void*) uart->txCircularBuffer, (const void*) data + spaceTillBufferEnd, size - spaceTillBufferEnd);
         HAL_NVIC_DisableIRQ(uart->uartIr);
-        HAL_NVIC_DisableIRQ(uart->txDmaIr);
         if (uart->txStartOfData == -1) {
             if (spaceTillBufferEnd == 0) {
                 if (uart->txInProgress) {
@@ -120,7 +116,6 @@ uint8_t uart_Transmit(uart_Uart* uart, const char* data, const uint32_t size) {
             uart->txEndOfData = size - spaceTillBufferEnd - 1;
         }
         HAL_NVIC_EnableIRQ(uart->uartIr);
-        HAL_NVIC_EnableIRQ(uart->txDmaIr);
     }
 
     return ok;
@@ -143,6 +138,10 @@ uart_ReceiveStatus uart_Receive(uart_Uart* uart, char* data, uint32_t maxSize) {
                 uart->rxStartOfData = 0;
         }
         if (status.eomReached == 1) {
+            break;
+        }
+
+        if (i >= maxSize) {
             break;
         }
 

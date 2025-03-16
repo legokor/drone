@@ -3,25 +3,25 @@
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
     void* tmp = (void*) huart;
-    _INT_TRIGGER_CBS(INT_UART_RX_CPLT, tmp);
+    _int_triggerCbs(INT_UART_RX_CPLT, tmp);
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
     void* tmp = (void*) huart;
-    _INT_TRIGGER_CBS(INT_UART_TX_CPLT, tmp);
+    _int_triggerCbs(INT_UART_TX_CPLT, tmp);
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef* hspi) {
     void* tmp = (void*) hspi;
-    _INT_TRIGGER_CBS(INT_SPI_TX_CPLT, tmp);
+    _int_triggerCbs(INT_SPI_TX_CPLT, tmp);
 }
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef* hspi) {
     void* tmp = (void*) hspi;
-    _INT_TRIGGER_CBS(INT_SPI_RX_CPLT, tmp);
+    _int_triggerCbs(INT_SPI_RX_CPLT, tmp);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
-	void* tmp = (void*) htim;
-	_INT_TRIGGER_CBS(INT_TIM_PERIOD_ELAPSED, tmp);
+    void* tmp = (void*) htim;
+    _int_triggerCbs(INT_TIM_PERIOD_ELAPSED, tmp);
 }

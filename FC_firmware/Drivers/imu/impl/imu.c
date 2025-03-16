@@ -1,29 +1,31 @@
 #include "imu/imu.h"
-#include "imu/impl/imu_registers.h"
-#include "log/log.h"
-#include "int/int.h"
 #include <string.h>
+#include "imu/impl/imu_registers.h"
+#include "int/int.h"
+#include "log/log.h"
 
 #define _IMU_SPI_TIMEOUT 3
 
 #ifdef ASYNC_IMU
 void _imu_SpiTransmitCpltCallback(void* context) {
-	imu_Imu* imu = (imu_Imu*) context;
+    imu_Imu* imu = (imu_Imu*) context;
     HAL_SPI_Receive_DMA(imu->hspi, (uint8_t*) imu->imuBuffer, 14);
 }
 void _imu_SpiReceiveCpltCallback(void* context) {
     imu_Imu* imu = (imu_Imu*) context;
     memcpy((void*) imu->imuData, (void*) imu->imuBuffer, 14);
     imu->readInProgress = 0;
+    HAL_GPIO_WritePin(imu->csPort, imu->csPin, 1);
     imu->newData = 1;
 }
 
 void _imu_TimPeriodElapsedCallback(void* context) {
     imu_Imu* imu = (imu_Imu*) context;
-    if (!imu->readEnabled)
+    if (!imu->readEnabled || imu->readInProgress)
         return;
+    HAL_GPIO_WritePin(imu->csPort, imu->csPin, 0);
     imu->readInProgress = 1;
-    imu->readMemAddress = IMU_ACCEL_XOUT_H;
+    imu->readMemAddress = IMU_ACCEL_XOUT_H | 0x80;
     HAL_SPI_Transmit_IT(imu->hspi, &imu->readMemAddress, 1);
 }
 
@@ -43,6 +45,7 @@ static uint8_t _imu_WriteBlocking(imu_Imu* imu, uint8_t regAddress, uint8_t data
 #endif
     uint8_t txData[] = { regAddress, data };
     uint8_t ok = 0;
+    HAL_GPIO_WritePin(imu->csPort, imu->csPin, 0);
     while (1) {
         HAL_StatusTypeDef status = HAL_SPI_Transmit(imu->hspi, txData, 2, _IMU_SPI_TIMEOUT);
         if (status != HAL_BUSY) {
@@ -50,6 +53,7 @@ static uint8_t _imu_WriteBlocking(imu_Imu* imu, uint8_t regAddress, uint8_t data
             break;
         }
     }
+    HAL_GPIO_WritePin(imu->csPort, imu->csPin, 1);
 #ifdef ASYNC_IMU
     imu->readEnabled = 1;
 #endif
@@ -63,6 +67,8 @@ static uint8_t _imu_ReadBlocking(imu_Imu* imu, uint8_t regAddress, uint8_t numBy
     }
 #endif
     uint8_t ok = 0;
+    regAddress |= 0x80;
+    HAL_GPIO_WritePin(imu->csPort, imu->csPin, 0);
     while (1) {
         HAL_StatusTypeDef status = HAL_SPI_Transmit(imu->hspi, &regAddress, 1, _IMU_SPI_TIMEOUT);
         if (status != HAL_BUSY) {
@@ -73,6 +79,7 @@ static uint8_t _imu_ReadBlocking(imu_Imu* imu, uint8_t regAddress, uint8_t numBy
     if (ok) {
         ok = HAL_SPI_Receive(imu->hspi, (uint8_t*) buffer, numBytes, _IMU_SPI_TIMEOUT * numBytes) == HAL_OK;
     }
+    HAL_GPIO_WritePin(imu->csPort, imu->csPin, 1);
 #ifdef ASYNC_IMU
     imu->readEnabled = 1;
 #endif
@@ -80,15 +87,22 @@ static uint8_t _imu_ReadBlocking(imu_Imu* imu, uint8_t regAddress, uint8_t numBy
 }
 
 #ifdef ASYNC_IMU
-uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, IRQn_Type readIr, TIM_HandleTypeDef* htim) {
+uint8_t imu_Init(imu_Imu* imu,
+                 SPI_HandleTypeDef* hspi,
+                 GPIO_TypeDef* csPort,
+                 uint16_t csPin,
+                 IRQn_Type readIr,
+                 TIM_HandleTypeDef* htim) {
     imu->readIr = readIr;
     imu->newData = 0;
     imu->readEnabled = 0;
     imu->readInProgress = 0;
 #else
-uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi) {
+uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint16_t csPin) {
 #endif
     imu->hspi = hspi;
+    imu->csPort = csPort;
+    imu->csPin = csPin;
 
     imu->gyroOffsetX = imu->gyroOffsetY = imu->gyroOffsetZ = 0;
     imu->useGyroOffsets = 0;
@@ -138,7 +152,7 @@ void imu_EnableGyroOffsetSubtraction(imu_Imu* imu, uint8_t enabled) {
 uint8_t imu_DetectImu(imu_Imu* imu) {
     uint8_t whoAmI;
     _imu_ReadBlocking(imu, IMU_WHO_AM_I_MPU9250, 1, &whoAmI);
-    return whoAmI == 0x71;
+    return whoAmI == 0x73;
 }
 
 void imu_SetDefaultSettings(imu_Imu* imu) {

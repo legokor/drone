@@ -4,8 +4,7 @@
 {% if struct -%}
 typedef struct {{name}}_{{Name}} {
 } {{name}}_{{Name}};
-{%- endif %}
-
+{% endif %}
 {% if init -%}
 void {{name}}_Init(
     {%- if struct -%} {{name}}_{{Name}}* {{name}}

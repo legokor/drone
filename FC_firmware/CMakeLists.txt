@@ -12,6 +12,7 @@ endif()
 
 # Set the project name
 set(CMAKE_PROJECT_NAME FC_firmware)
+set(CMAKE_BINARY_DIR build/)
 
 # Include toolchain file
 include("cmake/gcc-arm-none-eabi.cmake")
@@ -30,7 +31,12 @@ enable_language(C ASM)
 add_executable(${CMAKE_PROJECT_NAME})
 
 # Add STM32CubeMX generated sources
-add_subdirectory(cmake/stm32cubemx)
+add_subdirectory(cmake/stm32cubemx build/stm32cubemx)
+
+# CMSIS DSP
+set(CMSISCORE ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS) # /Device/ST/STM32F4xx)
+set(CMSISDSP ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/DSP)
+add_subdirectory(${CMSISDSP}/Source build/cmsis_dsp)
 
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
@@ -74,4 +80,5 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
+    CMSISDSP
 )

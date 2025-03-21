@@ -1,0 +1,3 @@
+[submodule "FC_firmware/Drivers/CMSIS/DSP"]
+	path = FC_firmware/Drivers/CMSIS/DSP
+	url = https://github.com/ARM-software/CMSIS-DSP

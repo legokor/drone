@@ -18,7 +18,10 @@ build.ninja
 Makefile
 cmake_install.cmake
 
-/FC_firmware.map
-/FC_firmware.elf
+# results
+*.map
+*.elf
+*.bin
+*.a
 
 /.vscode

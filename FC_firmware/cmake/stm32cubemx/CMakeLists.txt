@@ -6,8 +6,8 @@ add_library(stm32cubemx INTERFACE)
 # Enable CMake support for ASM and C languages
 enable_language(C ASM)
 
-target_compile_definitions(stm32cubemx INTERFACE 
-	USE_HAL_DRIVER 
+target_compile_definitions(stm32cubemx INTERFACE
+	USE_HAL_DRIVER
 	STM32F446xx
     $<$<CONFIG:Debug>:DEBUG>
 )

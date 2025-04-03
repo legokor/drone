@@ -32,7 +32,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g3")
 endif()
 if(CMAKE_BUILD_TYPE MATCHES Release)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Os -g0 -lto")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Os -g0")
 endif()
 
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp -MMD -MP")
@@ -46,3 +46,7 @@ set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,--start-group -lc -lm -Wl,--en
 set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,--print-memory-usage")
 
 set(CMAKE_CXX_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group")
+
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    set(CMAKE_CXX_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -lto")
+endif()

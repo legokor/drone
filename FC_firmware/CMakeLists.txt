@@ -34,7 +34,7 @@ add_executable(${CMAKE_PROJECT_NAME})
 add_subdirectory(cmake/stm32cubemx build/stm32cubemx)
 
 # CMSIS DSP
-set(CMSISCORE ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS) # /Device/ST/STM32F4xx)
+set(CMSISCORE ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS)
 set(CMSISDSP ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/DSP)
 add_subdirectory(${CMSISDSP}/Source build/cmsis_dsp)
 

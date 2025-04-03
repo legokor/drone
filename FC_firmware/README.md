@@ -2,34 +2,46 @@
 
 ## Building
 
-```bash
+```sh
 cmake .
 make
-arm-none-eabi-objcopy -O binary FC_firmware.elf FC_firmware.bin
-st-flash write FC_firmware.bin 0x8000000
 ```
+
+### Dependencies
+
+- `cmake`
+- `make`
+- `arm-none-eabi-gcc`
+- `arm-none-eabi-binutils`
+
+On Linux / [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) (recommended) install dependencies with system package manager. On Windows (not recommended), [`MSYS2`](https://www.msys2.org/) is probably the best option.
 
 ## Uploading
 
+[stlink](https://github.com/stlink-org/stlink/) is recommended for flashing / debugging.
+
 ```bash
-arm-none-eabi-objcopy -O binary FC_firmware.elf FC_firmware.bin
 st-flash write FC_firmware.bin 0x8000000
 ```
 
 ## Debugging
 
+### gdb
+
 Start the server (after flashing):
-```bash
+```sh
 st-util
 ```
+Connect to the server from a separate shell:
 
-```bash
+```sh
 arm-none-eabi-gdb FC_firmware.elf -q -ex 'tar ext :4242'
 ```
 
 ### VSCode
 
-`launch.json`:
+Install the `cortex-debug` extension, then you can use the following [`launch.json`](.vscode/launch.json):
+
 ```json
 {
     "version": "0.2.0",

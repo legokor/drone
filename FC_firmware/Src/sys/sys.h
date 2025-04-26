@@ -1,7 +1,6 @@
 #ifndef SYS_H
 #define SYS_H
 
-#include "acc/acc.h"
 #include "bar/bar.h"
 #include "esc/esc.h"
 #include "gps/gps.h"
@@ -22,7 +21,6 @@
 typedef struct sys_System {
     gps_Gps gps;
     mag_Mag mag;
-    acc_Acc acc;
     imu_Imu imu;
     bar_Bar bar;
     lora_Lora lora;

@@ -1,6 +1,14 @@
 # Drone firmware
 
-## Building
+- [Building on linux](#building-on-linux)
+  - [Dependencies](#dependencies)
+  - [Uploading](#uploading)
+  - [Debugging](#debugging)
+    - [gdb](#gdb)
+    - [VSCode](#vscode)
+- [Building on Windows](#building-on-windows)
+
+## Building on linux
 
 ```sh
 cmake .
@@ -14,9 +22,7 @@ make
 - `arm-none-eabi-gcc`
 - `arm-none-eabi-binutils`
 
-On Linux / [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) (recommended) install dependencies with system package manager. On Windows (not recommended), [`MSYS2`](https://www.msys2.org/) is probably the best option.
-
-## Uploading
+### Uploading
 
 [stlink](https://github.com/stlink-org/stlink/) is recommended for flashing / debugging.
 
@@ -24,21 +30,23 @@ On Linux / [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) (recomme
 st-flash write FC_firmware.bin 0x8000000
 ```
 
-## Debugging
+### Debugging
 
-### gdb
+#### gdb
 
 Start the server (after flashing):
+
 ```sh
 st-util
 ```
+
 Connect to the server from a separate shell:
 
 ```sh
 arm-none-eabi-gdb FC_firmware.elf -q -ex 'tar ext :4242'
 ```
 
-### VSCode
+#### VSCode
 
 Install the `cortex-debug` extension, then you can use the following [`launch.json`](.vscode/launch.json):
 
@@ -47,15 +55,46 @@ Install the `cortex-debug` extension, then you can use the following [`launch.js
     "version": "0.2.0",
     "configurations": [
         {
-            "cwd": "${workspaceFolder}",
-            "executable": "${workspaceFolder}/FC_firmware.elf",
-            "name": "Debug with ST-Util",
+            "name": "Debug firmware with ST-Util",
             "request": "launch",
             "type": "cortex-debug",
+            "executable": "${workspaceFolder}/FC_firmware.elf",
+            "servertype": "stutil",
+            "cwd": "${workspaceFolder}",
             "runToEntryPoint": "main",
             "showDevDebugOutput": "none",
-            "servertype": "stutil"
         },
     ]
 }
 ```
+
+## Building on Windows
+
+> Note: Keeping this section up to date will be done on a best-effort basis, as Linux is the recommended platform for this project.
+<!-- comment to separate block quotes -->
+> Note: You can imitate linux with [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and proceed like in the [linux section](#building-on-linux). You can also use [MSYS2](https://www.msys2.org/) to achieve the same thing.
+
+Use [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html) as an IDE. You need [CMake](https://cmake.org/), [Ninja](https://ninja-build.org/) and the [Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm/) for building.
+
+Use the following commands in CMD / PowerShell ([Windows Terminal](https://github.com/microsoft/terminal/) is recommended):
+
+```ps
+winget install -e --id Arm.GnuArmEmbeddedToolchain
+winget install -e --id Ninja-build.Ninja
+winget install -e --id Kitware.CMake
+
+# recommended
+winget install -e --id Git.Git
+winget install -e --id Microsoft.WindowsTerminal
+```
+
+After installation you need to generate build files for CubeIDE:
+
+> Note: CMake reports this generator as deprecated.
+
+```ps
+cmake . -G "Eclipse CDT4 - Ninja"
+```
+
+<!-- TODO: document importing + launch config -->
+You can then import the project into CubeIDE. You can create a launch config to make building / debugging easier.

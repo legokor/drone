@@ -18,6 +18,12 @@ build.ninja
 Makefile
 cmake_install.cmake
 
+# STM32CubeIDE / CMake windows
+.cproject
+.project
+.ninja*
+*.launch
+
 # results
 *.map
 *.elf

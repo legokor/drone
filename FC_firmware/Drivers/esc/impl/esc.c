@@ -2,5 +2,5 @@
 #include "log/log.h"
 
 void esc_Init(esc_Esc* esc) {
-    log_Debug("Initalizing esc...");
+    log_Debug("Initializing esc...");
 }

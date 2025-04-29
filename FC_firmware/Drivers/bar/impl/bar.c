@@ -78,19 +78,23 @@
 // }
 
 // void bar_SetPressureMeasurementRate(bar_Bar* bar, uint8_t r) {
-//     _spi_write_bits(bar->hspi, _bar_REG__PRS_CFG, r, _bar_REG__PRS_CFG__RATE__OFFSET, _bar_REG__PRS_CFG__RATE__LENGTH);
+//     _spi_write_bits(bar->hspi, _bar_REG__PRS_CFG, r, _bar_REG__PRS_CFG__RATE__OFFSET,
+//     _bar_REG__PRS_CFG__RATE__LENGTH);
 // }
 
 // void bar_SetTemperatureMeasurementRate(bar_Bar* bar, uint8_t r) {
-//     _spi_write_bits(bar->hspi, _bar_REG__TMP_CFG, r, _bar_REG__TMP_CFG__RATE__OFFSET, _bar_REG__TMP_CFG__RATE__LENGTH);
+//     _spi_write_bits(bar->hspi, _bar_REG__TMP_CFG, r, _bar_REG__TMP_CFG__RATE__OFFSET,
+//     _bar_REG__TMP_CFG__RATE__LENGTH);
 // }
 
 // void bar_SetPressurePrecision(bar_Bar* bar, uint8_t p) {
-//     _spi_write_bits(bar->hspi, _bar_REG__PRS_CFG, p, _bar_REG__PRS_CFG__PREC__OFFSET, _bar_REG__PRS_CFG__PREC__LENGTH);
+//     _spi_write_bits(bar->hspi, _bar_REG__PRS_CFG, p, _bar_REG__PRS_CFG__PREC__OFFSET,
+//     _bar_REG__PRS_CFG__PREC__LENGTH);
 // }
 
 // void bar_SetTemperaturePrecision(bar_Bar* bar, uint8_t p) {
-//     _spi_write_bits(bar->hspi, _bar_REG__TMP_CFG, p, _bar_REG__TMP_CFG__PREC__OFFSET, _bar_REG__TMP_CFG__PREC__LENGTH);
+//     _spi_write_bits(bar->hspi, _bar_REG__TMP_CFG, p, _bar_REG__TMP_CFG__PREC__OFFSET,
+//     _bar_REG__TMP_CFG__PREC__LENGTH);
 // }
 
 // float bar_CalculateAltitude(uint32_t p, uint32_t t) {

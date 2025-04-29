@@ -74,9 +74,6 @@ void init_hardware() {
     htim3.Instance->CCR3 = 1000;
     htim3.Instance->CCR4 = 1000;
 
-    // uint8_t initSuccess = imu_Init(&sys_Instance.imu, &hspi2, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, &htim9);
-    // imu_SetDefaultSettings(&sys_Instance.imu);
-
     {
         uart_UartInitParams uartInitParams = { .huart = &huart1,
                                                .uartIr = USART1_IRQn,
@@ -86,13 +83,20 @@ void init_hardware() {
                                                .endOfMsgChar = '\n' };
         uart_Init(&sys_Instance.uart, uartInitParams);
     }
+    tel_Init();
+    log_Init();
+
+#define BARO_ESC_TEST
+
+#ifdef BARO_ESC_TEST
+    log_Info("Barometer and ESC test mode");
 
     uint8_t tmp[6] = { 0 };
 
     HAL_Delay(1000);
     _spi_ReadBlocking(DSP368_MEAS_CFG_REG, 1, tmp);
     const char* response = (tmp[0] & 0xc0) == 0xc0 ? "Hello, successful world!\r\n" : "Hello, failed world!\r\n";
-    uart_Transmit(&sys_Instance.uart, response, strlen(response));
+    log_Info(response);
 
     HAL_Delay(10);
     _spi_WriteBlocking(DSP368_MEAS_CFG_REG, 0x07);
@@ -105,7 +109,7 @@ void init_hardware() {
     char rxBuf[100];
     uint32_t rxSize = 0;
 
-    bool log = false;
+    bool log = true;
 
     while (1) {
         _spi_ReadBlocking(DSP368_PRS_DATA_REG, 6, tmp);
@@ -119,17 +123,14 @@ void init_hardware() {
             temperature |= 0xff000000;
         }
 
-        char buf[200];
-        sprintf(buf, "%ld,%ld\r\n", pressure, temperature);
         if (log)
-            uart_Transmit(&sys_Instance.uart, buf, strlen(buf));
+            log_Raw("%ld,%ld\r\n", pressure, temperature);
 
         uart_ReceiveStatus status = uart_Receive(&sys_Instance.uart, rxBuf + rxSize, sizeof(rxBuf) - 1 - rxSize);
         rxSize += status.size;
         if (status.eomReached) {
             rxBuf[rxSize] = '\0';
-            sprintf(buf, "Received: %s\r\n", rxBuf);
-            uart_Transmit(&sys_Instance.uart, buf, strlen(buf));
+            log_Info("Received: %s\r\n", rxBuf);
             int motorId = 0;
             int motorSpeed = 0;
             if (sscanf(rxBuf, "M%d %d", &motorId, &motorSpeed) == 2) {
@@ -163,26 +164,37 @@ void init_hardware() {
         HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
         HAL_Delay(50);
     }
+#else
+    log_Info("IMU test mode");
+    log_Debug("Initializing hardware...");
+
+    uint8_t initSuccess = imu_Init(&sys_Instance.imu, &hspi2, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, &htim9);
+    imu_SetDefaultSettings(&sys_Instance.imu);
+
+    log_Debug("Initialization %s", initSuccess ? "successful" : "failed");
+#endif
 }
 
 void init_modules() {
-    log_Debug("Initalizing software modules...");
-
-    //    tel_Init();
-    //    act_Init();
-    //    llc_Init();
-    //    guide_Init();
-    //    ctrl_Init();
-    //    dsp_Init();
+    log_Debug("Initializing software modules...");
 }
 
 void init() {
-    log_Debug("Initalizing...");
+    log_Debug("Initializing...");
 
     init_hardware();
+    HAL_Delay(10);
     init_modules();
 }
 
 void sys_Entry(void) {
     init();
+
+    while (1) {
+        imu_Vec3 acc = imu_ReadAccData(&sys_Instance.imu);
+        imu_Vec3 gyro = imu_ReadGyroData(&sys_Instance.imu);
+        float temp = imu_ReadTempData(&sys_Instance.imu);
+        log_Raw("%lf,%lf,%lf,%lf,%lf,%lf,%lf\r\n", acc.x, acc.y, acc.z, gyro.x, gyro.y, gyro.z, temp);
+        HAL_Delay(50);
+    }
 }

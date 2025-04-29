@@ -2,5 +2,5 @@
 #include "log/log.h"
 
 void ctrl_Init(void) {
-    log_Debug("Initalizing ctrl...");
+    log_Debug("Initializing ctrl...");
 }

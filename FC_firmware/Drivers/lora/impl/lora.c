@@ -2,5 +2,5 @@
 #include "log/log.h"
 
 void lora_Init(lora_Lora* lora) {
-    log_Debug("Initalizing lora...");
+    log_Debug("Initializing lora...");
 }

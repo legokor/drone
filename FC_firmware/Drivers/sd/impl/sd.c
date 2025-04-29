@@ -2,5 +2,5 @@
 #include "log/log.h"
 
 void sd_Init(sd_Sd* sd) {
-    log_Debug("Initalizing sd...");
+    log_Debug("Initializing sd...");
 }

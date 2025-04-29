@@ -2,5 +2,5 @@
 #include "log/log.h"
 
 void guide_Init(void) {
-    log_Debug("Initalizing guide...");
+    log_Debug("Initializing guide...");
 }

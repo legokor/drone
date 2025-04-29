@@ -107,6 +107,8 @@ uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, ui
     imu->gyroOffsetX = imu->gyroOffsetY = imu->gyroOffsetZ = 0;
     imu->useGyroOffsets = 0;
 
+    log_Debug("Initializing IMU...");
+
     uint8_t ok = 1;
 
     ok = ok && _imu_WriteBlocking(imu, IMU_USER_CTRL, 0x10); // Disable I2C and enable SPI
@@ -124,6 +126,11 @@ uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, ui
     int_SubscribeToInt(INT_SPI_TX_CPLT, _imu_SpiTransmitCpltCallback, imu, hspi);
     int_SubscribeToInt(INT_TIM_PERIOD_ELAPSED, _imu_TimPeriodElapsedCallback, imu, htim);
 #endif
+    if (ok) {
+        log_Debug("IMU initialized");
+    } else {
+        log_Error("IMU initialization failed");
+    }
     return ok;
 }
 

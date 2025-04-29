@@ -2,5 +2,5 @@
 #include "log/log.h"
 
 void rc_Init(rc_Rc* rc) {
-    log_Debug("Initalizing rc...");
+    log_Debug("Initializing rc...");
 }

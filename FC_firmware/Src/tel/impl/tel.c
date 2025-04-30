@@ -39,9 +39,9 @@ static void _tel_WriteBytes(const void* data, size_t len) {
     }
 }
 static void _tel_WriteMessage(tel_Topic topic, const void* data, size_t len, tel_DataType type) {
-    uint32_t t = utils_GetMsSinceStartup();
+    uint32_t t = HAL_GetTick();
 
-    _tel_WriteBytes(&t + 1, 3);
+    _tel_WriteBytes(&t, 4);
     _tel_WriteBytes(&type, 1);
     _tel_WriteBytes(&topic, 1);
     _tel_WriteBytes(data, len);
@@ -78,7 +78,7 @@ static uint8_t _tel_GetDataSize(tel_DataType type) {
     }
 }
 
-void tel_WriteArray(tel_Topic topic, void* arr, uint8_t len, tel_DataType type) {
+void tel_WriteArray(tel_Topic topic, const void* arr, uint8_t len, tel_DataType type) {
     _tel_WriteMessage(topic, arr, len * _tel_GetDataSize(type), Array);
 }
 

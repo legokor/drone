@@ -37,7 +37,7 @@
  *   +-----+----------------+----------+--------------+
  *   | Idx | Name           | Type     | Size (bytes) |
  *   +-----+----------------+----------+--------------+
- *   |  0  | timestamp (us) | uint     | 3           |
+ *   |  0  | timestamp (us) | uint     | 4            |
  *   +-----+----------------+----------+--------------+
  *   |  1  | datatype       | uint     | 1            |
  *   +-----+----------------+----------+--------------+
@@ -85,7 +85,7 @@ void tel_WriteFloat(tel_Topic topic, double d);
 void tel_WriteChar(tel_Topic topic, char c);
 void tel_WriteBoolean(tel_Topic topic, bool b);
 
-void tel_WriteArray(tel_Topic topic, void* arr, uint8_t len, tel_DataType type);
+void tel_WriteArray(tel_Topic topic, const void* arr, uint8_t len, tel_DataType type);
 
 void tel_WriteString(tel_Topic topic, const char* str);
 

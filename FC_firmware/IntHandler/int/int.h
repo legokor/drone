@@ -6,11 +6,12 @@
 typedef enum {
     INT_UART_TX_CPLT = 0,
     INT_UART_RX_CPLT,
+    INT_UART_RX_EVENT,
 
     INT_SPI_TX_CPLT,
     INT_SPI_RX_CPLT,
 
-	INT_TIM_PERIOD_ELAPSED,
+    INT_TIM_PERIOD_ELAPSED,
 
     INT_EVENT_TYPE_COUNT
 } int_IntEventType;

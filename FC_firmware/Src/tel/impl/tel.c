@@ -48,7 +48,7 @@ static void _tel_WriteBytes(const void* data, size_t len) {
 }
 
 static void _tel_WriteMessage(tel_Topic topic, const void* data, size_t len, tel_DataType type) {
-    // uint32_t t = utils_GetMsSinceStartup();	// TODO: uncomment this when the telemetry software is ready
+    // uint32_t t = utils_GetMsSinceStartup(); // TODO: uncomment this when the telemetry software is ready
     // _tel_WriteBytes(&t, 4);
     // _tel_WriteBytes(&type, 1);
     // _tel_WriteBytes(&topic, 1);

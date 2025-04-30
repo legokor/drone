@@ -11,6 +11,12 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
     _int_triggerCbs(INT_UART_TX_CPLT, tmp);
 }
 
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t pos) {
+    UNUSED(pos);
+    void* tmp = (void*) huart;
+    _int_triggerCbs(INT_UART_RX_EVENT, tmp);
+}
+
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef* hspi) {
     void* tmp = (void*) hspi;
     _int_triggerCbs(INT_SPI_TX_CPLT, tmp);

@@ -54,20 +54,20 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LORA_RST_Pin|STATUS_LED_Pin|IMU_CS_Pin|BAR_CS_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PtPin */
+  /*Configure GPIO pin : LORA_IRQN_Pin */
   GPIO_InitStruct.Pin = LORA_IRQN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(LORA_IRQN_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PCPin PCPin PCPin PCPin */
+  /*Configure GPIO pins : LORA_RST_Pin STATUS_LED_Pin IMU_CS_Pin BAR_CS_Pin */
   GPIO_InitStruct.Pin = LORA_RST_Pin|STATUS_LED_Pin|IMU_CS_Pin|BAR_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
+  /*Configure GPIO pin : IMU_IRQN_Pin */
   GPIO_InitStruct.Pin = IMU_IRQN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;

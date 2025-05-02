@@ -8,47 +8,51 @@
 #define RC_SBUS_CH18_MASK 0x02
 #define RC_SBUS_LOST_FRAME_MASK 0x10
 #define RC_SBUS_FAILSAFE_MASK 0x20
+#define RC_SBUS_FRAME_START 0x0F
+#define RC_SBUS_FRAME_END 0x00
+#define RC_SBUS_MIN_TIME_BETWEEN_FRAMES 6
 
-static void rc_HandleRxIdle(void* context) {
+static void _rc_HandleRxCplt(void* context) {
     rc_Rc* rc = (rc_Rc*) context;
-    uint8_t end = rc->huart->RxXferSize - rc->huart->RxXferCount;
-    uint8_t diff = end > rc->rxPreviousFrameEnd ? end - rc->rxPreviousFrameEnd
-                                                : RC_SBUS_BUFFER_SIZE - rc->rxPreviousFrameEnd + end;
-    rc->rxPreviousFrameEnd = end;
-    rc->rxLastValidFrameEnd = diff == RC_SBUS_FRAME_SIZE ? end : 0xff;
+    uint32_t currentTime = HAL_GetTick();
+    if (rc->state == RC_STATE_WAIT_FOR_START) {
+        if (currentTime - rc->lastFrameTime >= RC_SBUS_MIN_TIME_BETWEEN_FRAMES &&
+            rc->rxDataBuffer[0] == RC_SBUS_FRAME_START) {
+            rc->state = RC_STATE_RECEIVING;
+            HAL_UART_Receive_DMA(rc->huart, (uint8_t*) rc->rxDataBuffer + 1, RC_SBUS_FRAME_SIZE - 1);
+            __HAL_DMA_DISABLE_IT(rc->huart->hdmarx, DMA_IT_HT);
+        } else {
+            HAL_UART_Receive_IT(rc->huart, (uint8_t*) rc->rxDataBuffer, 1);
+            rc->frameValid = false;
+        }
+    } else if (rc->state == RC_STATE_RECEIVING) {
+        rc->frameValid = rc->rxDataBuffer[RC_SBUS_FRAME_SIZE - 1] == RC_SBUS_FRAME_END;
+        rc->state = RC_STATE_WAIT_FOR_START;
+        HAL_UART_Receive_IT(rc->huart, (uint8_t*) rc->rxDataBuffer, 1);
+    }
+    rc->lastFrameTime = currentTime;
 }
 
 void rc_Init(rc_Rc* rc, UART_HandleTypeDef* huart) {
     log_Debug("Initializing rc...");
 
     rc->huart = huart;
-    rc->rxLastValidFrameEnd = 0xff;
-    rc->rxPreviousFrameEnd = 0;
-    for (uint32_t i = 0; i < RC_SBUS_BUFFER_SIZE; i++) {
-        rc->rxDataBuffer[i] = 0;
-    }
+    rc->frameValid = false;
+    rc->lastFrameTime = HAL_GetTick();
+    rc->state = RC_STATE_WAIT_FOR_START;
 
-    int_SubscribeToInt(INT_UART_RX_EVENT, rc_HandleRxIdle, rc, huart);
+    int_SubscribeToInt(INT_UART_RX_CPLT, _rc_HandleRxCplt, rc, huart);
 
-    HAL_UARTEx_ReceiveToIdle_DMA(huart, (uint8_t*) rc->rxDataBuffer, RC_SBUS_BUFFER_SIZE);
-    __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT); // Disable half transfer interrupt
-    __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_TC); // Disable transfer complete interrupt
+    HAL_UART_Receive_IT(huart, (uint8_t*) rc->rxDataBuffer, 1);
 }
 
 bool rc_GetData(rc_Rc* rc, rc_RxPackage* data) {
-    uint8_t end = rc->rxLastValidFrameEnd;
-    if (end == 0xff) {
+    if (!rc->frameValid) {
         return false;
     }
 
-    uint8_t buffer[RC_SBUS_FRAME_SIZE + 1];
-    if (end >= RC_SBUS_FRAME_SIZE) {
-        memcpy(&buffer[1], (uint8_t*) rc->rxDataBuffer + end - RC_SBUS_FRAME_SIZE, RC_SBUS_FRAME_SIZE);
-    } else {
-        memcpy(&buffer[1], (uint8_t*) rc->rxDataBuffer + RC_SBUS_BUFFER_SIZE - RC_SBUS_FRAME_SIZE + end,
-               RC_SBUS_FRAME_SIZE - end);
-        memcpy(&buffer[1] + RC_SBUS_FRAME_SIZE - end, (uint8_t*) rc->rxDataBuffer, end);
-    }
+    uint8_t buffer[RC_SBUS_FRAME_SIZE];
+    memcpy(buffer, (uint8_t*) rc->rxDataBuffer, RC_SBUS_FRAME_SIZE);
 
     data->channels[0] = (buffer[1] | ((buffer[2] << 8) & 0x07FF));
     data->channels[1] = ((buffer[2] >> 3) | ((buffer[3] << 5) & 0x07FF));

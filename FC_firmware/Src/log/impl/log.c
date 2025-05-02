@@ -22,8 +22,15 @@ void _log_Write(log_LogLevel level, const char* format, va_list args) {
         _log_buf[4] = ']';
     }
 
-    int offs = level == log_NONE ? 0 : 5;
-    vsnprintf(_log_buf + offs, LOG_WRITE_BUF_SIZE - offs, format, args);
+    if (level == log_NONE) {
+        vsnprintf(_log_buf, LOG_WRITE_BUF_SIZE, format, args);
+    } else {
+        int ret = vsnprintf(_log_buf + 5, LOG_WRITE_BUF_SIZE - 7, format, args);
+        int nullTermIndex = ret < LOG_WRITE_BUF_SIZE - 7 ? ret + 5 : LOG_WRITE_BUF_SIZE - 3;
+        _log_buf[nullTermIndex] = '\r';
+        _log_buf[nullTermIndex + 1] = '\n';
+        _log_buf[nullTermIndex + 2] = '\0';
+    }
 
     tel_WriteString(LOG_TOPIC, _log_buf);
 }

@@ -10,13 +10,15 @@ typedef struct rc_RxPackage {
     bool failsafeActive;
 } rc_RxPackage;
 
-#define RC_SBUS_FRAME_SIZE 23
-#define RC_SBUS_BUFFER_SIZE (RC_SBUS_FRAME_SIZE * 3)
+#define RC_SBUS_FRAME_SIZE 25
+
+typedef enum { RC_STATE_WAIT_FOR_START, RC_STATE_RECEIVING } rc_SbusState;
 
 typedef struct rc_Rc {
-    volatile uint8_t rxDataBuffer[RC_SBUS_BUFFER_SIZE];
-    volatile uint8_t rxLastValidFrameEnd;
-    volatile uint8_t rxPreviousFrameEnd;
+    volatile uint8_t rxDataBuffer[RC_SBUS_FRAME_SIZE];
+    volatile bool frameValid;
+    uint32_t lastFrameTime;
+    rc_SbusState state;
     UART_HandleTypeDef* huart;
 } rc_Rc;
 

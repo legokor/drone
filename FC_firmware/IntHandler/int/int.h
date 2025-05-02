@@ -7,6 +7,7 @@ typedef enum {
     INT_UART_TX_CPLT = 0,
     INT_UART_RX_CPLT,
     INT_UART_RX_EVENT,
+    INT_UART_ERROR,
 
     INT_SPI_TX_CPLT,
     INT_SPI_RX_CPLT,

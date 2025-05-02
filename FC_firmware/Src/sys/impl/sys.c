@@ -51,16 +51,30 @@ static uint8_t _spi_ReadBlocking(uint8_t regAddress, uint8_t numBytes, volatile 
 }
 
 void init_hardware() {
+    {
+        uart_UartInitParams uartInitParams = { .huart = &huart1,
+                                               .uartIr = USART1_IRQn,
+                                               .txBufferLength = 256,
+                                               .rxBufferLength = 256,
+                                               .ignorableChars = "\r",
+                                               .endOfMsgChar = '\n' };
+        uart_Init(&sys_Instance.uart, uartInitParams);
+    }
+    tel_Init();
+    log_Init();
+
     log_Debug("Initalizing hardware...");
+
+    rc_Init(&sys_Instance.rc, &huart5);
 
     //    lora_Init(&sys_Instance.lora);
     //    sd_Init(&sys_Instance.sd);
-    //    rc_Init(&sys_Instance.rc);
     //    gps_Init(&sys_Instance.gps);
     //    mag_Init(&sys_Instance.mag);
     //    bar_Init(&sys_Instance.bar);
     //    esc_Init(&sys_Instance.esc);
     //    acc_Init(&sys_Instance.acc);
+
     HAL_TIM_Base_Start_IT(&htim9);
     HAL_GPIO_WritePin(IMU_CS_GPIO_Port, IMU_CS_Pin, 1);
     HAL_GPIO_WritePin(BAR_CS_GPIO_Port, BAR_CS_Pin, 1);
@@ -74,21 +88,26 @@ void init_hardware() {
     htim3.Instance->CCR3 = 1000;
     htim3.Instance->CCR4 = 1000;
 
-    {
-        uart_UartInitParams uartInitParams = { .huart = &huart1,
-                                               .uartIr = USART1_IRQn,
-                                               .txBufferLength = 256,
-                                               .rxBufferLength = 256,
-                                               .ignorableChars = "\r",
-                                               .endOfMsgChar = '\n' };
-        uart_Init(&sys_Instance.uart, uartInitParams);
-    }
-    tel_Init();
-    log_Init();
-
 #define BARO_ESC_TEST
+#define RC_TEST
 
-#ifdef BARO_ESC_TEST
+#ifdef RC_TEST
+    log_Info("RC test mode");
+
+    rc_RxPackage rcData = { 0 };
+    while (1) {
+        if (rc_GetData(&sys_Instance.rc, &rcData)) {
+            for (int i = 0; i < 18; i++) {
+                log_Raw("%d,", rcData.channels[i]);
+            }
+        } else {
+            log_Error("Failed to get RC data");
+        }
+        log_Raw("\r\n");
+        HAL_Delay(50);
+    }
+
+#elif defined(BARO_ESC_TEST)
     log_Info("Barometer and ESC test mode");
 
     uint8_t tmp[6] = { 0 };

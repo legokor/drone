@@ -88,7 +88,7 @@ void init_hardware() {
     htim3.Instance->CCR3 = 1000;
     htim3.Instance->CCR4 = 1000;
 
-#define BARO_ESC_TEST
+//#define BARO_ESC_TEST
 #define RC_TEST
 
 #ifdef RC_TEST

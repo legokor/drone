@@ -13,6 +13,8 @@
 
 void act_Init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t* channels[act_MOTOR_COUNT]);
 
-void act_SetMotorSpeed(uint8_t idx, uint16_t percent);
+void act_Arm(void);
+void act_Disarm(void);
+
 void act_SetMMX(float thrust, float yaw, float pitch, float roll);
 #endif // ACT_H

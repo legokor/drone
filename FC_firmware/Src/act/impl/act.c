@@ -1,7 +1,10 @@
 #include "act/act.h"
 #include "log/log.h"
 
+#include <stdbool.h>
 #include "arm_math.h"
+
+static bool act_Armed = false;
 
 typedef struct {
     TIM_HandleTypeDef* timer;
@@ -42,7 +45,9 @@ static void act_InitPwm(TIM_HandleTypeDef* timer, uint32_t channel) {
     timer->Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     timer->Init.CounterMode = TIM_COUNTERMODE_UP;
     timer->Init.Period = act_PWM_RANGE * 10;
-    timer->Init.Prescaler = 32 - 1; // 32 MHz clock
+
+    // TODO: this is for 32 mhz clock source
+    timer->Init.Prescaler = 32 - 1;
 
     if (HAL_TIM_Base_Init(timer) != HAL_OK) {
         Error_Handler();
@@ -76,7 +81,7 @@ static void act_InitPwm(TIM_HandleTypeDef* timer, uint32_t channel) {
     HAL_TIM_MspPostInit(timer);
 }
 
-void act_SetMotorSpeed(uint8_t idx, uint16_t percent) {
+static void act_SetMotorSpeed(uint8_t idx, uint16_t percent) {
     assert(idx < act_MOTOR_COUNT);
 
     act_Motor motor = act_Motors[idx];
@@ -87,6 +92,11 @@ void act_SetMotorSpeed(uint8_t idx, uint16_t percent) {
 
 void act_SetMMX(float thrust, float yaw, float pitch, float roll) {
     assert(act_MOTOR_COUNT == 4);
+
+    if (!act_Armed) {
+        act_Disarm();
+        return;
+    }
 
     float speed[act_MOTOR_COUNT] = {
         thrust + yaw + pitch + roll, //
@@ -101,8 +111,23 @@ void act_SetMMX(float thrust, float yaw, float pitch, float roll) {
     arm_clip_f32(tmp, speed, act_PWM_MIN, act_PWM_MAX, act_MOTOR_COUNT);
 
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
-        act_setMotorSpeed(i, speed[i]);
+        act_SetMotorSpeed(i, speed[i]);
     }
 
     // log_Debug("1:%d 2:%d 3:%d 4:%d\n", speed[0], speed[1], speed[2], speed[3]);
+}
+
+void act_Arm(void) {
+    assert_param(act_Armed == false);
+
+    act_Armed = true;
+}
+
+void act_Disarm(void) {
+    for (int i = 0; i < act_MOTOR_COUNT; i++) {
+        act_SetMotorSpeed(i, 0);
+    }
+
+    assert_param(act_Armed == false);
+    act_Armed = false;
 }

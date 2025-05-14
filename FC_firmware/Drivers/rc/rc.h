@@ -12,7 +12,7 @@ typedef struct rc_RxPackage {
 
 #define rc_SBUS_FRAME_SIZE 25
 
-typedef enum { RC_STATE_WAIT_FOR_START, RC_STATE_RECEIVING } rc_SbusState;
+typedef enum { rc_STATE_WAIT_FOR_START, rc_STATE_RECEIVING } rc_SbusState;
 
 typedef struct rc_Rc {
     UART_HandleTypeDef* huart;

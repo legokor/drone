@@ -14,7 +14,11 @@ Initalizes the other modules and runs the main loop.
 ### \[C\] High Level Control
 
 Switches between control modes.
-
+Modes:
+ - Idle
+ - RC remote control
+ - Soft landing (normal / abort)
+ - Waypoint
 
 ### \[RC\] Remote Control
 

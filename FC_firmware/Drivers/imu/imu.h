@@ -3,41 +3,42 @@
 
 #define ASYNC_IMU
 
+#include <stdbool.h>
 #include "stm32f4xx_hal.h"
+
+typedef struct imu_Vec3 {
+    float x, y, z;
+} imu_Vec3;
 
 /**
  * @brief MPU9250 IMU and compass IC I2C driver for the STM32 microcontroller.
  * The implementation heavily relies on the HAL STM32 drivers.
  */
-typedef struct {
+typedef struct imu_Imu {
     SPI_HandleTypeDef* hspi;
 
-    float accSensitivity;
-    float gyroSensitivity;
+    float accSensitivity, gyroSensitivity;
 
-    float gyroOffsetX, gyroOffsetY, gyroOffsetZ;
-    uint8_t useGyroOffsets;
+    imu_Vec3 gyroOffset;
+    bool useGyroOffsets;
 
     volatile uint8_t imuData[14];
-    uint8_t readMemAddress;
 
     GPIO_TypeDef* csPort;
     uint16_t csPin;
 
 #ifdef ASYNC_IMU
+    uint8_t readMemAddress;
+
     volatile uint8_t imuBuffer[14];
-    volatile uint8_t newData;
+    volatile bool newData;
 
     IRQn_Type readIr;
 
-    volatile uint8_t readEnabled;
-    volatile uint8_t readInProgress;
+    volatile bool readEnabled;
+    volatile bool readInProgress;
 #endif
 } imu_Imu;
-
-typedef struct {
-    float x, y, z;
-} imu_Vec3;
 
 #ifdef ASYNC_IMU
 /**
@@ -49,12 +50,12 @@ typedef struct {
  *
  * @return 1 on success, else 0
  */
-uint8_t imu_Init(imu_Imu* imu,
-                 SPI_HandleTypeDef* hspi,
-                 GPIO_TypeDef* csPort,
-                 uint16_t csPin,
-                 IRQn_Type readIr,
-                 TIM_HandleTypeDef* htim);
+bool imu_Init(imu_Imu* imu,
+              SPI_HandleTypeDef* hspi,
+              GPIO_TypeDef* csPort,
+              uint16_t csPin,
+              IRQn_Type readIr,
+              TIM_HandleTypeDef* htim);
 #else
 /**
  * @brief Initializes the MPU9250 IMU driver for sync (blocking) data retrieval.
@@ -63,7 +64,7 @@ uint8_t imu_Init(imu_Imu* imu,
  *
  * @return 1 on success, else 0
  */
-uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint16_t csPin);
+bool imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint16_t csPin);
 #endif
 
 /**
@@ -72,7 +73,7 @@ uint8_t imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, ui
  *
  * @return true, if the IMU (MPU9250) was detected.
  */
-uint8_t imu_DetectImu(imu_Imu* imu);
+bool imu_DetectImu(imu_Imu* imu);
 
 /**
  * @brief Sets the IMU to the default settings, which will suite most applications:
@@ -95,7 +96,7 @@ void imu_CalculateGyroOffset(imu_Imu* imu);
  * @param imu - the IMU instance
  * @param enabled - 1 to enable, 0 to disable
  */
-void imu_EnableGyroOffsetSubtraction(imu_Imu* imu, uint8_t enabled);
+void imu_EnableGyroOffsetSubtraction(imu_Imu* imu, bool enabled);
 
 /**
  * @brief Sets the sample rate divider.
@@ -110,14 +111,14 @@ void imu_SetSampleRateDivider(imu_Imu* imu, uint8_t divider);
  * @param imu - the IMU instance
  * @param enable - whether to enable the DLPF for the accelerometer.
  */
-void imu_EnableAccDLPF(imu_Imu* imu, uint8_t enable);
+void imu_EnableAccDLPF(imu_Imu* imu, bool enable);
 
 /**
  * @brief Enable DLPF for the gyro and temp sensors (set fchoice_b's to 0 -> fchoice's to 1).
  * @param imu - the IMU instance
  * @param enable - whether to enable the DLPF for the gyro and thermometer.
  */
-void imu_EnableGyroAndTempDLPF(imu_Imu* imu, uint8_t enable);
+void imu_EnableGyroAndTempDLPF(imu_Imu* imu, bool enable);
 
 /**
  * @brief Details about the values: https://invensense.tdk.com/wp-content/uploads/2015/02/RM-MPU-9250A-00-v1.6.pdf
@@ -164,7 +165,7 @@ void imu_SetAccSensitivity(imu_Imu* imu, uint8_t sensitivity);
  *
  * @return true, if new data is available (and clears the internal new data flag).
  */
-uint8_t imu_NewDataAvailable(imu_Imu* imu);
+bool imu_NewDataAvailable(imu_Imu* imu);
 #endif
 
 /**

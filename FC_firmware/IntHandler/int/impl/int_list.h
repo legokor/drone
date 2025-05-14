@@ -5,13 +5,15 @@
 
 #define _INT_MAX_SUBSCR_COUNT 10
 
-typedef struct {
+typedef struct _int_CallbackListEntry {
     int_CallbackFn cbFn;
+
+    // driver instance
     void* context;
+
+    // interrupt source handle (HAL)
     void* halHandle;
 } _int_CallbackListEntry;
-
-extern _int_CallbackListEntry _int_callbackList[INT_EVENT_TYPE_COUNT][_INT_MAX_SUBSCR_COUNT + 1];
 
 void _int_triggerCbs(int_IntEventType eventType, void* handle);
 

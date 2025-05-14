@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "stm32f4xx_hal.h"
 
-typedef struct {
+typedef struct uart_UartInitParams {
     UART_HandleTypeDef* huart;
     IRQn_Type uartIr;
     uint16_t txBufferLength;
@@ -13,7 +13,7 @@ typedef struct {
     char endOfMsgChar;          // end of message character, it is not included in the received data
 } uart_UartInitParams;
 
-typedef struct {
+typedef struct uart_Uart {
     UART_HandleTypeDef* huart;
     IRQn_Type uartIr;
     IRQn_Type txDmaIr;
@@ -33,7 +33,7 @@ typedef struct {
     char endOfMsgChar;
 } uart_Uart;
 
-typedef struct {
+typedef struct uart_ReceiveStatus {
     uint32_t size;
     uint8_t eomReached;
 } uart_ReceiveStatus;

@@ -16,7 +16,7 @@ typedef enum { rc_STATE_WAIT_FOR_START, rc_STATE_RECEIVING } rc_SbusState;
 
 typedef struct rc_Rc {
     UART_HandleTypeDef* huart;
-    IRQn_Type writeIr;
+    IRQn_Type writeIrq;
 
     // not volatile, becase we only access it from the interrupt
     uint8_t rxDMABuffer[rc_SBUS_FRAME_SIZE];

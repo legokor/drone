@@ -26,6 +26,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "usb_otg.h"
+#include "sys/sys.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

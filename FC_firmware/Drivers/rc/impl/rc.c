@@ -16,10 +16,10 @@ static void _rc_HandleRxCplt(void* context) {
     rc_Rc* rc = (rc_Rc*) context;
     uint32_t currentTime = HAL_GetTick();
 
-    if (rc->state == _rc_STATE_WAIT_FOR_START) {
+    if (rc->state == rc_STATE_WAIT_FOR_START) {
         if (currentTime - rc->lastFrameTime >= _rc_SBUS_MIN_TIME_BETWEEN_FRAMES &&
             rc->rxDMABuffer[0] == _rc_SBUS_FRAME_START) {
-            rc->state = _rc_STATE_RECEIVING;
+            rc->state = rc_STATE_RECEIVING;
 
             HAL_UART_Receive_DMA(rc->huart, (uint8_t*) rc->rxDMABuffer + 1, rc_SBUS_FRAME_SIZE - 1);
 
@@ -29,9 +29,9 @@ static void _rc_HandleRxCplt(void* context) {
             HAL_UART_Receive_IT(rc->huart, (uint8_t*) rc->rxDMABuffer, 1);
             rc->frameValid = false;
         }
-    } else if (rc->state == _rc_STATE_RECEIVING) {
+    } else if (rc->state == rc_STATE_RECEIVING) {
         rc->frameValid = rc->rxDMABuffer[rc_SBUS_FRAME_SIZE - 1] == _rc_SBUS_FRAME_END;
-        rc->state = _rc_STATE_WAIT_FOR_START;
+        rc->state = rc_STATE_WAIT_FOR_START;
 
         memcpy((uint8_t*) rc->rxDataBuffer, (uint8_t*) rc->rxDMABuffer, rc_SBUS_FRAME_SIZE);
 
@@ -46,7 +46,7 @@ void rc_Init(rc_Rc* rc, UART_HandleTypeDef* huart) {
 
     rc->huart = huart;
     rc->frameValid = false;
-    rc->state = _rc_STATE_WAIT_FOR_START;
+    rc->state = rc_STATE_WAIT_FOR_START;
     rc->lastFrameTime = HAL_GetTick();
 
     int_SubscribeToInt(INT_UART_RX_CPLT, _rc_HandleRxCplt, rc, huart);

@@ -130,7 +130,7 @@ bool imu_Init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint1
     imu->csPort = csPort;
     imu->csPin = csPin;
 
-    imu->gyroOffset = { 0, 0, 0 };
+    imu->gyroOffset = (imu_Vec3){ 0.0f, 0.0f, 0.0f };
     imu->useGyroOffsets = false;
 
     log_Debug("Initializing IMU...");
@@ -181,7 +181,7 @@ void imu_CalculateGyroOffset(imu_Imu* imu) {
     bool prevEnabled = imu->useGyroOffsets;
     imu->useGyroOffsets = false;
 
-    imu->gyroOffset = { 0, 0, 0 };
+    imu->gyroOffset = (imu_Vec3){ 0.0f, 0.0f, 0.0f };
     for (int p = 0; p < _imu_GyroOffsetSampleSize; p++) {
         imu_Vec3 res = imu_ReadGyroData(imu);
 
@@ -346,9 +346,9 @@ imu_Vec3 imu_ReadGyroData(imu_Imu* imu) {
                       z = z * imu->gyroSensitivity };
 
     if (imu->useGyroOffsets) {
-        data.x -= imu->gyroOffsetX;
-        data.y -= imu->gyroOffsetY;
-        data.z -= imu->gyroOffsetZ;
+        data.x -= imu->gyroOffset.x;
+        data.y -= imu->gyroOffset.y;
+        data.z -= imu->gyroOffset.z;
     }
 
     return data;

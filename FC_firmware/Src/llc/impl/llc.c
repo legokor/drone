@@ -2,5 +2,5 @@
 #include "log/log.h"
 
 void llc_Init(void) {
-    log_Debug("Initalizing llc...");
+    log_Debug("Initializing llc...");
 }

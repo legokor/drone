@@ -2,5 +2,5 @@
 #include "log/log.h"
 
 void act_Init(void) {
-    log_Debug("Initalizing act...");
+    log_Debug("Initializing act...");
 }

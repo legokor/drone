@@ -70,7 +70,7 @@
 
 typedef uint8_t tel_Topic;
 
-typedef enum tel_DataType { Ping, Integer, Float, Char, Boolean, Array } tel_DataType;
+typedef enum tel_DataType { tel_TYPE_PING, tel_TYPE_INTEGER, tel_TYPE_FLOAT, tel_TYPE_CHAR, tel_TYPE_BOOLEAN, tel_TYPE_ARRAY } tel_DataType;
 
 typedef void (*tel_WriteFn)(const void*, size_t);
 

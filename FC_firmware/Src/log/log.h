@@ -3,16 +3,16 @@
 
 #include "tel/tel.h"
 
-void log_Init(void);
+void log_init(void);
 
 typedef enum log_LogLevel { log_NONE, log_DEBUG, log_INFO, log_WARN, log_ERROR } log_LogLevel;
 
-void log_Write(log_LogLevel level, const char* format, ...);
+void log_write(log_LogLevel level, const char* format, ...);
 
-void log_Raw(const char* format, ...);
-void log_Debug(const char* format, ...);
-void log_Info(const char* format, ...);
-void log_Warn(const char* format, ...);
-void log_Error(const char* format, ...);
+void log_raw(const char* format, ...);
+void log_debug(const char* format, ...);
+void log_info(const char* format, ...);
+void log_warn(const char* format, ...);
+void log_error(const char* format, ...);
 
 #endif // LOG_H

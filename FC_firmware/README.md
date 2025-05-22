@@ -8,7 +8,7 @@ The code is modular and divided into modules.
 
 ### \[SYS\] System Core
 
-Initalizes the other modules and runs the main loop.
+Initializes the other modules and runs the main loop.
 
 
 ### \[C\] High Level Control

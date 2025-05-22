@@ -20,6 +20,6 @@ typedef enum int_IntEventType {
 
 typedef void (*int_CallbackFn)(void*);
 
-bool int_SubscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, void* context, void* halHandle);
+bool int_subscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, void* context, void* halHandle);
 
 #endif /* INT_INT_H_ */

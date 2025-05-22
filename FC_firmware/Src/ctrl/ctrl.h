@@ -11,9 +11,9 @@ typedef enum ctrl_Mode {
 
 } ctrl_Mode;
 
-void ctrl_Init(void);
+void ctrl_init(void);
 
-void ctrl_SetMode(ctrl_Mode mode);
-ctrl_Mode ctrl_GetMode(void);
+void ctrl_setMode(ctrl_Mode mode);
+ctrl_Mode ctrl_getMode(void);
 
 #endif // CTRL_H

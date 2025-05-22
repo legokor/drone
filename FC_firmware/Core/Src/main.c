@@ -28,7 +28,6 @@
 #include "usb_otg.h"
 #include "sys/sys.h"
 
-#include "arm_math.h"
 #include "sys/sys.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -113,7 +112,7 @@ int main(void) {
     MX_TIM9_Init();
     MX_USB_OTG_FS_PCD_Init();
     /* USER CODE BEGIN 2 */
-    sys_Entry();
+    sys_entry();
     /* USER CODE END 2 */
 
     /* Infinite loop */

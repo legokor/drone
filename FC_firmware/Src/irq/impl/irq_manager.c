@@ -5,7 +5,7 @@
 
 static _int_CallbackListEntry _int_callbackList[INT_EVENT_TYPE_COUNT][_int_MAX_SUBSCR_COUNT + 1] = { 0 };
 
-bool int_SubscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, void* context, void* halHandle) {
+bool int_subscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, void* context, void* halHandle) {
     if (eventType >= INT_EVENT_TYPE_COUNT)
         return false;
 
@@ -25,7 +25,7 @@ bool int_SubscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, v
     return false;
 }
 
-static void _int_triggerCbs(int_IntEventType eventType, void* handle) {
+void _int_triggerCbs(int_IntEventType eventType, void* handle) {
     _int_CallbackListEntry* eventCbList = _int_callbackList[eventType];
 
     for (uint32_t i = 0; eventCbList[i].cbFn != NULL; i++) {

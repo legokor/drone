@@ -4,6 +4,6 @@
 typedef struct usb_Usb {
 } usb_Usb;
 
-void usb_Init(usb_Usb* usb);
+void usb_init(usb_Usb* usb);
 
 #endif // USB_H

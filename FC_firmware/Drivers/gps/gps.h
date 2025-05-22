@@ -4,6 +4,6 @@
 typedef struct gps_Gps {
 } gps_Gps;
 
-void gps_Init(gps_Gps* gps);
+void gps_init(gps_Gps* gps);
 
 #endif // GPS_H

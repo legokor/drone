@@ -29,8 +29,8 @@ typedef struct rc_Rc {
     rc_SbusState state;
 } rc_Rc;
 
-void rc_Init(rc_Rc* rc, UART_HandleTypeDef* huart);
+void rc_init(rc_Rc* rc, UART_HandleTypeDef* huart);
 
-bool rc_GetData(rc_Rc* rc, rc_RxPackage* data);
+bool rc_getData(rc_Rc* rc, rc_RxPackage* data);
 
 #endif // RC_H

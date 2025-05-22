@@ -70,23 +70,30 @@
 
 typedef uint8_t tel_Topic;
 
-typedef enum tel_DataType { tel_TYPE_PING, tel_TYPE_INTEGER, tel_TYPE_FLOAT, tel_TYPE_CHAR, tel_TYPE_BOOLEAN, tel_TYPE_ARRAY } tel_DataType;
+typedef enum tel_DataType {
+    tel_TYPE_PING,
+    tel_TYPE_INTEGER,
+    tel_TYPE_FLOAT,
+    tel_TYPE_CHAR,
+    tel_TYPE_BOOLEAN,
+    tel_TYPE_ARRAY
+} tel_DataType;
 
 typedef void (*tel_WriteFn)(const void*, size_t);
 
-void tel_Init(void);
+void tel_init(void);
 
-void tel_AddSource(tel_WriteFn writeFn);
-void tel_RemoveSource(tel_WriteFn writeFn);
+void tel_addSource(tel_WriteFn writeFn);
+void tel_removeSource(tel_WriteFn writeFn);
 
-void tel_WritePing(tel_Topic topic);
-void tel_WriteInteger(tel_Topic topic, uint32_t i);
-void tel_WriteFloat(tel_Topic topic, double d);
-void tel_WriteChar(tel_Topic topic, char c);
-void tel_WriteBoolean(tel_Topic topic, bool b);
+void tel_writePing(tel_Topic topic);
+void tel_writeInteger(tel_Topic topic, uint32_t i);
+void tel_writeFloat(tel_Topic topic, double d);
+void tel_writeChar(tel_Topic topic, char c);
+void tel_writeBoolean(tel_Topic topic, bool b);
 
-void tel_WriteArray(tel_Topic topic, const void* arr, uint8_t len, tel_DataType type);
+void tel_writeArray(tel_Topic topic, const void* arr, uint8_t len, tel_DataType type);
 
-void tel_WriteString(tel_Topic topic, const char* str);
+void tel_writeString(tel_Topic topic, const char* str);
 
 #endif // TEL_H

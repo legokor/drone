@@ -13,17 +13,17 @@ typedef struct {
 
 static act_Motor act_Motors[4];
 
-static void act_InitMotor(act_Motor* motor, TIM_HandleTypeDef* timer, uint32_t channel);
+static void act_initMotor(act_Motor* motor, TIM_HandleTypeDef* timer, uint32_t channel);
 
-void act_Init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t* channels[act_MOTOR_COUNT]) {
-    log_Debug("Initializing act...");
+void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t* channels[act_MOTOR_COUNT]) {
+    log_debug("Initializing act...");
 
     for (uint i = 0; i < act_MOTOR_COUNT; i++) {
-        act_InitMotor(&act_Motors[i], timers[i], channels[i]);
+        act_initMotor(&act_Motors[i], timers[i], channels[i]);
     }
 }
 
-static void act_InitMotor(act_Motor* motor, TIM_HandleTypeDef* timer, uint32_t channel) {
+static void act_initMotor(act_Motor* motor, TIM_HandleTypeDef* timer, uint32_t channel) {
     motor->channel = channel;
     motor->timer = timer;
 
@@ -31,20 +31,20 @@ static void act_InitMotor(act_Motor* motor, TIM_HandleTypeDef* timer, uint32_t c
     HAL_TIM_PWM_Start(motor->timer, motor->channel);
 }
 
-static void act_SetMotorSpeed(uint8_t idx, uint16_t percent) {
+static void act_setMotorSpeed(uint8_t idx, uint16_t percent) {
     assert(idx < act_MOTOR_COUNT);
 
     act_Motor motor = act_Motors[idx];
     __HAL_TIM_SET_COMPARE(motor.timer, motor.channel, act_PWM_MIN + (percent * act_PWM_RANGE / 100));
 
-    // log_Debug("beallitva %d. motor\r\n", motor.number);
+    // log_debug("beallitva %d. motor\r\n", motor.number);
 }
 
-void act_SetMMX(float thrust, float yaw, float pitch, float roll) {
+void act_setMMX(float thrust, float yaw, float pitch, float roll) {
     assert(act_MOTOR_COUNT == 4);
 
     if (!act_Armed) {
-        act_Disarm();
+        act_disarm();
         return;
     }
 
@@ -61,22 +61,21 @@ void act_SetMMX(float thrust, float yaw, float pitch, float roll) {
     arm_clip_f32(tmp, speed, act_PWM_MIN, act_PWM_MAX, act_MOTOR_COUNT);
 
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
-        act_SetMotorSpeed(i, speed[i]);
+        act_setMotorSpeed(i, speed[i]);
     }
 
-    // log_Debug("1:%d 2:%d 3:%d 4:%d\n", speed[0], speed[1], speed[2], speed[3]);
+    // log_debug("1:%d 2:%d 3:%d 4:%d\n", speed[0], speed[1], speed[2], speed[3]);
 }
 
-void act_Arm(void) {
+void act_arm(void) {
     assert_param(act_Armed == false);
 
     act_Armed = true;
 }
 
-void act_Disarm(void) {
-    for (int i = 0; i < act_MOTOR_COUNT; i++) {
-        act_SetMotorSpeed(i, 0);
-    }
+void act_disarm(void) {
+    for (int i = 0; i < act_MOTOR_COUNT; i++)
+        act_setMotorSpeed(i, 0);
 
     assert_param(act_Armed == false);
     act_Armed = false;

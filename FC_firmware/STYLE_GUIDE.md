@@ -8,6 +8,7 @@
 
 ## Naming
 
-- functions, module variables: `module_functionName` - module prefix with camelCase
-- structs, enums: `module_StructName` - module prefix with PascalCase
+- functions, module variables: `module_memberName` - module prefix with camelCase
+- structs, unions, enums, enum members: `module_TypeName` - module prefix with PascalCase
 - struct members: `fieldName` - regular camelCase
+- macros: `module_MACRO_NAME` - module prefix with SCREAMING_SNAKE_CASE

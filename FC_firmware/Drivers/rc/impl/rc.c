@@ -12,7 +12,7 @@
 #define _rc_SBUS_FRAME_END 0x00
 #define _rc_SBUS_MIN_TIME_BETWEEN_FRAMES 6
 
-static void _rc_HandleRxCplt(void* context) {
+static void _rc_handleRxCplt(void* context) {
     rc_Rc* rc = (rc_Rc*) context;
     uint32_t currentTime = HAL_GetTick();
 
@@ -41,20 +41,20 @@ static void _rc_HandleRxCplt(void* context) {
     rc->lastFrameTime = currentTime;
 }
 
-void rc_Init(rc_Rc* rc, UART_HandleTypeDef* huart) {
-    log_Debug("Initializing rc...");
+void rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
+    log_debug("Initializing rc...");
 
     rc->huart = huart;
     rc->frameValid = false;
     rc->state = rc_STATE_WAIT_FOR_START;
     rc->lastFrameTime = HAL_GetTick();
 
-    int_SubscribeToInt(INT_UART_RX_CPLT, _rc_HandleRxCplt, rc, huart);
+    int_subscribeToInt(INT_UART_RX_CPLT, _rc_handleRxCplt, rc, huart);
 
     HAL_UART_Receive_IT(huart, (uint8_t*) rc->rxDataBuffer, 1);
 }
 
-bool rc_GetData(rc_Rc* rc, rc_RxPackage* data) {
+bool rc_getData(rc_Rc* rc, rc_RxPackage* data) {
     if (!rc->frameValid) {
         return false;
     }

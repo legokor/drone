@@ -9,6 +9,7 @@
 #include "tim.h"
 #include "usart.h"
 
+#include "bar/bar.h"
 #include "imu/imu.h"
 #include "log/log.h"
 #include "rc/rc.h"
@@ -21,10 +22,10 @@
 #define DSP368_PRS_DATA_REG 0x00
 #define DSP368_TMP_DATA_REG 0x03
 
-static imu_Imu _sys_ImuInstance;
-static rc_Rc _sys_RcInstance;
+static imu_Imu _sys_imuInstance;
+static rc_Rc _sys_rcInstance;
 
-static bool _spi_WriteBlocking(uint8_t regAddress, uint8_t data) {
+static bool _spi_writeBlocking(uint8_t regAddress, uint8_t data) {
     uint8_t txData[] = { regAddress, data };
     bool ok = false;
 
@@ -44,7 +45,7 @@ static bool _spi_WriteBlocking(uint8_t regAddress, uint8_t data) {
     return ok;
 }
 
-static bool _spi_ReadBlocking(uint8_t regAddress, uint8_t numBytes, volatile uint8_t* buffer) {
+static bool _spi_readBlocking(uint8_t regAddress, uint8_t numBytes, volatile uint8_t* buffer) {
     regAddress |= 0x80;
     HAL_GPIO_WritePin(BAR_CS_GPIO_Port, BAR_CS_Pin, 0);
 
@@ -68,20 +69,20 @@ static bool _spi_ReadBlocking(uint8_t regAddress, uint8_t numBytes, volatile uin
 }
 
 void init_hardware() {
-    uart_Init(&sys_UartInstance, (uart_UartInitParams) //
+    uart_init(&sys_uartInstance, (uart_UartInitParams) //
               { .huart = &huart1,
-                .uartIr = USART1_IRQn,
+                .uartIrq = USART1_IRQn,
                 .txBufferLength = 256,
                 .rxBufferLength = 256,
                 .ignorableChars = "\r",
                 .endOfMsgChar = '\n' });
 
-    tel_Init();
-    log_Init();
+    tel_init();
+    log_init();
 
-    log_Debug("Initalizing hardware...");
+    log_debug("Initalizing hardware...");
 
-    rc_Init(&_sys_RcInstance, &huart5);
+    rc_init(&_sys_rcInstance, &huart5);
 
     HAL_TIM_Base_Start_IT(&htim9);
     HAL_GPIO_WritePin(IMU_CS_GPIO_Port, IMU_CS_Pin, 1);
@@ -101,39 +102,39 @@ void init_hardware() {
 #define RC_TEST
 
 #ifdef RC_TEST
-    log_Info("RC test mode");
+    log_info("RC test mode");
 
     rc_RxPackage rcData = { 0 };
     while (true) {
-        if (rc_GetData(&_sys_RcInstance, &rcData)) {
+        if (rc_getData(&_sys_rcInstance, &rcData)) {
             for (int i = 0; i < 18; i++)
-                log_Raw("%d,", rcData.channels[i]);
+                log_raw("%d,", rcData.channels[i]);
         } else
-            log_Error("Failed to get RC data");
+            log_error("Failed to get RC data");
 
-        log_Raw("\r\n");
+        log_raw("\r\n");
         HAL_Delay(50);
     }
 
 #elif defined(BARO_ESC_TEST)
-    log_Info("Barometer and ESC test mode");
+    log_info("Barometer and ESC test mode");
 
     uint8_t tmp[6] = { 0 };
 
     HAL_Delay(1000);
 
-    _spi_ReadBlocking(DSP368_MEAS_CFG_REG, 1, tmp);
+    _spi_readBlocking(DSP368_MEAS_CFG_REG, 1, tmp);
     const char* response = (tmp[0] & 0xc0) == 0xc0 ? "Hello, successful world!\r\n" : "Hello, failed world!\r\n";
-    log_Info(response);
+    log_info(response);
     HAL_Delay(10);
 
-    _spi_WriteBlocking(DSP368_MEAS_CFG_REG, 0x07);
+    _spi_writeBlocking(DSP368_MEAS_CFG_REG, 0x07);
     HAL_Delay(10);
 
-    _spi_WriteBlocking(DSP368_PRS_CFG_REG, 0x36);
+    _spi_writeBlocking(DSP368_PRS_CFG_REG, 0x36);
     HAL_Delay(10);
 
-    _spi_WriteBlocking(DSP368_TMP_CFG_REG, 0xa0);
+    _spi_writeBlocking(DSP368_TMP_CFG_REG, 0xa0);
     HAL_Delay(10);
 
     char rxBuf[100];
@@ -142,7 +143,7 @@ void init_hardware() {
     bool log = true;
 
     while (1) {
-        _spi_ReadBlocking(DSP368_PRS_DATA_REG, 6, tmp);
+        _spi_readBlocking(DSP368_PRS_DATA_REG, 6, tmp);
 
         int32_t pressure = (tmp[0] << 16) | (tmp[1] << 8) | tmp[2];
         if (pressure & 0x800000) {
@@ -154,16 +155,18 @@ void init_hardware() {
             temperature |= 0xff000000;
         }
 
-        if (log)
-            log_Raw("%ld,%ld\r\n", pressure, temperature);
+        if (log) {
+            int alt = bar_calculateAltitude(pressure, temperature);
+            log_raw("%ld,%ld,%ld\r\n", pressure, temperature, alt);
+        }
 
-        uart_ReceiveStatus status = uart_Receive(&sys_UartInstance, rxBuf + rxSize, sizeof(rxBuf) - 1 - rxSize);
+        uart_ReceiveStatus status = uart_receive(&sys_uartInstance, rxBuf + rxSize, sizeof(rxBuf) - 1 - rxSize);
         rxSize += status.size;
 
         if (status.eomReached) {
             rxBuf[rxSize] = '\0';
 
-            log_Info("Received: %s\r\n", rxBuf);
+            log_info("Received: %s\r\n", rxBuf);
 
             int motorId = 0;
             int motorSpeed = 0;
@@ -199,37 +202,37 @@ void init_hardware() {
         HAL_Delay(50);
     }
 #else
-    log_Info("IMU test mode");
-    log_Debug("Initializing hardware...");
+    log_info("IMU test mode");
+    log_debug("Initializing hardware...");
 
-    uint8_t initSuccess = imu_Init(&_sys_ImuInstance, &hspi2, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, &htim9);
-    imu_SetDefaultSettings(&_sys_ImuInstance);
+    uint8_t initSuccess = imu_init(&_sys_imuInstance, &hspi2, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, &htim9);
+    imu_setDefaultSettings(&_sys_imuInstance);
 
-    log_Debug("Initialization %s", initSuccess ? "successful" : "failed");
+    log_debug("Initialization %s", initSuccess ? "successful" : "failed");
 #endif
 }
 
 void init_modules() {
-    log_Debug("Initializing software modules...");
+    log_debug("Initializing software modules...");
 }
 
 void init() {
-    log_Debug("Initializing...");
+    log_debug("Initializing...");
 
     init_hardware();
     HAL_Delay(10);
     init_modules();
 }
 
-void sys_Entry(void) {
+void sys_entry(void) {
     init();
 
     while (1) {
-        imu_Vec3 acc = imu_ReadAccData(&_sys_ImuInstance);
-        imu_Vec3 gyro = imu_ReadGyroData(&_sys_ImuInstance);
-        float temp = imu_ReadTempData(&_sys_ImuInstance);
+        imu_Vec3 acc = imu_readAccData(&_sys_imuInstance);
+        imu_Vec3 gyro = imu_readGyroData(&_sys_imuInstance);
+        float temp = imu_readTempData(&_sys_imuInstance);
 
-        log_Raw("%lf,%lf,%lf,%lf,%lf,%lf,%lf\r\n", acc.x, acc.y, acc.z, gyro.x, gyro.y, gyro.z, temp);
+        log_raw("%lf,%lf,%lf,%lf,%lf,%lf,%lf\r\n", acc.x, acc.y, acc.z, gyro.x, gyro.y, gyro.z, temp);
 
         HAL_Delay(50);
     }

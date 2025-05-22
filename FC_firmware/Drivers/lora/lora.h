@@ -4,6 +4,6 @@
 typedef struct lora_Lora {
 } lora_Lora;
 
-void lora_Init(lora_Lora* lora);
+void lora_init(lora_Lora* lora);
 
 #endif // LORA_H

@@ -33,37 +33,32 @@ add_executable(${CMAKE_PROJECT_NAME})
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx build/stm32cubemx)
 
-# CMSIS DSP
-set(CMSISCORE ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS)
-set(CMSISDSP ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/DSP)
-add_subdirectory(${CMSISDSP}/Source build/cmsis_dsp)
-
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    Drivers/gps/impl/gps.c
-    Drivers/mag/impl/mag.c
-    Drivers/acc/impl/acc.c
-    Drivers/imu/impl/imu.c
     Drivers/bar/impl/bar.c
-    Drivers/lora/impl/lora.c
     Drivers/esc/impl/esc.c
+    Drivers/gps/impl/gps.c
+    Drivers/imu/impl/imu.c
+    Drivers/lora/impl/lora.c
+    Drivers/mag/impl/mag.c
     Drivers/rc/impl/rc.c
     Drivers/sd/impl/sd.c
     Drivers/uart/impl/uart.c
     Drivers/usb/impl/usb.c
 
+    Src/act/impl/act.c
     Src/ctrl/impl/ctrl.c
     Src/dsp/impl/dsp.c
-    Src/act/impl/act.c
-    Src/llc/impl/llc.c
-    Src/tel/impl/tel.c
     Src/guide/impl/guide.c
-    Src/sys/impl/sys.c
+    Src/irq/impl/irq_manager.c
+    Src/llc/impl/llc.c
     Src/log/impl/log.c
+    Src/sys/impl/sys.c
+    Src/tel/impl/tel.c
     Src/utils/impl/utils.c
 )
 
@@ -75,6 +70,29 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Add project symbols (macros)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+)
+
+# CMSIS DSP
+include(FetchContent)
+FetchContent_Declare(
+    CMSISDSP
+    GIT_REPOSITORY https://github.com/ARM-software/CMSIS-DSP.git
+    # maybe use hash instead
+    GIT_TAG        v1.16.2
+    GIT_SHALLOW    1
+)
+
+# needed by CMSISDSP
+set(CMSISCORE ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS)
+FetchContent_MakeAvailable(CMSISDSP)
+
+target_compile_options(CMSISDSP PUBLIC 
+    -Wsign-compare
+    -Wdouble-promotion
+    -Ofast -ffast-math
+    -DNDEBUG
+    -fshort-enums
+    #-fshort-wchar
 )
 
 # Add linked libraries

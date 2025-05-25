@@ -11,7 +11,7 @@
 
 #define act_PWM_RANGE (act_PWM_MAX - act_PWM_MIN)
 
-void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t* channels[act_MOTOR_COUNT]);
+void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_MOTOR_COUNT]);
 
 void act_arm(void);
 void act_disarm(void);

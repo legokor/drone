@@ -15,12 +15,11 @@ static act_Motor act_Motors[4];
 
 static void act_initMotor(act_Motor* motor, TIM_HandleTypeDef* timer, uint32_t channel);
 
-void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t* channels[act_MOTOR_COUNT]) {
+void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_MOTOR_COUNT]) {
     log_debug("Initializing act...");
 
-    for (uint i = 0; i < act_MOTOR_COUNT; i++) {
+    for (uint8_t i = 0; i < act_MOTOR_COUNT; i++)
         act_initMotor(&act_Motors[i], timers[i], channels[i]);
-    }
 }
 
 static void act_initMotor(act_Motor* motor, TIM_HandleTypeDef* timer, uint32_t channel) {
@@ -32,7 +31,7 @@ static void act_initMotor(act_Motor* motor, TIM_HandleTypeDef* timer, uint32_t c
 }
 
 static void act_setMotorSpeed(uint8_t idx, uint16_t percent) {
-    assert(idx < act_MOTOR_COUNT);
+    assert_param(idx < act_MOTOR_COUNT);
 
     act_Motor motor = act_Motors[idx];
     __HAL_TIM_SET_COMPARE(motor.timer, motor.channel, act_PWM_MIN + (percent * act_PWM_RANGE / 100));
@@ -41,7 +40,7 @@ static void act_setMotorSpeed(uint8_t idx, uint16_t percent) {
 }
 
 void act_setMMX(float thrust, float yaw, float pitch, float roll) {
-    assert(act_MOTOR_COUNT == 4);
+    assert_param(act_MOTOR_COUNT == 4);
 
     if (!act_Armed) {
         act_disarm();
@@ -60,9 +59,8 @@ void act_setMMX(float thrust, float yaw, float pitch, float roll) {
     arm_scale_f32(speed, act_PWM_RANGE, tmp, act_MOTOR_COUNT);
     arm_clip_f32(tmp, speed, act_PWM_MIN, act_PWM_MAX, act_MOTOR_COUNT);
 
-    for (int i = 0; i < act_MOTOR_COUNT; i++) {
+    for (int i = 0; i < act_MOTOR_COUNT; i++)
         act_setMotorSpeed(i, speed[i]);
-    }
 
     // log_debug("1:%d 2:%d 3:%d 4:%d\n", speed[0], speed[1], speed[2], speed[3]);
 }

@@ -14,7 +14,6 @@
 #include "log/log.h"
 #include "rc/rc.h"
 #include "sys/sys.h"
-#include "uart/uart.h"
 
 #define DSP368_PRS_CFG_REG 0x06
 #define DSP368_TMP_CFG_REG 0x07
@@ -22,6 +21,7 @@
 #define DSP368_PRS_DATA_REG 0x00
 #define DSP368_TMP_DATA_REG 0x03
 
+uart_Uart sys_uartInstance;
 static imu_Imu _sys_imuInstance;
 static rc_Rc _sys_rcInstance;
 

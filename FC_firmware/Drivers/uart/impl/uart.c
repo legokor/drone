@@ -1,5 +1,5 @@
 #include "uart/uart.h"
-#include <string.h>
+
 #include "irq/irq.h"
 #include "log/log.h"
 
@@ -70,10 +70,10 @@ bool uart_transmit(uart_Uart* uart, const char* data, const uint32_t size) {
 
     bool ok = true;
 
-    int spaceTillBufferEnd = uart->txBufferLength - uart->txEndOfData - 1;
+    uint32_t spaceTillBufferEnd = uart->txBufferLength - uart->txEndOfData - 1;
 
     if (spaceTillBufferEnd >= size) {
-        memcpy((void*) uart->txCircularBuffer + uart->txEndOfData + 1, (const void*) data, size);
+        memcpy((void*) (uart->txCircularBuffer + uart->txEndOfData + 1), (const void*) data, size);
         HAL_NVIC_DisableIRQ(uart->uartIrq);
 
         if (uart->txStartOfData == -1) {
@@ -90,10 +90,11 @@ bool uart_transmit(uart_Uart* uart, const char* data, const uint32_t size) {
         uart->txEndOfData = uart->txEndOfData + size;
         HAL_NVIC_EnableIRQ(uart->uartIrq);
     } else {
-        if (spaceTillBufferEnd > 0)
-            memcpy((void*) uart->txCircularBuffer + uart->txEndOfData + 1, (const void*) data, spaceTillBufferEnd);
+        if (spaceTillBufferEnd > 0) {
+            memcpy((void*) (uart->txCircularBuffer + uart->txEndOfData + 1), (const void*) data, spaceTillBufferEnd);
+        }
 
-        memcpy((void*) uart->txCircularBuffer, (const void*) data + spaceTillBufferEnd, size - spaceTillBufferEnd);
+        memcpy((void*) uart->txCircularBuffer, (const void*) (data + spaceTillBufferEnd), size - spaceTillBufferEnd);
         HAL_NVIC_DisableIRQ(uart->uartIrq);
 
         if (uart->txStartOfData == -1) {

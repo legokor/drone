@@ -234,12 +234,15 @@ static void _sys_init(void) {
 void sys_entry(void) {
     _sys_init();
 
-    while (1) {
+    while (true) {
         imu_Vec3 acc = imu_readAccData(&_sys_imuInstance);
         imu_Vec3 gyro = imu_readGyroData(&_sys_imuInstance);
         float temp = imu_readTempData(&_sys_imuInstance);
 
-        log_raw("%lf,%lf,%lf,%lf,%lf,%lf,%lf\r\n", acc.x, acc.y, acc.z, gyro.x, gyro.y, gyro.z, temp);
+        log_raw("%lf,%lf,%lf,%lf,%lf,%lf,%lf\r\n",                 //
+                (double) acc.x, (double) acc.y, (double) acc.z,    //
+                (double) gyro.x, (double) gyro.y, (double) gyro.z, //
+                (double) temp);
 
         HAL_Delay(50);
     }

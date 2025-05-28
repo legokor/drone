@@ -121,7 +121,7 @@ Install the `cortex-debug` extension, then you can use the following [`launch.js
 <!-- comment to separate block quotes -->
 > Note: You can imitate linux with [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and proceed like in the [linux section](#building-on-linux). You can also use [MSYS2](https://www.msys2.org/) to achieve the same thing.
 
-Use [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html) as an IDE. You need [CMake](https://cmake.org/), [Ninja](https://ninja-build.org/) and the [Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm/) for building.
+Use [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html) as an IDE. You need [CMake](https://cmake.org/), [Ninja](https://ninja-build.org/) and the [Arm Embedded Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) for building.
 
 Use the following commands in CMD / PowerShell ([Windows Terminal](https://github.com/microsoft/terminal/) is recommended):
 
@@ -135,7 +135,7 @@ winget install -e --id Git.Git
 winget install -e --id Microsoft.WindowsTerminal
 ```
 
-After installation you need to generate build files for CubeIDE:
+After installation you need to generate build files for CubeIDE. Run this in the `FC_firmware` folder:
 
 > Note: CMake reports this generator as deprecated.
 

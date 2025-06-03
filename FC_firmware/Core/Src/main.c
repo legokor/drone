@@ -26,9 +26,11 @@
 #include "tim.h"
 #include "usart.h"
 #include "usb_otg.h"
+
+#include "err/err.h"
 #include "sys/sys.h"
 
-#include "sys/sys.h"
+#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -200,8 +202,13 @@ void Error_Handler(void) {
  */
 void assert_failed(uint8_t* file, uint32_t line) {
     /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line number,
-       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    char buf[128];
+
+    int ret = snprintf(buf, sizeof(buf), "HAL assert failed (%s:%lu)", (const char*) file, line);
+    if (ret > 0)
+        err_fatal(buf);
+    else
+        err_fatal("HAL assert failed, but we couldn't even format the error...");
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

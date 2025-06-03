@@ -1,10 +1,12 @@
 #include "imu/imu.h"
-#include <string.h>
+#include "err/err.h"
 #include "imu/impl/imu_registers.h"
 #include "irq/irq.h"
 #include "log/log.h"
 
 #include "stm32f4xx_hal.h"
+
+#include <string.h>
 
 #define _imu_SPI_TIMEOUT 3
 
@@ -278,7 +280,7 @@ void imu_setGyroAndTempDLPF(imu_Imu* imu, uint8_t value) {
 }
 
 void imu_setAccSensitivity(imu_Imu* imu, uint8_t sensitivity) {
-    // TODO: assert sensitivity = [0, 3]
+    err_assert(sensitivity <= 3);
 
     uint8_t accConfigTmp;
     _imu_readBlocking(imu, IMU_ACCEL_CONFIG, 1, &accConfigTmp);
@@ -289,7 +291,7 @@ void imu_setAccSensitivity(imu_Imu* imu, uint8_t sensitivity) {
 }
 
 void imu_setGyroSensitivity(imu_Imu* imu, uint8_t sensitivity) {
-    // TODO: assert sensitivity = [0, 3]
+    err_assert(sensitivity <= 3);
 
     uint8_t gyroConfigTmp;
     _imu_readBlocking(imu, IMU_GYRO_CONFIG, 1, &gyroConfigTmp);

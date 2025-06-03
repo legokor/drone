@@ -1,7 +1,7 @@
 #include "act/act.h"
+#include "err/err.h"
 #include "log/log.h"
 
-#include <stdbool.h>
 #include "arm_math.h"
 
 #include <stdbool.h>
@@ -30,7 +30,7 @@ void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_
 }
 
 static void act_setMotorSpeed(uint8_t idx, uint16_t percent) {
-    assert_param(idx < act_MOTOR_COUNT);
+    err_assert(idx < act_MOTOR_COUNT);
 
     act_Motor m = _act_motors[idx];
     __HAL_TIM_SET_COMPARE(m.timer, m.channel, act_PWM_MIN + (percent * act_PWM_RANGE / 100));
@@ -39,7 +39,7 @@ static void act_setMotorSpeed(uint8_t idx, uint16_t percent) {
 }
 
 void act_setMMX(float thrust, float yaw, float pitch, float roll) {
-    assert_param(act_MOTOR_COUNT == 4);
+    err_assert(act_MOTOR_COUNT == 4);
 
     if (!_act_armed) {
         act_disarm();
@@ -67,7 +67,7 @@ void act_setMMX(float thrust, float yaw, float pitch, float roll) {
 }
 
 void act_arm(void) {
-    assert_param(act_Armed == false);
+    err_assert(!_act_armed);
 
     _act_armed = true;
 }
@@ -79,4 +79,5 @@ void act_disarm(void) {
     // we assert later, to make sure that the motors get turned off no matter what
     bool was_armed = _act_armed;
     _act_armed = false;
+    err_assert(!was_armed);
 }

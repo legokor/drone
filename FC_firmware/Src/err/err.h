@@ -58,7 +58,16 @@ void err_ignorable(const char* descr);
 
 // ASSERTS
 
+/**
+ * Evaluates an expression, and if it is false, then it triggers a fatal error.
+ * If the DEBUG flag is defined.
+ *
+ * @param expr The expression to be asserted
+ */
 #define err_assert(expr) _err_assert(expr, __FILE__, __LINE__)
+
+#ifdef DEBUG
+
 #define _err_assert(expr, file, line)                                                                      \
     do {                                                                                                   \
         bool __err_assert_status__ = (expr);                                                               \
@@ -66,5 +75,13 @@ void err_ignorable(const char* descr);
             err_fatal("Assert failed: " utils_QUOTE(expr) " (" file ":" utils_EXPAND_AND_QUOTE(line) ")"); \
         }                                                                                                  \
     } while (0)
+
+#else
+
+#define _err_assert(expr, file, line) \
+    do {                              \
+    } while (0)
+
+#endif
 
 #endif // ERR_H

@@ -8,7 +8,8 @@
 
 static tel_WriteFn _tel_sources[MAX_SOURCE_COUNT] = { 0 };
 
-static void _tel_writeUart(const void* data, size_t len) {
+static void _tel_writeUart(uint32_t t, tel_Topic topic, const void* data, size_t len, tel_DataType type) {
+    // TODO: move + packetize
     uart_transmit(&sys_uartInstance, data, len);
 }
 
@@ -25,6 +26,8 @@ void tel_addSource(tel_WriteFn writeFn) {
             return;
         }
     }
+
+    // TODO: error
 }
 
 void tel_removeSource(tel_WriteFn writeFn) {
@@ -34,45 +37,39 @@ void tel_removeSource(tel_WriteFn writeFn) {
             return;
         }
     }
+
+    // TODO: error
 }
 
-static void _tel_writeBytes(const void* data, size_t len) {
+static void _tel_writeMessage(tel_Topic topic, const void* data, size_t len, tel_DataType type) {
     for (size_t i = 0; i < MAX_SOURCE_COUNT; i++) {
         tel_WriteFn fn = _tel_sources[i];
 
         if (fn == NULL)
             continue;
 
-        fn(data, len);
+        fn(HAL_GetTick(), topic, data, len, type);
     }
-}
-
-static void _tel_writeMessage(tel_Topic topic, const void* data, size_t len, tel_DataType type) {
-    // uint32_t t = utils_getMsSinceStartup(); // TODO: uncomment this when the telemetry software is ready
-    // _tel_writeBytes(&t, 4);
-    // _tel_writeBytes(&type, 1);
-    // _tel_writeBytes(&topic, 1);
-    _tel_writeBytes(data, len);
 }
 
 void tel_writePing(tel_Topic topic) {
     _tel_writeMessage(topic, NULL, 0, tel_TYPE_PING);
 }
 
-void tel_writeInteger(tel_Topic topic, uint32_t i) {
-    _tel_writeMessage(topic, &i, 4, tel_TYPE_INTEGER);
+void tel_writeInt(tel_Topic topic, uint32_t i) {
+    _tel_writeMessage(topic, &i, sizeof(i), tel_TYPE_INTEGER);
 }
 
 void tel_writeFloat(tel_Topic topic, double d) {
-    _tel_writeMessage(topic, &d, 8, tel_TYPE_FLOAT);
+    _tel_writeMessage(topic, &d, sizeof(d), tel_TYPE_FLOAT);
 }
 
 void tel_writeChar(tel_Topic topic, char c) {
     _tel_writeMessage(topic, &c, 1, tel_TYPE_CHAR);
 }
 
-void tel_writeBoolean(tel_Topic topic, bool b) {
-    _tel_writeMessage(topic, &b, 1, tel_TYPE_BOOLEAN);
+void tel_writeBool(tel_Topic topic, bool b) {
+    _tel_writeMessage(topic, &b, sizeof(b), tel_TYPE_BOOLEAN);
 }
 
 static uint8_t _tel_getDataSize(tel_DataType type) {

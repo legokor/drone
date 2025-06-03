@@ -79,7 +79,7 @@ typedef enum tel_DataType {
     tel_TYPE_ARRAY
 } tel_DataType;
 
-typedef void (*tel_WriteFn)(const void*, size_t);
+typedef void (*tel_WriteFn)(uint32_t, tel_Topic, const void*, size_t, tel_DataType);
 
 void tel_init(void);
 
@@ -87,10 +87,10 @@ void tel_addSource(tel_WriteFn writeFn);
 void tel_removeSource(tel_WriteFn writeFn);
 
 void tel_writePing(tel_Topic topic);
-void tel_writeInteger(tel_Topic topic, uint32_t i);
+void tel_writeInt(tel_Topic topic, uint32_t i);
 void tel_writeFloat(tel_Topic topic, double d);
 void tel_writeChar(tel_Topic topic, char c);
-void tel_writeBoolean(tel_Topic topic, bool b);
+void tel_writeBool(tel_Topic topic, bool b);
 
 void tel_writeArray(tel_Topic topic, const void* arr, uint8_t len, tel_DataType type);
 

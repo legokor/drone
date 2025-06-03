@@ -9,9 +9,9 @@
 
 void log_init(void) {}
 
-#define LOG_WRITE_BUF_SIZE 256
+#define _log_WRITE_BUF_SIZE 256
 
-static char _log_buf[LOG_WRITE_BUF_SIZE];
+static char _log_buf[_log_WRITE_BUF_SIZE];
 
 static void _log_write(log_LogLevel level, const char* format, va_list args) {
     const char LEVEL_STR[5][3] = { "xxx", "DBG", "INF", "WRN", "ERR" };
@@ -23,10 +23,11 @@ static void _log_write(log_LogLevel level, const char* format, va_list args) {
     }
 
     if (level == log_NONE) {
-        vsnprintf(_log_buf, LOG_WRITE_BUF_SIZE, format, args);
+        vsnprintf(_log_buf, _log_WRITE_BUF_SIZE, format, args);
     } else {
-        int ret = vsnprintf(_log_buf + 5, LOG_WRITE_BUF_SIZE - 7, format, args);
-        int nullTermIndex = ret < LOG_WRITE_BUF_SIZE - 7 ? ret + 5 : LOG_WRITE_BUF_SIZE - 3;
+        int ret = vsnprintf(_log_buf + 5, _log_WRITE_BUF_SIZE - 7, format, args);
+        int nullTermIndex = ret < _log_WRITE_BUF_SIZE - 7 ? ret + 5 : _log_WRITE_BUF_SIZE - 3;
+
         _log_buf[nullTermIndex] = '\r';
         _log_buf[nullTermIndex + 1] = '\n';
         _log_buf[nullTermIndex + 2] = '\0';

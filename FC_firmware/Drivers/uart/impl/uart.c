@@ -133,7 +133,6 @@ bool uart_transmit(uart_Uart* uart, const char* data, const uint32_t size) {
 uart_ReceiveStatus uart_receive(uart_Uart* uart, char* data, uint32_t maxSize) {
     uint32_t dmaPtr = uart->rxBufferLength - uart->huart->hdmarx->Instance->NDTR;
 
-    uint32_t i = 0;
     uart_ReceiveStatus status = { .size = 0, .eomReached = false };
     while (dmaPtr != uart->rxStartOfData) {
         char c = uart->rxCircularBuffer[uart->rxStartOfData];
@@ -141,14 +140,14 @@ uart_ReceiveStatus uart_receive(uart_Uart* uart, char* data, uint32_t maxSize) {
         if (c == uart->endOfMsgChar)
             status.eomReached = true;
 
-        if (i < maxSize || status.eomReached == 1) {
+        if (status.size < maxSize || status.eomReached) {
             uart->rxStartOfData++;
 
             if (uart->rxStartOfData == uart->rxBufferLength)
                 uart->rxStartOfData = 0;
         }
 
-        if (status.eomReached == 1 || i >= maxSize)
+        if (status.eomReached || status.size >= maxSize)
             break;
 
         if (uart->ignorableChars != NULL) {
@@ -165,10 +164,8 @@ uart_ReceiveStatus uart_receive(uart_Uart* uart, char* data, uint32_t maxSize) {
                 continue;
         }
 
-        data[i++] = c;
+        data[status.size++] = c;
     }
-
-    status.size = i;
 
     return status;
 }

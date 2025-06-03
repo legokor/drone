@@ -68,7 +68,7 @@ static bool _spi_readBlocking(uint8_t regAddress, uint8_t numBytes, volatile uin
     return ok;
 }
 
-void init_hardware() {
+static void _sys_init_hardware() {
     uart_init(&sys_uartInstance, (uart_UartInitParams) //
               { .huart = &huart1,
                 .uartIrq = USART1_IRQn,
@@ -212,20 +212,20 @@ void init_hardware() {
 #endif
 }
 
-void init_modules() {
+static void _sys_init_modules(void) {
     log_debug("Initializing software modules...");
 }
 
-void init() {
+static void _sys_init(void) {
     log_debug("Initializing...");
 
-    init_hardware();
+    _sys_init_hardware();
     HAL_Delay(10);
-    init_modules();
+    _sys_init_modules();
 }
 
 void sys_entry(void) {
-    init();
+    _sys_init();
 
     while (1) {
         imu_Vec3 acc = imu_readAccData(&_sys_imuInstance);

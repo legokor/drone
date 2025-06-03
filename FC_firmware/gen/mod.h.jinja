@@ -6,7 +6,7 @@ typedef struct {{name}}_{{Name}} {
 } {{name}}_{{Name}};
 {% endif %}
 {% if init -%}
-void {{name}}_Init(
+void {{name}}_init(
     {%- if struct -%} {{name}}_{{Name}}* {{name}}
         {%- else -%} void {%- endif -%}
 );

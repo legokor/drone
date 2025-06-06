@@ -27,22 +27,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install build tools for Linux
-        if: ${{ matrix.os == 'ubuntu' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi # cmake ninja-build
-
-      - name: Install build tools Windows
-        if: ${{ matrix.os == 'windows' }}
-        run: |
-          Invoke-WebRequest https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-mingw-w64-i686-arm-none-eabi.exe -OutFile .\gcc-installer.exe
-          .\gcc-installer.exe /P /R
-          arm-none-eabi-gcc -v
-          echo $PATH
-        # winget install --accept-source-agreements --accept-package-agreements --disable-interactivity -e --id Arm.GnuArmEmbeddedToolchain
-        # winget install --accept-source-agreements --accept-package-agreements --disable-interactivity -e --id Ninja-build.Ninja
-        # winget install --accept-source-agreements --accept-package-agreements --disable-interactivity -e --id Kitware.CMake
+      - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
 
       - name: Configure
         run: cmake -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.type }}"

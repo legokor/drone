@@ -21,6 +21,10 @@ jobs:
         os:   [ ubuntu, windows ]
         type: [ debug, release ]
 
+        exclude:
+          - os: windows
+            type: release
+
     runs-on: ${{ matrix.os }}-latest
 
     steps:

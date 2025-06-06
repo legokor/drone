@@ -53,6 +53,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Src/act/impl/act.c
     Src/ctrl/impl/ctrl.c
     Src/dsp/impl/dsp.c
+    Src/err/impl/err.c
     Src/guide/impl/guide.c
     Src/irq/impl/irq_manager.c
     Src/llc/impl/llc.c

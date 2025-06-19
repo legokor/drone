@@ -166,9 +166,9 @@ bool imu_init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint1
 #ifdef ASYNC_IMU
     imu->readEnabled = ok;
 
-    int_subscribeToInt(INT_SPI_RX_CPLT, _imu_spiReceiveCpltCallback, imu, hspi);
-    int_subscribeToInt(INT_SPI_TX_CPLT, _imu_spiTransmitCpltCallback, imu, hspi);
-    int_subscribeToInt(INT_TIM_PERIOD_ELAPSED, _imu_timPeriodElapsedCallback, imu, htim);
+    int_subscribeToInt(int_SPI_RX_CPLT, _imu_spiReceiveCpltCallback, imu, hspi);
+    int_subscribeToInt(int_SPI_TX_CPLT, _imu_spiTransmitCpltCallback, imu, hspi);
+    int_subscribeToInt(int_TIM_PERIOD_ELAPSED, _imu_timPeriodElapsedCallback, imu, htim);
 #endif
 
     if (ok)

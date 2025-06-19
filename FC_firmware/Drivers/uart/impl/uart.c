@@ -57,10 +57,7 @@ bool uart_init(uart_Uart* uart, uart_UartInitParams uartInitParams) {
         return false;
     }
 
-    if (!int_subscribeToInt(INT_UART_TX_CPLT, _uart_handleTransmitCplt, uart, uart->huart)) {
-        log_error("Failed to subscribe to INT_UART_TX_CPLT");
-        return 0;
-    }
+    int_subscribeToInt(int_UART_TX_CPLT, _uart_handleTransmitCplt, uart, uart->huart);
 
     log_debug("UART initialized successfully");
 

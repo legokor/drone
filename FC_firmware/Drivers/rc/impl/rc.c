@@ -50,7 +50,7 @@ void rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
     rc->state = rc_STATE_WAIT_FOR_START;
     rc->lastFrameTime = HAL_GetTick();
 
-    int_subscribeToInt(INT_UART_RX_CPLT, _rc_handleRxCplt, rc, huart);
+    int_subscribeToInt(int_UART_RX_CPLT, _rc_handleRxCplt, rc, huart);
 
     HAL_UART_Receive_IT(huart, (uint8_t*) rc->rxDataBuffer, 1);
 }

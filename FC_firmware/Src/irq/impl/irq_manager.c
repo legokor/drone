@@ -4,26 +4,27 @@
 
 #include "stm32f4xx_hal.h"
 
-static _int_CallbackListEntry _int_callbackList[INT_EVENT_TYPE_COUNT][_int_MAX_SUBSCR_COUNT + 1] = { 0 };
+static _int_CallbackListEntry _int_callbackList[_int_EVENT_TYPE_COUNT][_int_MAX_SUBSCR_COUNT + 1] = { 0 };
 
-bool int_subscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, void* context, void* halHandle) {
-    if (eventType >= INT_EVENT_TYPE_COUNT)
-        return false;
+void int_subscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, void* context, void* halHandle) {
+    err_assert(eventType >= _int_EVENT_TYPE_COUNT);
 
-    for (uint32_t p = 0; p < _int_MAX_SUBSCR_COUNT; p++) {
+    for (int p = 0; p < _int_MAX_SUBSCR_COUNT; p++) {
         if (_int_callbackList[eventType][p].cbFn == NULL) {
             __disable_irq();
 
-            _int_callbackList[eventType][p].cbFn = cbFnHandle;
-            _int_callbackList[eventType][p].context = context;
-            _int_callbackList[eventType][p].halHandle = halHandle;
+            _int_callbackList[eventType][p] = (_int_CallbackListEntry) {
+                .cbFn = cbFnHandle,    //
+                .context = context,    //
+                .halHandle = halHandle //
+            };
 
             __enable_irq();
-            return true;
+            return;
         }
     }
 
-    return false;
+    err_fatal("Event pool is full");
 }
 
 void _int_triggerCbs(int_IntEventType eventType, void* handle) {

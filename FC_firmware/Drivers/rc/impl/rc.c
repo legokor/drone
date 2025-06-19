@@ -1,8 +1,9 @@
 #include "rc/rc.h"
-#include <string.h>
 #include "irq/irq.h"
 #include "log/log.h"
 #include "stm32f4xx_hal_dma.h"
+
+#include <string.h>
 
 #define _rc_SBUS_CH17_MASK 0x01
 #define _rc_SBUS_CH18_MASK 0x02

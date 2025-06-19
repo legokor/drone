@@ -1,7 +1,6 @@
 #ifndef ERR_H
 #define ERR_H
 
-#include "log/log.h"
 #include "utils/utils.h"
 
 #include "stm32f4xx_hal.h"

@@ -1,8 +1,6 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "tel/tel.h"
-
 void log_init(void);
 
 typedef enum log_LogLevel { log_NONE, log_DEBUG, log_INFO, log_WARN, log_ERROR } log_LogLevel;

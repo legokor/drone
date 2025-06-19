@@ -4,10 +4,11 @@
 #include <stdbool.h>
 #include "stm32f4xx_hal.h"
 
+#define rc_CHANNEL_COUNT 18
+
 typedef struct [[nodiscard]] rc_RxPackage {
-    uint16_t channels[18];
-    bool frameLost;
-    bool failsafeActive;
+    uint16_t channels[rc_CHANNEL_COUNT];
+    bool frameLost, failsafeActive;
 } rc_RxPackage;
 
 #define rc_SBUS_FRAME_SIZE 25

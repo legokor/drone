@@ -1,3 +1,4 @@
+#include "err/err.h"
 #include "irq/impl/irq_list.h"
 #include "irq/irq.h"
 

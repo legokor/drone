@@ -1,10 +1,12 @@
 #include "log/log.h"
+#include "err/err.h"
 #include "tel/tel.h"
 
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "config.h"
 
 void log_init(void) {}

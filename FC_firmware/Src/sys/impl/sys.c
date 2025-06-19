@@ -1,6 +1,10 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
+#include "sys/sys.h"
+#include "act/act.h"
+#include "bar/bar.h"
+#include "imu/imu.h"
+#include "log/log.h"
+#include "rc/rc.h"
+#include "tel/tel.h"
 
 #include "stm32f4xx_hal.h"
 
@@ -9,11 +13,10 @@
 #include "tim.h"
 #include "usart.h"
 
-#include "bar/bar.h"
-#include "imu/imu.h"
-#include "log/log.h"
-#include "rc/rc.h"
-#include "sys/sys.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 #define DSP368_PRS_CFG_REG 0x06
 #define DSP368_TMP_CFG_REG 0x07

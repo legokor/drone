@@ -3,6 +3,9 @@
 #include "irq/irq.h"
 #include "log/log.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 void _uart_handleTransmitCplt(void* context) {
     uart_Uart* uart = (uart_Uart*) context;
     if (uart->txStartOfData == -1) {

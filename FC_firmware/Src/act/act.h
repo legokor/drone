@@ -1,8 +1,9 @@
 #ifndef ACT_H
 #define ACT_H
 
-#include <stdint.h>
 #include "tim.h"
+
+#include <stdint.h>
 
 #define act_MOTOR_COUNT 4
 

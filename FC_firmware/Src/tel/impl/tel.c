@@ -1,8 +1,8 @@
 #include "tel/tel.h"
-#include <string.h>
 #include "log/log.h"
 #include "sys/sys.h"
-#include "utils/utils.h"
+
+#include <string.h>
 
 #define MAX_SOURCE_COUNT 20
 

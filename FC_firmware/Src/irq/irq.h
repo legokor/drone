@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum int_IntEventType {
+typedef enum [[nodiscard]] int_IntEventType {
     INT_UART_TX_CPLT = 0,
     INT_UART_RX_CPLT,
     INT_UART_RX_EVENT,

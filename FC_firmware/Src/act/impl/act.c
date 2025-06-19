@@ -8,7 +8,7 @@
 
 static volatile bool _act_armed = false;
 
-typedef struct act_Motor {
+typedef struct [[nodiscard]] act_Motor {
     TIM_HandleTypeDef* timer;
     uint32_t channel;
 } act_Motor;

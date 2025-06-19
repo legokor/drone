@@ -6,7 +6,7 @@
 
 #include "stm32f4xx_hal.h"
 
-typedef struct uart_UartInitParams {
+typedef struct [[nodiscard]] uart_UartInitParams {
     UART_HandleTypeDef* huart;
     IRQn_Type uartIrq;
 
@@ -19,7 +19,7 @@ typedef struct uart_UartInitParams {
     char endOfMsgChar;
 } uart_UartInitParams;
 
-typedef struct uart_Uart {
+typedef struct [[nodiscard]] uart_Uart {
     UART_HandleTypeDef* huart;
     IRQn_Type uartIrq, txDmaIrq;
 
@@ -37,7 +37,7 @@ typedef struct uart_Uart {
     char endOfMsgChar;
 } uart_Uart;
 
-typedef struct uart_ReceiveStatus {
+typedef struct [[nodiscard]] uart_ReceiveStatus {
     uint32_t size;
     bool eomReached;
 } uart_ReceiveStatus;
@@ -49,7 +49,7 @@ typedef struct uart_ReceiveStatus {
  *
  * @return true on success, else false
  */
-bool uart_init(uart_Uart* uart, uart_UartInitParams uartInitParams);
+[[nodiscard]] bool uart_init(uart_Uart* uart, uart_UartInitParams uartInitParams);
 
 /**
  * @brief Transmits the data using the UART instance, the size of the data must not exceed the write buffer length
@@ -59,7 +59,7 @@ bool uart_init(uart_Uart* uart, uart_UartInitParams uartInitParams);
  *
  * @return true on success, else false
  */
-bool uart_transmit(uart_Uart* uart, const char* data, const uint32_t size);
+[[nodiscard]] bool uart_transmit(uart_Uart* uart, const char* data, uint32_t size);
 
 /**
  * @brief Writes the received data to the data buffer
@@ -69,6 +69,6 @@ bool uart_transmit(uart_Uart* uart, const char* data, const uint32_t size);
  *
  * @return the size of the data received and a flag indicating if the end of message character was reached
  */
-uart_ReceiveStatus uart_receive(uart_Uart* uart, char* data, uint32_t maxSize);
+[[nodiscard]] uart_ReceiveStatus uart_receive(uart_Uart* uart, char* data, uint32_t maxSize);
 
 #endif // UART_H

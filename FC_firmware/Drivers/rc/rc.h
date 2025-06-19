@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "stm32f4xx_hal.h"
 
-typedef struct rc_RxPackage {
+typedef struct [[nodiscard]] rc_RxPackage {
     uint16_t channels[18];
     bool frameLost;
     bool failsafeActive;
@@ -12,9 +12,9 @@ typedef struct rc_RxPackage {
 
 #define rc_SBUS_FRAME_SIZE 25
 
-typedef enum { rc_STATE_WAIT_FOR_START, rc_STATE_RECEIVING } rc_SbusState;
+typedef enum [[nodiscard]] rc_SbusState { rc_STATE_WAIT_FOR_START, rc_STATE_RECEIVING } rc_SbusState;
 
-typedef struct rc_Rc {
+typedef struct [[nodiscard]] rc_Rc {
     UART_HandleTypeDef* huart;
     IRQn_Type writeIrq;
 
@@ -31,6 +31,6 @@ typedef struct rc_Rc {
 
 void rc_init(rc_Rc* rc, UART_HandleTypeDef* huart);
 
-bool rc_getData(rc_Rc* rc, rc_RxPackage* data);
+[[nodiscard]] bool rc_getData(rc_Rc* rc, rc_RxPackage* data);
 
 #endif // RC_H

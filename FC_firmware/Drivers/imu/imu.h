@@ -7,7 +7,7 @@
 
 #include "stm32f4xx_hal.h"
 
-typedef struct imu_Vec3 {
+typedef struct [[nodiscard]] imu_Vec3 {
     float x, y, z;
 } imu_Vec3;
 
@@ -15,7 +15,7 @@ typedef struct imu_Vec3 {
  * @brief MPU9250 IMU and compass IC I2C driver for the STM32 microcontroller.
  * The implementation heavily relies on the HAL STM32 drivers.
  */
-typedef struct imu_Imu {
+typedef struct [[nodiscard]] imu_Imu {
     SPI_HandleTypeDef* hspi;
 
     float accSensitivity, gyroSensitivity;
@@ -51,12 +51,14 @@ typedef struct imu_Imu {
  *
  * @return 1 on success, else 0
  */
-bool imu_init(imu_Imu* imu,
-              SPI_HandleTypeDef* hspi,
-              GPIO_TypeDef* csPort,
-              uint16_t csPin,
-              IRQn_Type readIrq,
-              TIM_HandleTypeDef* htim);
+[[nodiscard]] bool imu_init(
+    imu_Imu* imu,
+    SPI_HandleTypeDef* hspi,
+    GPIO_TypeDef* csPort,
+    uint16_t csPin,
+    IRQn_Type readIrq,
+    TIM_HandleTypeDef* htim
+);
 #else
 /**
  * @brief Initializes the MPU9250 IMU driver for sync (blocking) data retrieval.
@@ -65,7 +67,12 @@ bool imu_init(imu_Imu* imu,
  *
  * @return 1 on success, else 0
  */
-bool imu_init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint16_t csPin);
+[[nodiscard]] bool imu_init(
+    imu_Imu* imu,
+    SPI_HandleTypeDef* hspi,
+    GPIO_TypeDef* csPort,
+    uint16_t csPin
+);
 #endif
 
 /**
@@ -74,7 +81,7 @@ bool imu_init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint1
  *
  * @return true, if the IMU (MPU9250) was detected.
  */
-bool imu_detectImu(imu_Imu* imu);
+[[nodiscard]] bool imu_detectImu(imu_Imu* imu);
 
 /**
  * @brief Sets the IMU to the default settings, which will suite most applications:
@@ -166,7 +173,7 @@ void imu_setAccSensitivity(imu_Imu* imu, uint8_t sensitivity);
  *
  * @return true, if new data is available (and clears the internal new data flag).
  */
-bool imu_newDataAvailable(imu_Imu* imu);
+[[nodiscard]] bool imu_newDataAvailable(imu_Imu* imu);
 #endif
 
 /**
@@ -175,7 +182,7 @@ bool imu_newDataAvailable(imu_Imu* imu);
  *
  * @return the gyro data in °/s.
  */
-imu_Vec3 imu_readGyroData(imu_Imu* imu);
+[[nodiscard]] imu_Vec3 imu_readGyroData(imu_Imu* imu);
 
 /**
  * @brief Returns a vector containing the accelerometer data.
@@ -183,7 +190,7 @@ imu_Vec3 imu_readGyroData(imu_Imu* imu);
  *
  * @return the accelerometer data in g's.
  */
-imu_Vec3 imu_readAccData(imu_Imu* imu);
+[[nodiscard]] imu_Vec3 imu_readAccData(imu_Imu* imu);
 
 /**
  * @brief Returns the temperature data.
@@ -191,6 +198,6 @@ imu_Vec3 imu_readAccData(imu_Imu* imu);
  *
  * @return the temperature in °C.
  */
-float imu_readTempData(imu_Imu* imu);
+[[nodiscard]] float imu_readTempData(imu_Imu* imu);
 
 #endif // IMU_H

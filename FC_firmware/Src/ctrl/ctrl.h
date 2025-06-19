@@ -1,7 +1,7 @@
 #ifndef CTRL_H
 #define CTRL_H
 
-typedef enum ctrl_Mode {
+typedef enum [[nodiscard]] ctrl_Mode {
     ctrl_Idle,
     ctrl_RC,
 
@@ -14,6 +14,6 @@ typedef enum ctrl_Mode {
 void ctrl_init(void);
 
 void ctrl_setMode(ctrl_Mode mode);
-ctrl_Mode ctrl_getMode(void);
+[[nodiscard]] ctrl_Mode ctrl_getMode(void);
 
 #endif // CTRL_H

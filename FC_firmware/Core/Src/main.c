@@ -206,7 +206,7 @@ void assert_failed(uint8_t* file, uint32_t line) {
 
     int ret = snprintf(buf, sizeof(buf), "HAL assert failed (%s:%lu)", (const char*) file, line);
     if (ret > 0)
-        err_fatal(buf);
+        err_handle_fatal(buf);
     else
         err_fatal("HAL assert failed, but we couldn't even format the error...");
     /* USER CODE END 6 */

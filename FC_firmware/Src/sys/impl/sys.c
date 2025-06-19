@@ -28,6 +28,8 @@ uart_Uart sys_uartInstance;
 static imu_Imu _sys_imuInstance;
 static rc_Rc _sys_rcInstance;
 
+static bool _sys_initalized = false;
+
 static bool _spi_writeBlocking(uint8_t regAddress, uint8_t data) {
     uint8_t txData[] = { regAddress, data };
     bool ok = false;
@@ -225,6 +227,8 @@ static void _sys_init(void) {
     _sys_init_hardware();
     HAL_Delay(10);
     _sys_init_modules();
+
+    _sys_initalized = true;
 }
 
 void sys_entry(void) {
@@ -238,5 +242,18 @@ void sys_entry(void) {
         log_raw("%lf,%lf,%lf,%lf,%lf,%lf,%lf\r\n", acc.x, acc.y, acc.z, gyro.x, gyro.y, gyro.z, temp);
 
         HAL_Delay(50);
+    }
+}
+
+bool sys_initalized(void) {
+    return _sys_initalized;
+}
+
+void sys_abort(sys_AbortFn fn, void* arg) {
+    act_disarm();
+
+    fn(arg);
+
+    while (true) {
     }
 }

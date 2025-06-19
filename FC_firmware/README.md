@@ -58,8 +58,8 @@ Uses SBUS to get .
 ## Building on linux
 
 ```sh
-cmake .
-make
+cmake . -B build
+cmake --build build
 ```
 
 ### Dependencies
@@ -117,24 +117,25 @@ Install the `cortex-debug` extension, then you can use the following [`launch.js
 
 ## Building on Windows
 
-> Note: Keeping this section up to date will be done on a best-effort basis, as Linux is the recommended platform for this project.
+> Note: Keeping this section up to date will be done on a best-effort basis, as Linux is the recommended platform for building this project.
 <!-- comment to separate block quotes -->
 > Note: You can imitate linux with [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and proceed like in the [linux section](#building-on-linux). You can also use [MSYS2](https://www.msys2.org/) to achieve the same thing.
 
 Use [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html) as an IDE. You need [CMake](https://cmake.org/), [Ninja](https://ninja-build.org/) and the [Arm Embedded Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) for building.
 
-Use the following commands in CMD / PowerShell ([Windows Terminal](https://github.com/microsoft/terminal/) is recommended):
-
+Using the following commands in CMD / PowerShell ([Windows Terminal](https://github.com/microsoft/terminal/) is recommended) is the easiest to install them:
+> Note: `winget` is installed by default on Windows 11 and newer versions of Windows 10. If not installed use this PowerShell command: `Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe` acccording to [Microsoft documentation](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget).
 ```ps
-winget install -e --id Arm.GnuArmEmbeddedToolchain
-winget install -e --id Ninja-build.Ninja
-winget install -e --id Kitware.CMake
-
 # recommended
 winget install -e --id Git.Git
 winget install -e --id Microsoft.WindowsTerminal
+
+winget install -e --id Arm.GnuArmEmbeddedToolchain
+winget install -e --id Ninja-build.Ninja
+winget install -e --id Kitware.CMake
 ```
 
+<!-- TODO: document that you can import CMake projects using CubeIDE -->
 After installation you need to generate build files for CubeIDE. Run this in the `FC_firmware` folder:
 
 > Note: CMake reports this generator as deprecated.

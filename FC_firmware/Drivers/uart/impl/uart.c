@@ -57,7 +57,7 @@ bool uart_init(uart_Uart* uart, uart_UartInitParams uartInitParams) {
         return false;
     }
 
-    int_subscribeToInt(int_UART_TX_CPLT, _uart_handleTransmitCplt, uart, uart->huart);
+    irq_subscribeToIrq(irq_UART_TX_CPLT, _uart_handleTransmitCplt, uart, uart->huart);
 
     log_debug("UART initialized successfully");
 

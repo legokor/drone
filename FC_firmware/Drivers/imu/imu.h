@@ -7,8 +7,16 @@
 
 #include "stm32f4xx_hal.h"
 
-typedef struct [[nodiscard]] imu_Vec3 {
-    float x, y, z;
+typedef union [[nodiscard]] imu_Vec3 {
+    struct {
+        float x, y, z;
+    };
+
+    struct {
+        float roll, pitch, yaw;
+    };
+
+    float arr[3];
 } imu_Vec3;
 
 /**
@@ -91,13 +99,13 @@ typedef struct [[nodiscard]] imu_Imu {
  * @param imu - the IMU instance
  *
  */
-void imu_setDefaultSettings(imu_Imu* imu);
+[[nodiscard]] bool imu_setDefaultSettings(imu_Imu* imu);
 
 /**
  * @brief Calculates the gyro offsets while at rest using a lot of samples.
  * @param imu - the IMU instance
  */
-void imu_calculateGyroOffset(imu_Imu* imu);
+[[nodiscard]] bool imu_calculateGyroOffset(imu_Imu* imu);
 
 /**
  * @brief Enables the calculated gyro offset subtraction from the results
@@ -112,21 +120,21 @@ void imu_enableGyroOffsetSubtraction(imu_Imu* imu, bool enabled);
  * @param imu - the IMU instance
  * @param divider - the divider that divides the internal (1kHz sample rate) by (1 + divider).
  */
-void imu_setSampleRateDivider(imu_Imu* imu, uint8_t divider);
+[[nodiscard]] bool imu_setSampleRateDivider(imu_Imu* imu, uint8_t divider);
 
 /**
  * @brief Enable DLPF for the accelerometer (set fchoice_b to 0 -> fchoice to 1).
  * @param imu - the IMU instance
  * @param enable - whether to enable the DLPF for the accelerometer.
  */
-void imu_enableAccDLPF(imu_Imu* imu, bool enable);
+[[nodiscard]] bool imu_enableAccDLPF(imu_Imu* imu, bool enable);
 
 /**
  * @brief Enable DLPF for the gyro and temp sensors (set fchoice_b's to 0 -> fchoice's to 1).
  * @param imu - the IMU instance
  * @param enable - whether to enable the DLPF for the gyro and thermometer.
  */
-void imu_enableGyroAndTempDLPF(imu_Imu* imu, bool enable);
+[[nodiscard]] bool imu_enableGyroAndTempDLPF(imu_Imu* imu, bool enable);
 
 /**
  * @brief Details about the values: https://invensense.tdk.com/wp-content/uploads/2015/02/RM-MPU-9250A-00-v1.6.pdf
@@ -134,7 +142,7 @@ void imu_enableGyroAndTempDLPF(imu_Imu* imu, bool enable);
  * @param imu - the IMU instance
  * @param value - the accelerometer DLPF value
  */
-void imu_setAccDLPF(imu_Imu* imu, uint8_t value);
+[[nodiscard]] bool imu_setAccDLPF(imu_Imu* imu, uint8_t value);
 
 /**
  * @brief Details about the values: https://invensense.tdk.com/wp-content/uploads/2015/02/RM-MPU-9250A-00-v1.6.pdf
@@ -142,7 +150,7 @@ void imu_setAccDLPF(imu_Imu* imu, uint8_t value);
  * @param imu - the IMU instance
  * @param value - the gyro and thermometer DLPF value
  */
-void imu_setGyroAndTempDLPF(imu_Imu* imu, uint8_t value);
+[[nodiscard]] bool imu_setGyroAndTempDLPF(imu_Imu* imu, uint8_t value);
 
 /**
  * @brief Sets the gyro's sensitivity.
@@ -153,7 +161,7 @@ void imu_setGyroAndTempDLPF(imu_Imu* imu, uint8_t value);
  * 	- 2 - 1000DPS
  * 	- 3 - 2000DPS
  */
-void imu_setGyroSensitivity(imu_Imu* imu, uint8_t sensitivity);
+[[nodiscard]] bool imu_setGyroSensitivity(imu_Imu* imu, uint8_t sensitivity);
 
 /**
  * @brief Sets the accelerometer's sensitivity.
@@ -164,7 +172,7 @@ void imu_setGyroSensitivity(imu_Imu* imu, uint8_t sensitivity);
  * 	- 2 - 8G
  * 	- 3 - 16G
  */
-void imu_setAccSensitivity(imu_Imu* imu, uint8_t sensitivity);
+[[nodiscard]] bool imu_setAccSensitivity(imu_Imu* imu, uint8_t sensitivity);
 
 #ifdef ASYNC_IMU
 /**
@@ -179,18 +187,20 @@ void imu_setAccSensitivity(imu_Imu* imu, uint8_t sensitivity);
 /**
  * @brief Returns a vector containing the gyro data.
  * @param imu - the IMU instance
+ * @param out - the result gyro data
  *
- * @return the gyro data in °/s.
+ * @return the gyro data in rad/s.
  */
-[[nodiscard]] imu_Vec3 imu_readGyroData(imu_Imu* imu);
+[[nodiscard]] bool imu_readGyroData(imu_Imu* imu, imu_Vec3* out);
 
 /**
  * @brief Returns a vector containing the accelerometer data.
  * @param imu - the IMU instance
+ * @param out - the result acc data
  *
  * @return the accelerometer data in g's.
  */
-[[nodiscard]] imu_Vec3 imu_readAccData(imu_Imu* imu);
+[[nodiscard]] bool imu_readAccData(imu_Imu* imu, imu_Vec3* out);
 
 /**
  * @brief Returns the temperature data.

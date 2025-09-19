@@ -3,6 +3,8 @@
 
 #include "uart/uart.h"
 
+#define sys_ACT_FREQ 50
+
 extern uart_Uart sys_uartInstance;
 
 void sys_entry(void);

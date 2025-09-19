@@ -1,6 +1,8 @@
 #ifndef ACT_H
 #define ACT_H
 
+#include "llc/llc.h"
+
 #include "tim.h"
 
 #include <stdint.h>
@@ -17,5 +19,6 @@ void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_
 void act_arm(void);
 void act_disarm(void);
 
-void act_setMMX(float thrust, float yaw, float pitch, float roll);
+void act_output(llc_ThrustVec tv);
+
 #endif // ACT_H

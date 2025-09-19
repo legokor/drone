@@ -1,10 +1,12 @@
 #include "act/act.h"
 #include "err/err.h"
+#include "llc/llc.h"
 #include "log/log.h"
 
 #include "arm_math.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 static volatile bool _act_armed = false;
 
@@ -24,8 +26,8 @@ void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_
 
         _act_motors[i] = (act_Motor) { .channel = channel, .timer = timer };
 
-        __HAL_TIM_SET_COMPARE(timer, channel, act_PWM_MIN + (0 * act_PWM_RANGE / 100));
         HAL_TIM_PWM_Start(timer, channel);
+        __HAL_TIM_SET_COMPARE(timer, channel, act_PWM_MIN + (0 * act_PWM_RANGE / 100));
     }
 }
 
@@ -38,7 +40,7 @@ static void act_setMotorSpeed(uint8_t idx, uint16_t percent) {
     // log_debug("beallitva %d. motor\r\n", motor.number);
 }
 
-void act_setMMX(float thrust, float yaw, float pitch, float roll) {
+void act_output(llc_ThrustVec in) {
     err_assert(act_MOTOR_COUNT == 4);
 
     if (!_act_armed) {
@@ -47,10 +49,10 @@ void act_setMMX(float thrust, float yaw, float pitch, float roll) {
     }
 
     float speed[act_MOTOR_COUNT] = {
-        thrust + yaw + pitch + roll, //
-        thrust - yaw + pitch - roll, //
-        thrust + yaw - pitch + roll, //
-        thrust - yaw - pitch - roll  //
+        in.thrust + in.yaw + in.pitch + in.roll, //
+        in.thrust - in.yaw + in.pitch - in.roll, //
+        in.thrust + in.yaw - in.pitch + in.roll, //
+        in.thrust - in.yaw - in.pitch - in.roll  //
     };
 
     float tmp[act_MOTOR_COUNT];
@@ -61,7 +63,7 @@ void act_setMMX(float thrust, float yaw, float pitch, float roll) {
     arm_clip_f32(tmp, speed, act_PWM_MIN, act_PWM_MAX, act_MOTOR_COUNT);
 
     for (int i = 0; i < act_MOTOR_COUNT; i++)
-        act_setMotorSpeed(i, speed[i]);
+        act_setMotorSpeed(i, (uint16_t) speed[i]);
 
     // log_debug("1:%d 2:%d 3:%d 4:%d\n", speed[0], speed[1], speed[2], speed[3]);
 }

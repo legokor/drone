@@ -3,7 +3,13 @@
 
 void log_init(void);
 
-typedef enum log_LogLevel { log_NONE, log_DEBUG, log_INFO, log_WARN, log_ERROR } log_LogLevel;
+typedef enum log_LogLevel {
+    log_NONE = 0,
+    log_DEBUG,
+    log_INFO,
+    log_WARN,
+    log_ERROR,
+} log_LogLevel;
 
 void log_write(log_LogLevel level, const char* format, ...);
 

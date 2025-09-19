@@ -1,9 +1,18 @@
 #ifndef ERR_H
 #define ERR_H
 
+#include <stdbool.h>
 #include "utils/utils.h"
 
 #include "stm32f4xx_hal.h"
+
+#define err_try(expr)                 \
+    do {                              \
+        bool __err_status__ = (expr); \
+        if (!__err_status__) {        \
+            return false;             \
+        }                             \
+    } while (0)
 
 /// FATAL ERRORS
 
@@ -32,12 +41,12 @@ void err_handle_fatal(const char* descr);
  * @param descr The description of the error
  */
 #define err_tryFatal(expr, descr) _err_tryFatal(expr, descr, __FILE__, __LINE__)
-#define _err_tryFatal(expr, descr, file, line)                                      \
-    do {                                                                            \
-        bool __err_status__ = (expr);                                               \
-        if (!__err_status__) {                                                      \
-            err_handle_fatal(descr " (" file ":" utils_EXPAND_AND_QUOTE(line) ")"); \
-        }                                                                           \
+#define _err_tryFatal(expr, descr, file, line) \
+    do {                                       \
+        bool __err_status__ = (expr);          \
+        if (!__err_status__) {                 \
+            err_fatal(descr);                  \
+        }                                      \
     } while (0)
 
 /// IGNORABLE ERRORS
@@ -67,12 +76,12 @@ void err_handle_ignorable(const char* descr);
  * @param descr The description of the error
  */
 #define err_tryIgnorable(expr, descr) _err_tryIgnorable(expr, descr, __FILE__, __LINE__)
-#define _err_tryIgnorable(expr, descr, file, line)                                      \
-    do {                                                                                \
-        bool __err_status__ = (expr);                                                   \
-        if (!__err_status__) {                                                          \
-            err_handle_ignorable(descr " (" file ":" utils_EXPAND_AND_QUOTE(line) ")"); \
-        }                                                                               \
+#define _err_tryIgnorable(expr, descr, file, line) \
+    do {                                           \
+        bool __err_status__ = (expr);              \
+        if (!__err_status__) {                     \
+            err_ignorable(descr);                  \
+        }                                          \
     } while (0)
 
 // ASSERTS
@@ -87,12 +96,12 @@ void err_handle_ignorable(const char* descr);
 
 #ifdef DEBUG
 
-#define _err_assert(expr, file, line)                                                                             \
-    do {                                                                                                          \
-        bool __err_assert_status__ = (expr);                                                                      \
-        if (!__err_assert_status__) {                                                                             \
-            err_handle_fatal("Assert failed: " utils_QUOTE(expr) " (" file ":" utils_EXPAND_AND_QUOTE(line) ")"); \
-        }                                                                                                         \
+#define _err_assert(expr, file, line)                       \
+    do {                                                    \
+        bool __err_assert_status__ = (expr);                \
+        if (!__err_assert_status__) {                       \
+            err_fatal("Assert failed: " utils_QUOTE(expr)); \
+        }                                                   \
     } while (0)
 
 #else
@@ -102,5 +111,7 @@ void err_handle_ignorable(const char* descr);
     } while (0)
 
 #endif
+
+#define err_todo(...) err_fatal("TODO" __VA_OPT__(": " reason))
 
 #endif // ERR_H

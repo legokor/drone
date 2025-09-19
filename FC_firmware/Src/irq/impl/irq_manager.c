@@ -4,16 +4,16 @@
 
 #include "stm32f4xx_hal.h"
 
-static _int_CallbackListEntry _int_callbackList[_int_EVENT_TYPE_COUNT][_int_MAX_SUBSCR_COUNT + 1] = { 0 };
+static _irq_CallbackListEntry _irq_callbackList[_irq_EVENT_TYPE_COUNT][_irq_MAX_SUBSCR_COUNT + 1] = { 0 };
 
-void int_subscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, void* context, void* halHandle) {
-    err_assert(eventType >= _int_EVENT_TYPE_COUNT);
+void irq_subscribeToIrq(irq_IntEventType eventType, irq_CallbackFn cbFnHandle, void* context, void* halHandle) {
+    err_assert(eventType < _irq_EVENT_TYPE_COUNT);
 
-    for (int p = 0; p < _int_MAX_SUBSCR_COUNT; p++) {
-        if (_int_callbackList[eventType][p].cbFn == NULL) {
+    for (int p = 0; p < _irq_MAX_SUBSCR_COUNT; p++) {
+        if (_irq_callbackList[eventType][p].cbFn == NULL) {
             __disable_irq();
 
-            _int_callbackList[eventType][p] = (_int_CallbackListEntry) {
+            _irq_callbackList[eventType][p] = (_irq_CallbackListEntry) {
                 .cbFn = cbFnHandle,    //
                 .context = context,    //
                 .halHandle = halHandle //
@@ -24,11 +24,11 @@ void int_subscribeToInt(int_IntEventType eventType, int_CallbackFn cbFnHandle, v
         }
     }
 
-    err_fatal("Event pool is full");
+    err_fatal("Failed to register interrupt");
 }
 
-void _int_triggerCbs(int_IntEventType eventType, void* handle) {
-    _int_CallbackListEntry* eventCbList = _int_callbackList[eventType];
+void _irq_triggerCbs(irq_IntEventType eventType, void* handle) {
+    _irq_CallbackListEntry* eventCbList = _irq_callbackList[eventType];
 
     for (uint32_t i = 0; eventCbList[i].cbFn != NULL; i++) {
         if (eventCbList[i].halHandle == handle)

@@ -1,22 +1,15 @@
 # Eclipse
-/.metadata
-/.settings
-/[Rr]elease
-/[Dd]ebug
-/.launch
+.metadata
+.settings
+[Rr]elease
+[Dd]ebug
+.launch
 
 # CubeMX
-/.mxproject
+.mxproject
 
 # CMake
-/build
-CMakeFiles
-CMakeCache.txt
-cmake_install.cmake
-compile_commands.json
-build.ninja
-Makefile
-cmake_install.cmake
+build
 
 # STM32CubeIDE / CMake windows
 .cproject

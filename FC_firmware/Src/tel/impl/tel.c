@@ -1,21 +1,16 @@
 #include "tel/tel.h"
+#include "err/err.h"
 #include "log/log.h"
-#include "sys/sys.h"
 
+#include <stddef.h>
 #include <string.h>
 
 #define MAX_SOURCE_COUNT 20
 
+// compacted list of sources
 static tel_WriteFn _tel_sources[MAX_SOURCE_COUNT] = { 0 };
 
-static void _tel_writeUart(uint32_t t, tel_Topic topic, const void* data, size_t len, tel_DataType type) {
-    // TODO: move + packetize
-    uart_transmit(&sys_uartInstance, data, len);
-}
-
 void tel_init(void) {
-    tel_addSource(_tel_writeUart);
-
     log_debug("Telemetry initialized");
 }
 
@@ -27,18 +22,27 @@ void tel_addSource(tel_WriteFn writeFn) {
         }
     }
 
-    // TODO: error
+    err_fatal("Ran out of telemetry sources");
 }
 
 void tel_removeSource(tel_WriteFn writeFn) {
     for (size_t i = 0; i < MAX_SOURCE_COUNT; i++) {
         if (_tel_sources[i] == writeFn) {
             _tel_sources[i] = NULL;
+
+            // compact
+            for (size_t j = i; j < MAX_SOURCE_COUNT; j++) {
+                _tel_sources[j - 1] = _tel_sources[j];
+
+                if (_tel_sources[j] != NULL)
+                    break;
+            }
+
             return;
         }
     }
 
-    // TODO: error
+    err_ignorable("Ran out of telemetry sources");
 }
 
 static void _tel_writeMessage(tel_Topic topic, const void* data, size_t len, tel_DataType type) {
@@ -46,7 +50,7 @@ static void _tel_writeMessage(tel_Topic topic, const void* data, size_t len, tel
         tel_WriteFn fn = _tel_sources[i];
 
         if (fn == NULL)
-            continue;
+            break;
 
         fn(HAL_GetTick(), topic, data, len, type);
     }

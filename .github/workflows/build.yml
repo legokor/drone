@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - .github/workflows/build.yml
+      - stm32f446retx_flash.ld
+      - startup_stm32f446xx.s
+      - CMakeLists.txt
+      - Drivers/**
+      - Core/**
+      - Src/**
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:   [ ubuntu, windows ]
+        type: [ debug, release ]
+
+        exclude:
+          - os: windows
+            type: release
+
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+
+      - name: Configure
+        run: cmake -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.type }}"
+        working-directory: FC_firmware
+
+      - name: Build
+        run: cmake --build .
+        working-directory: FC_firmware
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: "firmware-${{ matrix.os }}-${{ matrix.type }}"
+          path: FC_firmware/FC_firmware.bin
+          if-no-files-found: error

@@ -6,6 +6,6 @@
 
 void guide_init(void);
 
-llc_ThrustVec guide_get_ref(ctrl_Mode mode);
+llc_ThrustVec guide_getRef(ctrl_Mode mode);
 
 #endif // GUIDE_H

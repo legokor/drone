@@ -6,7 +6,6 @@
 #include "stm32f4xx_hal.h"
 
 #include <math.h>
-#include <stdio.h>
 
 // the definitions for the inputs / outputs
 #define _dsp_DATA_IMPL(type, name)  \
@@ -45,9 +44,13 @@ void dsp_update(void) {
     imu_Vec3 inGyr = dsp_getInGyr();
 
     static imu_Vec3 _dsp_gyrIntegral = { 0 };
-    _dsp_gyrIntegral.roll += inGyr.roll * dt;
-    _dsp_gyrIntegral.pitch += inGyr.pitch * dt;
-    _dsp_gyrIntegral.yaw += inGyr.yaw * dt;
+
+    // _dsp_gyrIntegral.roll += inGyr.roll * dt;
+    // _dsp_gyrIntegral.pitch += inGyr.pitch * dt;
+    // _dsp_gyrIntegral.yaw += inGyr.yaw * dt;
+    imu_Vec3 tmp;
+    arm_add_f32(_dsp_gyrIntegral.arr, inGyr.arr, tmp.arr, 3);
+    arm_scale_f32(tmp.arr, dt, _dsp_gyrIntegral.arr, 3);
 
     float rollA = atan2f(inAcc.x, inAcc.z);
     float pitchA = atan2f(inAcc.y, inAcc.z);

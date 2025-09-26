@@ -11,6 +11,7 @@ static void _err_abort_fn(void* args) {
     tel_writeString(0, params->descr);
 }
 
+[[noreturn]]
 static void _err_abort(const char* descr) {
     _err_abort_fn_params params = { descr };
     sys_abort(_err_abort_fn, &params);

@@ -21,6 +21,7 @@
  *
  * @param descr The errors description
  */
+[[noreturn]]
 void err_handle_fatal(const char* descr);
 
 /**

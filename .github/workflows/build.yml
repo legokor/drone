@@ -3,13 +3,14 @@ name: Build
 on:
   push:
     branches:
-      - '**'
+      - "**"
     paths:
       - .github/workflows/build.yml
       - stm32f446retx_flash.ld
       - startup_stm32f446xx.s
       - CMakeLists.txt
       - Drivers/**
+      - cmake/**
       - Core/**
       - Src/**
 
@@ -18,8 +19,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:   [ ubuntu, windows ]
-        type: [ debug, release ]
+        os: [ubuntu, windows]
+        type: [debug, release]
 
         exclude:
           - os: windows

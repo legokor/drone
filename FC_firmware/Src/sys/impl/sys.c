@@ -1,6 +1,4 @@
 #include "sys/sys.h"
-#include <stdint.h>
-
 #include "act/act.h"
 #include "bar/bar.h"
 #include "ctrl/ctrl.h"
@@ -13,34 +11,35 @@
 #include "rc/rc.h"
 #include "tel/tel.h"
 
-#include "stm32f4xx_hal.h"
+#include "config.h"
 
 #include "main.h"
 #include "tim.h"
 #include "usart.h"
 
+#include "stm32f4xx_hal.h"
+
+#include <stddef.h>
+#include <stdint.h>
+
 uart_Uart sys_uartInstance;
+rc_Rc sys_rcInstance;
+
 static imu_Imu _sys_imuInstance;
-static rc_Rc _sys_rcInstance;
 
 static bool _sys_initalized = false;
 
 static void _sys_init_drivers(void) {
     log_debug("Initalizing drivers...");
 
-    rc_init(&_sys_rcInstance, &huart5);
+    err_tryFatal(rc_init(&sys_rcInstance, &huart5), "Failed to init rc");
 
     HAL_TIM_Base_Start_IT(&htim9);
     HAL_GPIO_WritePin(IMU_CS_GPIO_Port, IMU_CS_Pin, 1);
 
-    err_tryFatal(                      //
-        imu_init(                      //
-            &_sys_imuInstance, &hspi2, //
-            IMU_CS_GPIO_Port, IMU_CS_Pin,
-            SPI2_IRQn, //
-            &htim9     //
-            ),         //
-        "Couldn't init imu");
+    err_tryFatal(imu_init(&_sys_imuInstance, &hspi2, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, &htim9),
+                 "Couldn't init imu");
+
     err_tryFatal(imu_setDefaultSettings(&_sys_imuInstance), "Couldn't set imu default params");
 
     // bar_init();
@@ -92,7 +91,7 @@ static void _sys_init(void) {
     log_debug("Initializing...");
 
     _sys_init_drivers();
-    HAL_Delay(15);
+    HAL_Delay(20);
     _sys_init_modules();
 
     err_tryFatal(imu_calculateGyroOffset(&_sys_imuInstance), "Couldn't calculate gyro offsets");
@@ -104,7 +103,7 @@ static void _sys_init(void) {
 void sys_entry(void) {
     _sys_init();
 
-    int guideLoopLengthMS = 1000 / sys_ACT_FREQ;
+    int guideLoopLengthMS = 1000 / CONFIG_ACT_FREQ;
 
     // TODO: use more precise timer
     uint32_t nextGuide = HAL_GetTick() + guideLoopLengthMS;
@@ -117,23 +116,18 @@ void sys_entry(void) {
         err_tryFatal(imu_readGyroData(&_sys_imuInstance, &gyro), "Failed to read IMU gyro");
         dsp_setInGyr(gyro);
 
-        // log_raw("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f",                //
-        //         (double) acc.x, (double) acc.y, (double) acc.z, //
-        //         (double) gyro.roll, (double) gyro.pitch, (double) gyro.yaw);
-
         dsp_update();
 
         imu_Vec3 a = dsp_getOutAng();
 
         if (nextGuide <= HAL_GetTick()) {
             ctrl_Mode ctrl_mode = ctrl_getMode();
-            llc_ThrustVec guide_ref = guide_get_ref(ctrl_mode);
+            llc_ThrustVec guide_ref = guide_getRef(ctrl_mode);
             llc_ThrustVec llc_out = llc_update(guide_ref);
             act_output(llc_out);
 
             nextGuide += guideLoopLengthMS;
-            log_raw("%.2f,%.2f,%.2f", (double) a.roll * 180 / 3.14, (double) a.pitch * 180 / 3.14,
-                    (double) a.yaw * 180 / 3.14);
+            log_raw("%.2f,%.2f", (double) utils_RAD_TO_DEG(a.roll), (double) utils_RAD_TO_DEG(a.pitch));
         }
     }
 }

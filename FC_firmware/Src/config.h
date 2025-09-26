@@ -1,6 +1,12 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define LOG_TOPIC 0
+#define CONFIG_LOG_TOPIC 0
+
+#define CONFIG_ACT_FREQ 50
+
+#define CONFIG_LLC_ROLL_PID_CONSTS 0, 0, 0
+#define CONFIG_LLC_PITCH_PID_CONSTS 0, 0, 0
+#define CONFIG_LLC_YAW_PID_CONSTS 0, 0, 0
 
 #endif // CONFIG_H

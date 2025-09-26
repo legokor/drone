@@ -1,16 +1,17 @@
 #ifndef SYS_H
 #define SYS_H
 
+#include "rc/rc.h"
 #include "uart/uart.h"
 
-#define sys_ACT_FREQ 50
-
 extern uart_Uart sys_uartInstance;
+extern rc_Rc sys_rcInstance;
 
 void sys_entry(void);
 
 typedef void (*sys_AbortFn)(void*);
-void sys_abort(sys_AbortFn fn, void*arg);
+[[noreturn]]
+void sys_abort(sys_AbortFn fn, void* arg);
 
 bool sys_initalized(void);
 

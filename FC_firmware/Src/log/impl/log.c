@@ -16,12 +16,7 @@ void log_init(void) {}
 #define _log_TYPE_SIZE ((uint8_t) 3)
 #define _log_PREFIX_SIZE (_log_TYPE_SIZE + sizeof("[] ") - 1)
 
-const char LEVEL_STR[5 * _log_TYPE_SIZE] =
-    "xxx"
-    "DBG"
-    "INF"
-    "WRN"
-    "ERR";
+const char _log_LEVEL_STR[5][_log_TYPE_SIZE + 1] = { "xxx", "DBG", "INF", "WRN", "ERR" };
 
 static char _log_buf[_log_BUF_SIZE];
 
@@ -30,7 +25,7 @@ static void _log_write(log_LogLevel level, const char* restrict format, va_list 
     size_t buf_size = _log_BUF_SIZE;
     if (level != log_NONE) {
         _log_buf[0] = '[';
-        memcpy(_log_buf + 1, LEVEL_STR + level * _log_TYPE_SIZE, _log_TYPE_SIZE);
+        memcpy(_log_buf + 1, _log_LEVEL_STR[level], _log_TYPE_SIZE);
         _log_buf[_log_TYPE_SIZE + 1] = ']';
         _log_buf[_log_TYPE_SIZE + 2] = ' ';
 
@@ -51,7 +46,7 @@ static void _log_write(log_LogLevel level, const char* restrict format, va_list 
     // copy null too
     memcpy(buf + idx, "\r\n\0", 4);
 
-    tel_writeString(LOG_TOPIC, _log_buf);
+    tel_writeString(CONFIG_LOG_TOPIC, _log_buf);
 }
 
 void log_raw(const char* restrict format, ...) {

@@ -34,8 +34,7 @@ add_executable(${CMAKE_PROJECT_NAME})
 add_subdirectory(cmake/stm32cubemx build/stm32cubemx)
 
 # Link directories setup
-target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
-)
+target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE)
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
@@ -70,8 +69,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add project symbols (macros)
-target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
-)
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
 
 # CMSIS DSP
 include(FetchContent)
@@ -87,7 +85,7 @@ FetchContent_Declare(
 set(CMSISCORE ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS)
 FetchContent_MakeAvailable(CMSISDSP)
 
-target_compile_options(CMSISDSP PUBLIC 
+target_compile_options(CMSISDSP PUBLIC
     -Wsign-compare
     -Wdouble-promotion
     -Ofast -ffast-math

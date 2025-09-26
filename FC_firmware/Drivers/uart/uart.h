@@ -1,10 +1,10 @@
 #ifndef UART_H
 #define UART_H
 
+#include "stm32f4xx_hal.h"
+
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "stm32f4xx_hal.h"
 
 typedef struct [[nodiscard]] uart_UartInitParams {
     UART_HandleTypeDef* huart;

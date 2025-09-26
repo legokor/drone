@@ -1,4 +1,5 @@
 #include "rc/rc.h"
+#include "err/err.h"
 #include "irq/irq.h"
 #include "log/log.h"
 #include "utils/utils.h"
@@ -29,7 +30,7 @@ static void _rc_handleRxCplt(void* context) {
             rc->rxDMABuffer[0] == _rc_SBUS_FRAME_START) {
             rc->state = rc_STATE_RECEIVING;
 
-            HAL_UART_Receive_DMA(rc->huart, (uint8_t*) rc->rxDMABuffer + 1, rc_SBUS_FRAME_SIZE - 1);
+            HAL_UART_Receive_DMA(rc->huart, (uint8_t*) rc->rxDMABuffer + 1, _rc_SBUS_FRAME_SIZE - 1);
 
             // HAL enables it every time...
             __HAL_DMA_DISABLE_IT(rc->huart->hdmarx, DMA_IT_HT);
@@ -38,10 +39,10 @@ static void _rc_handleRxCplt(void* context) {
             rc->frameValid = false;
         }
     } else if (rc->state == rc_STATE_RECEIVING) {
-        rc->frameValid = rc->rxDMABuffer[rc_SBUS_FRAME_SIZE - 1] == _rc_SBUS_FRAME_END;
+        rc->frameValid = rc->rxDMABuffer[_rc_SBUS_FRAME_SIZE - 1] == _rc_SBUS_FRAME_END;
         rc->state = rc_STATE_WAIT_FOR_START;
 
-        memcpy((uint8_t*) rc->rxDataBuffer, (uint8_t*) rc->rxDMABuffer, rc_SBUS_FRAME_SIZE);
+        memcpy((uint8_t*) rc->rxDataBuffer, (uint8_t*) rc->rxDMABuffer, _rc_SBUS_FRAME_SIZE);
 
         HAL_UART_Receive_IT(rc->huart, (uint8_t*) rc->rxDMABuffer, 1);
     }
@@ -49,7 +50,7 @@ static void _rc_handleRxCplt(void* context) {
     rc->lastFrameTime = currentTime;
 }
 
-void rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
+bool rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
     log_debug("Initializing rc...");
 
     rc->huart = huart;
@@ -59,7 +60,9 @@ void rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
 
     irq_subscribeToIrq(irq_UART_RX_CPLT, _rc_handleRxCplt, rc, huart);
 
-    HAL_UART_Receive_IT(huart, (uint8_t*) rc->rxDataBuffer, 1);
+    err_try(HAL_UART_Receive_IT(huart, (uint8_t*) rc->rxDataBuffer, 1) == HAL_OK);
+
+    return true;
 }
 
 // aaaaaaaa
@@ -73,7 +76,7 @@ void rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
 // bbbbbbbbbbb
 // ccccccccccc
 // ddddddddddd
-static void _rc_parseData(const uint8_t* restrict buff, uint16_t* channels) {
+static void _rc_parseData(const uint8_t* restrict buff, rc_RxPackage* data) {
     // same as the hard-coded version on O3
 
     for (size_t c = 0; c < _rc_SBUS_CHANNELS; c++) {
@@ -85,23 +88,13 @@ static void _rc_parseData(const uint8_t* restrict buff, uint16_t* channels) {
         for (int i = 0; i < _rc_SBUS_CHAN_BYTES; i++)
             d |= buff[byte_pos + i] << (i * 8);
 
-        channels[c] = (d >> bit_offset) & _rc_SBUS_MASK;
-    }
-}
-
-bool rc_getData(rc_Rc* rc, rc_RxPackage* data) {
-    if (!rc->frameValid) {
-        return false;
+        data->channels[c] = (d >> bit_offset) & _rc_SBUS_MASK;
     }
 
-    HAL_NVIC_DisableIRQ(rc->writeIrq);
-
-    uint8_t buff[rc_SBUS_FRAME_SIZE];
-    memcpy(buff, (uint8_t*) rc->rxDataBuffer, rc_SBUS_FRAME_SIZE);
-
-    HAL_NVIC_EnableIRQ(rc->writeIrq);
-
-    _rc_parseData(buff, data->channels);
+    data->channels[16] = (buff[23] & _rc_SBUS_CH17_MASK) > 0;
+    data->channels[17] = (buff[23] & _rc_SBUS_CH18_MASK) > 0;
+    data->frameLost = (buff[23] & _rc_SBUS_LOST_FRAME_MASK) > 0;
+    data->failsafeActive = (buff[23] & _rc_SBUS_FAILSAFE_MASK) > 0;
 
     // data->channels[0] = (buff[1] | ((buff[2] << 8) & 0x07FF));
     // data->channels[1] = ((buff[2] >> 3) | ((buff[3] << 5) & 0x07FF));
@@ -119,11 +112,20 @@ bool rc_getData(rc_Rc* rc, rc_RxPackage* data) {
     // data->channels[13] = ((buff[18] >> 7) | (buff[19] << 1) | ((buff[20] << 9) & 0x07FF));
     // data->channels[14] = ((buff[20] >> 2) | ((buff[21] << 6) & 0x07FF));
     // data->channels[15] = ((buff[21] >> 5) | ((buff[22] << 3) & 0x07FF));
+}
 
-    data->channels[16] = (buff[23] & _rc_SBUS_CH17_MASK) > 0;
-    data->channels[17] = (buff[23] & _rc_SBUS_CH18_MASK) > 0;
-    data->frameLost = (buff[23] & _rc_SBUS_LOST_FRAME_MASK) > 0;
-    data->failsafeActive = (buff[23] & _rc_SBUS_FAILSAFE_MASK) > 0;
+bool rc_getData(const rc_Rc* rc, rc_RxPackage* data) {
+    HAL_NVIC_DisableIRQ(rc->writeIrq);
+    if (!rc->frameValid) {
+        HAL_NVIC_EnableIRQ(rc->writeIrq);
+        return false;
+    }
+
+    uint8_t buff[_rc_SBUS_FRAME_SIZE];
+    memcpy(buff, (const uint8_t*) rc->rxDataBuffer, _rc_SBUS_FRAME_SIZE);
+    HAL_NVIC_EnableIRQ(rc->writeIrq);
+
+    _rc_parseData(buff, data);
 
     return true;
 }

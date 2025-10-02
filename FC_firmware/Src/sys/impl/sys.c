@@ -67,6 +67,9 @@ static void _sys_init_modules(void) {
 
 static void _sys_writeUart(uint32_t t, tel_Topic topic, const void* data, size_t len, tel_DataType type) {
     // TODO: move + packetize
+    if (topic != CONFIG_LOG_TOPIC)
+        return;
+
     err_tryIgnorable(uart_transmit(&sys_uartInstance, data, len), "failed to write through debug uart");
 }
 
@@ -96,6 +99,8 @@ static void _sys_init(void) {
 
     err_tryFatal(imu_calculateGyroOffset(&_sys_imuInstance), "Couldn't calculate gyro offsets");
     imu_enableGyroOffsetSubtraction(&_sys_imuInstance, true);
+
+    ctrl_setMode(ctrl_RC);
 
     _sys_initalized = true;
 }

@@ -74,7 +74,12 @@ llc_ThrustVec llc_update(llc_ThrustVec ref) {
     // tilt compensation
     float tr = tanf(pv.roll), tp = tanf(pv.pitch);
     float sq;
-    err_tryIgnorable(arm_sqrt_f32(tr * tr + tp * tp, &sq) == ARM_MATH_SUCCESS, "Square root of negative number in dsp tilt compensation");
+
+    if (arm_sqrt_f32(tr * tr + tp * tp, &sq) != ARM_MATH_SUCCESS) {
+        err_ignorable("Square root of negative number in dsp tilt compensation");
+        err_todo("???");
+    }
+
     float inclanation = atanf(sq);
 
     out.thrust = ref.thrust / arm_cos_f32(inclanation);

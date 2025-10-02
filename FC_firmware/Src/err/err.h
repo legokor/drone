@@ -113,6 +113,6 @@ void err_handle_ignorable(const char* descr);
 
 #endif
 
-#define err_todo(...) err_fatal("TODO" __VA_OPT__(": " reason))
+#define err_todo(...) err_fatal("TODO" __VA_OPT__(": " __VA_ARGS__))
 
 #endif // ERR_H

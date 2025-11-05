@@ -9,4 +9,11 @@
 #define CONFIG_LLC_PITCH_PID_CONSTS 0, 0, 0
 #define CONFIG_LLC_YAW_PID_CONSTS 0, 0, 0
 
+// TODO: double check
+#define CONFIG_RC_CHAN_ARM -1
+#define CONFIG_RC_CHAN_ROLL 0
+#define CONFIG_RC_CHAN_PITCH 1
+#define CONFIG_RC_CHAN_YAW 3
+#define CONFIG_RC_CHAN_THRUST 2
+
 #endif // CONFIG_H

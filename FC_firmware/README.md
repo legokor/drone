@@ -22,20 +22,34 @@ Modes:
 
 ### \[RC\] Remote Control
 
-Uses SBUS to get .
-
+Gets the RC controller's channels from SBUS.
 
 ### \[G\] Guidance
 
-### \[T\] Telemetry
+Input:
+ - RC: angles (RC hover mode)
+ - waypoint: next point(s) / curve
+Output: desired angles.
+
+Multiple implementations for RC, GPS waypoints, etc.
 
 ### \[LLC\] Low-level Control
 
+Input: reference signal for drone angles & thrust.
+Output: thrust vector.
+
 ### \[ACT\] Physical Output
+
+Input: arm signal & thrust vector.
+Output: ESC signals.
+
+### \[T\] Telemetry
 
 ### \[S\] Temporary Storage
 
 ### \[DSP\] Digital Signal Processing
+
+Calculates the estimated state.
 
 ### \[P GPS\] GPS IC
 
@@ -74,7 +88,10 @@ cmake --build build
 [stlink](https://github.com/stlink-org/stlink/) is recommended for flashing / debugging.
 
 ```bash
-st-flash write FC_firmware.bin 0x8000000
+st-flash --flash=512k --opt write build/FC_firmware.bin 0x8000000
+
+# restart (needed to start after flashing)
+st-flash reset
 ```
 
 ### Debugging
@@ -90,7 +107,7 @@ st-util
 Connect to the server from a separate shell:
 
 ```sh
-arm-none-eabi-gdb FC_firmware.elf -q -ex 'tar ext :4242'
+arm-none-eabi-gdb build/FC_firmware.elf -q -ex 'tar ext :4242'
 ```
 
 #### VSCode
@@ -105,7 +122,7 @@ Install the `cortex-debug` extension, then you can use the following [`launch.js
             "name": "Debug firmware with ST-Util",
             "request": "launch",
             "type": "cortex-debug",
-            "executable": "${workspaceFolder}/FC_firmware.elf",
+            "executable": "${workspaceFolder}/build/FC_firmware.elf",
             "servertype": "stutil",
             "cwd": "${workspaceFolder}",
             "runToEntryPoint": "main",
@@ -117,11 +134,9 @@ Install the `cortex-debug` extension, then you can use the following [`launch.js
 
 ## Building on Windows
 
-> Note: Keeping this section up to date will be done on a best-effort basis, as Linux is the recommended platform for building this project.
-<!-- comment to separate block quotes -->
 > Note: You can imitate linux with [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and proceed like in the [linux section](#building-on-linux). You can also use [MSYS2](https://www.msys2.org/) to achieve the same thing.
 
-Use [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html) as an IDE. You need [CMake](https://cmake.org/), [Ninja](https://ninja-build.org/) and the [Arm Embedded Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) for building.
+You need [CMake](https://cmake.org/), [Ninja](https://ninja-build.org/) and the [Arm Embedded Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) for building.
 
 Using the following commands in CMD / PowerShell ([Windows Terminal](https://github.com/microsoft/terminal/) is recommended) is the easiest to install them:
 > Note: `winget` is installed by default on Windows 11 and newer versions of Windows 10. If not installed use this PowerShell command: `Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe` acccording to [Microsoft documentation](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget).

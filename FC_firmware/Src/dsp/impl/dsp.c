@@ -45,10 +45,17 @@ void dsp_update(void) {
 
     static imu_Vec3 _dsp_gyrIntegral = { 0 };
 
+    // integrate gyro
+    // TODO: check if this works
+
+    // inGyr *= dt (arm_scale_f32 supports in-place operation)
+    arm_scale_f32(inGyr.arr, dt, inGyr.arr, 3);
+
+    // tmp = _dsp_gyrIntegral + inGyr
     imu_Vec3 tmp;
     // integrate gyro (_dsp_gyrIntegral -> tmp -> _dsp_gyrIntegral)
     arm_add_f32(_dsp_gyrIntegral.arr, inGyr.arr, tmp.arr, 3);
-    arm_scale_f32(tmp.arr, dt, _dsp_gyrIntegral.arr, 3);
+    _dsp_gyrIntegral = tmp;
 
     float rollA = atan2f(inAcc.x, inAcc.z);
     float pitchA = atan2f(inAcc.y, inAcc.z);
@@ -56,8 +63,8 @@ void dsp_update(void) {
     // complementary filter
     static float _dps_rollComp = 0, _dsp_pitchComp = 0;
 
-    _dps_rollComp = rollA * (1 - _dsp_alpha) + _dsp_alpha * (_dps_rollComp + inGyr.y * dt);
-    _dsp_pitchComp = pitchA * (1 - _dsp_alpha) + _dsp_alpha * (_dsp_pitchComp + inGyr.x * dt);
+    _dps_rollComp = rollA * (1 - _dsp_alpha) + _dsp_alpha * (_dps_rollComp + inGyr.y);
+    _dsp_pitchComp = pitchA * (1 - _dsp_alpha) + _dsp_alpha * (_dsp_pitchComp + inGyr.x);
 
     dsp_setOutAng((imu_Vec3) { .roll = _dps_rollComp, .pitch = _dsp_pitchComp, .yaw = _dsp_gyrIntegral.yaw });
 }

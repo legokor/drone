@@ -5,7 +5,7 @@
 #include "rc/rc.h"
 #include "sys/sys.h"
 
-#include <stdint.h>
+#include "config.h"
 
 void guide_init(void) {
     log_debug("Initializing guide...");
@@ -13,23 +13,40 @@ void guide_init(void) {
 
 static llc_ThrustVec _guide_rcMode() {
     rc_RxPackage d;
-    err_tryIgnorable(rc_getData(&sys_rcInstance, &d), "Failed to get rc data");
 
-#define _guide_c(c) ((d.channels[c]) / (float) UINT16_MAX)
+    // TODO: fatal?
+    bool gotRC = rc_getData(&sys_rcInstance, &d);
+    err_tryIgnorable(gotRC, "Failed to get rc data");
 
-    // TODO: correct channels
-    llc_ThrustVec ref = (llc_ThrustVec) {
-        .roll = _guide_c(0),
-        .pitch = _guide_c(1),
-        .yaw = _guide_c(2),
-        .thrust = _guide_c(3),
-    };
+    // FIXME
+#define _guide_c(c) ((float) d.channels[c])
 
-    llc_set_consts(_guide_c(4), _guide_c(5), _guide_c(6), //
-                   _guide_c(7), _guide_c(8), _guide_c(9), //
-                   _guide_c(10), _guide_c(11), _guide_c(12));
+    llc_ThrustVec ref;
+    if (gotRC) {
+
+        // TODO: correct channels
+        // TODO: disarm
+        ref = (llc_ThrustVec) {
+            .roll = _guide_c(CONFIG_RC_CHAN_ROLL),
+            .pitch = _guide_c(CONFIG_RC_CHAN_PITCH),
+            .yaw = _guide_c(CONFIG_RC_CHAN_YAW),
+            .thrust = _guide_c(CONFIG_RC_CHAN_THRUST),
+        };
+
+        llc_set_consts(_guide_c(4), _guide_c(5), _guide_c(6), //
+                       _guide_c(7), _guide_c(8), _guide_c(9), //
+                       _guide_c(10), _guide_c(11), _guide_c(12));
 
 #undef _guide_c
+    } else {
+        // TODO: hower
+        ref = (llc_ThrustVec) {
+            .roll = 0.0f,
+            .pitch = 0.0f,
+            .yaw = 0.0f,
+            .thrust = 0.0f,
+        };
+    }
 
     return ref;
 }

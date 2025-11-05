@@ -132,7 +132,13 @@ void sys_entry(void) {
             act_output(llc_out);
 
             nextGuide += guideLoopLengthMS;
-            log_raw("%.2f,%.2f", (double) utils_RAD_TO_DEG(a.roll), (double) utils_RAD_TO_DEG(a.pitch));
+            log_raw( //"%.2f,%.2f,%.2f,"
+                "%.2f,%.2f,%.2f,%.2f",
+                // (double) utils_RAD_TO_DEG(a.roll),
+                // (double) utils_RAD_TO_DEG(a.pitch),
+                // (double) utils_RAD_TO_DEG(a.yaw),
+                (double) utils_RAD_TO_DEG(guide_ref.roll), (double) utils_RAD_TO_DEG(guide_ref.pitch),
+                (double) utils_RAD_TO_DEG(guide_ref.yaw), (double) utils_RAD_TO_DEG(guide_ref.thrust));
         }
     }
 }

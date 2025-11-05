@@ -22,12 +22,13 @@
 #define _rc_SBUS_MASK ((1 << _rc_SBUS_CHAN_BITS) - 1)
 
 static void _rc_handleRxCplt(void* context) {
-    rc_Rc* rc = (rc_Rc*) context;
     uint32_t currentTime = HAL_GetTick();
+    rc_Rc* rc = (rc_Rc*) context;
 
     if (rc->state == rc_STATE_WAIT_FOR_START) {
-        if (currentTime - rc->lastFrameTime >= _rc_SBUS_MIN_TIME_BETWEEN_FRAMES &&
-            rc->rxDMABuffer[0] == _rc_SBUS_FRAME_START) {
+        bool frameStart = rc->rxDMABuffer[0] == _rc_SBUS_FRAME_START;
+        bool inTime = currentTime - rc->lastFrameTime >= _rc_SBUS_MIN_TIME_BETWEEN_FRAMES;
+        if (frameStart && inTime) {
             rc->state = rc_STATE_RECEIVING;
 
             HAL_UART_Receive_DMA(rc->huart, (uint8_t*) rc->rxDMABuffer + 1, _rc_SBUS_FRAME_SIZE - 1);

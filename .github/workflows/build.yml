@@ -8,6 +8,7 @@ on:
       - .github/workflows/build.yml
       - stm32f446retx_flash.ld
       - startup_stm32f446xx.s
+      - CMakePresets.json
       - CMakeLists.txt
       - Drivers/**
       - cmake/**

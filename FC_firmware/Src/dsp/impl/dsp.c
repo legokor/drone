@@ -5,8 +5,6 @@
 #include "arm_math.h"
 #include "stm32f4xx_hal.h"
 
-#include <math.h>
-
 // the definitions for the inputs / outputs
 #define _dsp_DATA_IMPL(type, name)  \
     static type _dsp_##name;        \
@@ -53,12 +51,16 @@ void dsp_update(void) {
 
     // tmp = _dsp_gyrIntegral + inGyr
     imu_Vec3 tmp;
-    // integrate gyro (_dsp_gyrIntegral -> tmp -> _dsp_gyrIntegral)
     arm_add_f32(_dsp_gyrIntegral.arr, inGyr.arr, tmp.arr, 3);
     _dsp_gyrIntegral = tmp;
 
-    float rollA = atan2f(inAcc.x, inAcc.z);
-    float pitchA = atan2f(inAcc.y, inAcc.z);
+    float rollA, pitchA;
+    arm_atan2_f32(inAcc.x, inAcc.z, &rollA);
+    arm_atan2_f32(inAcc.y, inAcc.z, &pitchA);
+
+    // TODO: worse?
+    // float rollA = atan2f(inAcc.x, inAcc.z);
+    // float pitchA = atan2f(inAcc.y, inAcc.z);
 
     // complementary filter
     static float _dps_rollComp = 0, _dsp_pitchComp = 0;

@@ -1,15 +1,25 @@
 #include "guide/guide.h"
+#include "act/act.h"
 #include "err/err.h"
 #include "llc/llc.h"
 #include "log/log.h"
 #include "rc/rc.h"
 #include "sys/sys.h"
+#include "utils/utils.h"
 
 #include "config.h"
 
 void guide_init(void) {
     log_debug("Initializing guide...");
 }
+
+#define __guide_SBUS_RANGE_MIN 0
+#define __guide_SBUS_RANGE_MAX 2048
+#define __guide_SBUS_RANGE __guide_SBUS_RANGE_MIN, __guide_SBUS_RANGE_MAX
+
+// TODO: ranges
+#define __guide_ROLL_PITCH_YAW_MAP_ARGS __guide_SBUS_RANGE, -1, 1
+#define __guide_THRUST_MAP_ARGS __guide_SBUS_RANGE, 0, 1
 
 static llc_ThrustVec _guide_rcMode() {
     rc_RxPackage d;
@@ -18,26 +28,33 @@ static llc_ThrustVec _guide_rcMode() {
     bool gotRC = rc_getData(&sys_rcInstance, &d);
     err_tryIgnorable(gotRC, "Failed to get rc data");
 
-    // FIXME
-#define _guide_c(c) ((float) d.channels[c])
-
     llc_ThrustVec ref;
     if (gotRC) {
 
         // TODO: correct channels
-        // TODO: disarm
         ref = (llc_ThrustVec) {
-            .roll = _guide_c(CONFIG_RC_CHAN_ROLL),
-            .pitch = _guide_c(CONFIG_RC_CHAN_PITCH),
-            .yaw = _guide_c(CONFIG_RC_CHAN_YAW),
-            .thrust = _guide_c(CONFIG_RC_CHAN_THRUST),
+            .roll = utils_mapF(d.channels[config_RC_CHAN_ROLL], __guide_ROLL_PITCH_YAW_MAP_ARGS),
+            .pitch = utils_mapF(d.channels[config_RC_CHAN_PITCH], __guide_ROLL_PITCH_YAW_MAP_ARGS),
+            .yaw = utils_mapF(d.channels[config_RC_CHAN_YAW], __guide_ROLL_PITCH_YAW_MAP_ARGS),
+            .thrust = utils_mapF(d.channels[config_RC_CHAN_THRUST], __guide_THRUST_MAP_ARGS),
         };
 
-        llc_set_consts(_guide_c(4), _guide_c(5), _guide_c(6), //
-                       _guide_c(7), _guide_c(8), _guide_c(9), //
-                       _guide_c(10), _guide_c(11), _guide_c(12));
+        // FIXME: max thrust clamped
+#define L 0.5
+        ref.roll = utils_clamp(ref.roll, -L, L);
+        ref.pitch = utils_clamp(ref.pitch, -L, L);
+        ref.yaw = utils_clamp(ref.yaw, -L, L);
+        ref.thrust = utils_clamp(ref.thrust, 0, L);
+#undef L
 
-#undef _guide_c
+        // FIXME: arm value
+        if (act_isArmed()) {
+            if (d.channels[config_RC_CHAN_ARM] < 1700)
+                act_disarm();
+        } else {
+            if (!(d.channels[config_RC_CHAN_ARM] < 1700))
+                act_arm();
+        }
     } else {
         // TODO: hower
         ref = (llc_ThrustVec) {

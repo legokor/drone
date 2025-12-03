@@ -1,19 +1,19 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define CONFIG_LOG_TOPIC 0
+#define config_LOG_TOPIC 0
 
-#define CONFIG_ACT_FREQ 50
+#define config_ACT_FREQ 50
 
-#define CONFIG_LLC_ROLL_PID_CONSTS 0, 0, 0
-#define CONFIG_LLC_PITCH_PID_CONSTS 0, 0, 0
-#define CONFIG_LLC_YAW_PID_CONSTS 0, 0, 0
+#define config_LLC_ROLL_PID_CONSTS 0, 0, 0
+#define config_LLC_PITCH_PID_CONSTS 0, 0, 0
+#define config_LLC_YAW_PID_CONSTS 0, 0, 0
 
-// TODO: double check
-#define CONFIG_RC_CHAN_ARM -1
-#define CONFIG_RC_CHAN_ROLL 0
-#define CONFIG_RC_CHAN_PITCH 1
-#define CONFIG_RC_CHAN_YAW 3
-#define CONFIG_RC_CHAN_THRUST 2
+// TODO: arm channel
+#define config_RC_CHAN_ARM 6
+#define config_RC_CHAN_ROLL 0
+#define config_RC_CHAN_PITCH 1
+#define config_RC_CHAN_YAW 3
+#define config_RC_CHAN_THRUST 2
 
 #endif // CONFIG_H

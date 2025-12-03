@@ -9,16 +9,16 @@
 
 #define act_MOTOR_COUNT 4
 
-#define act_PWM_MIN 1000
-#define act_PWM_MAX 2000
-
-#define act_PWM_RANGE (act_PWM_MAX - act_PWM_MIN)
-
 void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_MOTOR_COUNT]);
 
 void act_arm(void);
+bool act_isArmed(void);
 void act_disarm(void);
 
-void act_output(llc_ThrustVec tv);
+typedef struct act_FinalSignalTelemetry {
+    uint16_t motorSignals[act_MOTOR_COUNT];
+} act_FinalSignalTelemetry;
+
+act_FinalSignalTelemetry act_output(llc_ThrustVec tv);
 
 #endif // ACT_H

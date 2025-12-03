@@ -1,6 +1,5 @@
 #include "sys/sys.h"
 #include "act/act.h"
-#include "bar/bar.h"
 #include "ctrl/ctrl.h"
 #include "dsp/dsp.h"
 #include "err/err.h"
@@ -14,6 +13,7 @@
 #include "config.h"
 
 #include "main.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 
@@ -31,6 +31,10 @@ static bool _sys_initalized = false;
 
 static void _sys_init_drivers(void) {
     log_debug("Initalizing drivers...");
+
+    TIM_HandleTypeDef* ts[] = { &htim3, &htim3, &htim3, &htim3 };
+    uint32_t chns[] = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3, TIM_CHANNEL_4 };
+    act_init(ts, chns);
 
     err_tryFatal(rc_init(&sys_rcInstance, &huart5), "Failed to init rc");
 
@@ -54,10 +58,6 @@ static void _sys_init_drivers(void) {
 static void _sys_init_modules(void) {
     log_debug("Initializing software modules...");
 
-    TIM_HandleTypeDef* ts[] = { &htim3, &htim3, &htim3, &htim3 };
-    uint32_t chns[] = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3, TIM_CHANNEL_4 };
-    act_init(ts, chns);
-
     ctrl_init();
     guide_init();
     llc_init();
@@ -67,7 +67,7 @@ static void _sys_init_modules(void) {
 
 static void _sys_writeUart(uint32_t t, tel_Topic topic, const void* data, size_t len, tel_DataType type) {
     // TODO: move + packetize
-    if (topic != CONFIG_LOG_TOPIC)
+    if (topic != config_LOG_TOPIC)
         return;
 
     err_tryIgnorable(uart_transmit(&sys_uartInstance, data, len), "failed to write through debug uart");
@@ -108,7 +108,7 @@ static void _sys_init(void) {
 void sys_entry(void) {
     _sys_init();
 
-    int guideLoopLengthMS = 1000 / CONFIG_ACT_FREQ;
+    int guideLoopLengthMS = 1000 / config_ACT_FREQ;
 
     // TODO: use more precise timer
     uint32_t nextGuide = HAL_GetTick() + guideLoopLengthMS;
@@ -128,17 +128,28 @@ void sys_entry(void) {
         if (nextGuide <= HAL_GetTick()) {
             ctrl_Mode ctrl_mode = ctrl_getMode();
             llc_ThrustVec guide_ref = guide_getRef(ctrl_mode);
-            llc_ThrustVec llc_out = llc_update(guide_ref);
-            act_output(llc_out);
+            if (act_isArmed()) {
+                // llc_ThrustVec llc_out = llc_update(guide_ref);
+                // act_output(llc_out);
+                act_FinalSignalTelemetry act_out = act_output(guide_ref);
+
+                log_raw(
+                    "%.2f,%.2f,%.2f,%.2f,"
+                    "%u,%u,%u,%u",
+                    (double) guide_ref.roll, (double) guide_ref.pitch, //
+                    (double) guide_ref.yaw, (double) guide_ref.thrust, //
+                    (unsigned int) act_out.motorSignals[0],            //
+                    (unsigned int) act_out.motorSignals[1],            //
+                    (unsigned int) act_out.motorSignals[2],            //
+                    (unsigned int) act_out.motorSignals[3]);
+            } else {
+                log_raw("%.2f,%.2f,%.2f,%.2f,",                            //
+                        (double) guide_ref.roll, (double) guide_ref.pitch, //
+                        (double) guide_ref.yaw, (double) guide_ref.thrust  //
+                );
+            }
 
             nextGuide += guideLoopLengthMS;
-            log_raw( //"%.2f,%.2f,%.2f,"
-                "%.2f,%.2f,%.2f,%.2f",
-                // (double) utils_RAD_TO_DEG(a.roll),
-                // (double) utils_RAD_TO_DEG(a.pitch),
-                // (double) utils_RAD_TO_DEG(a.yaw),
-                (double) utils_RAD_TO_DEG(guide_ref.roll), (double) utils_RAD_TO_DEG(guide_ref.pitch),
-                (double) utils_RAD_TO_DEG(guide_ref.yaw), (double) utils_RAD_TO_DEG(guide_ref.thrust));
         }
     }
 }

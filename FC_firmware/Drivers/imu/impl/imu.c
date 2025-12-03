@@ -9,7 +9,6 @@
 
 #include "arm_math.h"
 
-#include <math.h>
 #include <string.h>
 
 #define _imu_SPI_TIMEOUT 3

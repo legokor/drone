@@ -17,7 +17,7 @@
 #define _rc_SBUS_MIN_TIME_BETWEEN_FRAMES 6
 
 #define _rc_SBUS_CHAN_BITS 11
-#define _rc_SBUS_CHAN_BYTES (_rc_SBUS_CHAN_BITS / 8 + utils_MIN(_rc_SBUS_CHAN_BITS % 8, 2))
+#define _rc_SBUS_CHAN_BYTES (_rc_SBUS_CHAN_BITS / 8 + utils_min(_rc_SBUS_CHAN_BITS % 8, 2))
 #define _rc_SBUS_CHANNELS 16
 #define _rc_SBUS_MASK ((1 << _rc_SBUS_CHAN_BITS) - 1)
 
@@ -80,39 +80,39 @@ bool rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
 static void _rc_parseData(const uint8_t* restrict buff, rc_RxPackage* data) {
     // same as the hard-coded version on O3
 
-    for (size_t c = 0; c < _rc_SBUS_CHANNELS; c++) {
-        size_t bit_pos = c * _rc_SBUS_CHAN_BITS;
-        size_t bit_offset = bit_pos % 8;
-        size_t byte_pos = bit_pos / 8;
-
-        uint32_t d = 0;
-        for (int i = 0; i < _rc_SBUS_CHAN_BYTES; i++)
-            d |= buff[byte_pos + i] << (i * 8);
-
-        data->channels[c] = (d >> bit_offset) & _rc_SBUS_MASK;
-    }
+    // for (size_t c = 0; c < _rc_SBUS_CHANNELS; c++) {
+    //     size_t bit_pos = c * _rc_SBUS_CHAN_BITS;
+    //     size_t bit_offset = bit_pos % 8;
+    //     size_t byte_pos = bit_pos / 8;
+    //
+    //     uint32_t d = 0;
+    //     for (int i = 0; i < _rc_SBUS_CHAN_BYTES; i++)
+    //         d |= buff[byte_pos + i] << (i * 8);
+    //
+    //     data->channels[c] = (d >> bit_offset) & _rc_SBUS_MASK;
+    // }
 
     data->channels[16] = (buff[23] & _rc_SBUS_CH17_MASK) > 0;
     data->channels[17] = (buff[23] & _rc_SBUS_CH18_MASK) > 0;
     data->frameLost = (buff[23] & _rc_SBUS_LOST_FRAME_MASK) > 0;
     data->failsafeActive = (buff[23] & _rc_SBUS_FAILSAFE_MASK) > 0;
 
-    // data->channels[0] = (buff[1] | ((buff[2] << 8) & 0x07FF));
-    // data->channels[1] = ((buff[2] >> 3) | ((buff[3] << 5) & 0x07FF));
-    // data->channels[2] = ((buff[3] >> 6) | (buff[4] << 2) | ((buff[5] << 10) & 0x07FF));
-    // data->channels[3] = ((buff[5] >> 1) | ((buff[6] << 7) & 0x07FF));
-    // data->channels[4] = ((buff[6] >> 4) | ((buff[7] << 4) & 0x07FF));
-    // data->channels[5] = ((buff[7] >> 7) | (buff[8] << 1) | ((buff[9] << 9) & 0x07FF));
-    // data->channels[6] = ((buff[9] >> 2) | ((buff[10] << 6) & 0x07FF));
-    // data->channels[7] = ((buff[10] >> 5) | ((buff[11] << 3) & 0x07FF));
-    // data->channels[8] = (buff[12] | ((buff[13] << 8) & 0x07FF));
-    // data->channels[9] = ((buff[13] >> 3) | ((buff[14] << 5) & 0x07FF));
-    // data->channels[10] = ((buff[14] >> 6) | (buff[15] << 2) | ((buff[16] << 10) & 0x07FF));
-    // data->channels[11] = ((buff[16] >> 1) | ((buff[17] << 7) & 0x07FF));
-    // data->channels[12] = ((buff[17] >> 4) | ((buff[18] << 4) & 0x07FF));
-    // data->channels[13] = ((buff[18] >> 7) | (buff[19] << 1) | ((buff[20] << 9) & 0x07FF));
-    // data->channels[14] = ((buff[20] >> 2) | ((buff[21] << 6) & 0x07FF));
-    // data->channels[15] = ((buff[21] >> 5) | ((buff[22] << 3) & 0x07FF));
+    data->channels[0] = (buff[1] | ((buff[2] << 8) & 0x07FF)) & 0x07FF;
+    data->channels[1] = ((buff[2] >> 3) | ((buff[3] << 5) & 0x07FF)) & 0x07FF;
+    data->channels[2] = ((buff[3] >> 6) | (buff[4] << 2) | ((buff[5] << 10) & 0x07FF)) & 0x07FF;
+    data->channels[3] = ((buff[5] >> 1) | ((buff[6] << 7) & 0x07FF)) & 0x07FF;
+    data->channels[4] = ((buff[6] >> 4) | ((buff[7] << 4) & 0x07FF)) & 0x07FF;
+    data->channels[5] = ((buff[7] >> 7) | (buff[8] << 1) | ((buff[9] << 9) & 0x07FF)) & 0x07FF;
+    data->channels[6] = ((buff[9] >> 2) | ((buff[10] << 6) & 0x07FF)) & 0x07FF;
+    data->channels[7] = ((buff[10] >> 5) | ((buff[11] << 3) & 0x07FF)) & 0x07FF;
+    data->channels[8] = (buff[12] | ((buff[13] << 8) & 0x07FF)) & 0x07FF;
+    data->channels[9] = ((buff[13] >> 3) | ((buff[14] << 5) & 0x07FF)) & 0x07FF;
+    data->channels[10] = ((buff[14] >> 6) | (buff[15] << 2) | ((buff[16] << 10) & 0x07FF)) & 0x07FF;
+    data->channels[11] = ((buff[16] >> 1) | ((buff[17] << 7) & 0x07FF)) & 0x07FF;
+    data->channels[12] = ((buff[17] >> 4) | ((buff[18] << 4) & 0x07FF)) & 0x07FF;
+    data->channels[13] = ((buff[18] >> 7) | (buff[19] << 1) | ((buff[20] << 9) & 0x07FF)) & 0x07FF;
+    data->channels[14] = ((buff[20] >> 2) | ((buff[21] << 6) & 0x07FF)) & 0x07FF;
+    data->channels[15] = ((buff[21] >> 5) | ((buff[22] << 3) & 0x07FF)) & 0x07FF;
 }
 
 bool rc_getData(const rc_Rc* rc, rc_RxPackage* data) {

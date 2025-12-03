@@ -46,7 +46,7 @@ static void _log_write(log_LogLevel level, const char* restrict format, va_list 
     // copy null too
     memcpy(buf + idx, "\r\n\0", 4);
 
-    tel_writeString(CONFIG_LOG_TOPIC, _log_buf);
+    tel_writeString(config_LOG_TOPIC, _log_buf);
 }
 
 void log_raw(const char* restrict format, ...) {

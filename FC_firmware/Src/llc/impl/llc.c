@@ -8,75 +8,67 @@
 
 #include "arm_math.h"
 
-static arm_pid_instance_f32 _llc_pid_roll, _llc_pid_pitch, _llc_pid_yaw;
+#include <math.h>
 
-static float _llc_roll_pid_consts[3] = { CONFIG_LLC_ROLL_PID_CONSTS };
-static float _llc_pitch_pid_consts[3] = { CONFIG_LLC_PITCH_PID_CONSTS };
-static float _llc_yaw_pid_consts[3] = { CONFIG_LLC_YAW_PID_CONSTS };
+static arm_pid_instance_f32 _llcRollPid, _llcPitchPid, _llcYawPid;
 
-static void _llc_reinit_pids() {
-    _llc_pid_roll.Kp = _llc_roll_pid_consts[0] / CONFIG_ACT_FREQ;
-    _llc_pid_roll.Ki = _llc_roll_pid_consts[1] / CONFIG_ACT_FREQ;
-    _llc_pid_roll.Kd = _llc_roll_pid_consts[2] / CONFIG_ACT_FREQ;
-    arm_pid_init_f32(&_llc_pid_roll, 0);
+static float _llcRollPidConsts[3] = { config_LLC_ROLL_PID_CONSTS };
+static float _llcPitchPidConsts[3] = { config_LLC_PITCH_PID_CONSTS };
+static float _llcYawPidConsts[3] = { config_LLC_YAW_PID_CONSTS };
 
-    _llc_pid_pitch.Kp = _llc_pitch_pid_consts[0] / CONFIG_ACT_FREQ;
-    _llc_pid_pitch.Ki = _llc_pitch_pid_consts[1] / CONFIG_ACT_FREQ;
-    _llc_pid_pitch.Kd = _llc_pitch_pid_consts[2] / CONFIG_ACT_FREQ;
-    arm_pid_init_f32(&_llc_pid_pitch, 0);
+#define __llc_PID_HELPER(axis, const, idx)     \
+    void llc_set##axis##const(float val) {     \
+        _llc##axis##PidConsts[idx] = val;      \
+        arm_pid_init_f32(&_llc##axis##Pid, 0); \
+    }
 
-    _llc_pid_yaw.Kp = _llc_yaw_pid_consts[0] / CONFIG_ACT_FREQ;
-    _llc_pid_yaw.Ki = _llc_yaw_pid_consts[1] / CONFIG_ACT_FREQ;
-    _llc_pid_yaw.Kd = _llc_yaw_pid_consts[2] / CONFIG_ACT_FREQ;
-    arm_pid_init_f32(&_llc_pid_yaw, 0);
-}
+__llc_PID_HELPER(Roll, P, 0)
+__llc_PID_HELPER(Roll, I, 1)
+__llc_PID_HELPER(Roll, D, 2)
+__llc_PID_HELPER(Pitch, P, 0)
+__llc_PID_HELPER(Pitch, I, 1)
+__llc_PID_HELPER(Pitch, D, 2)
+__llc_PID_HELPER(Yaw, P, 0)
+__llc_PID_HELPER(Yaw, I, 1)
+__llc_PID_HELPER(Yaw, D, 2)
 
-void llc_set_consts(float roll_p,
-                    float roll_i,
-                    float roll_d,
-                    float pitch_p,
-                    float pitch_i,
-                    float pitch_d,
-                    float yaw_p,
-                    float yaw_i,
-                    float yaw_d) {
-
-    _llc_roll_pid_consts[0] = roll_p;
-    _llc_roll_pid_consts[1] = roll_i;
-    _llc_roll_pid_consts[2] = roll_d;
-
-    _llc_pitch_pid_consts[0] = pitch_p;
-    _llc_pitch_pid_consts[1] = pitch_i;
-    _llc_pitch_pid_consts[2] = pitch_d;
-
-    _llc_yaw_pid_consts[0] = yaw_p;
-    _llc_yaw_pid_consts[1] = yaw_i;
-    _llc_yaw_pid_consts[2] = yaw_d;
-
-    _llc_reinit_pids();
-}
+#undef __llc_PID_HELPER
 
 void llc_init(void) {
     log_debug("Initializing llc...");
 
     // TODO: tune PID
-    _llc_reinit_pids();
+
+    _llcRollPid.Kp = _llcRollPidConsts[0] / config_ACT_FREQ;
+    _llcRollPid.Ki = _llcRollPidConsts[1] / config_ACT_FREQ;
+    _llcRollPid.Kd = _llcRollPidConsts[2] / config_ACT_FREQ;
+    arm_pid_init_f32(&_llcRollPid, 1);
+
+    _llcPitchPid.Kp = _llcPitchPidConsts[0] / config_ACT_FREQ;
+    _llcPitchPid.Ki = _llcPitchPidConsts[1] / config_ACT_FREQ;
+    _llcPitchPid.Kd = _llcPitchPidConsts[2] / config_ACT_FREQ;
+    arm_pid_init_f32(&_llcPitchPid, 1);
+
+    _llcYawPid.Kp = _llcYawPidConsts[0] / config_ACT_FREQ;
+    _llcYawPid.Ki = _llcYawPidConsts[1] / config_ACT_FREQ;
+    _llcYawPid.Kd = _llcYawPidConsts[2] / config_ACT_FREQ;
+    arm_pid_init_f32(&_llcYawPid, 1);
 }
 
 llc_ThrustVec llc_update(llc_ThrustVec ref) {
     imu_Vec3 pv = dsp_getOutAng();
 
     llc_ThrustVec out;
-    out.roll = arm_pid_f32(&_llc_pid_roll, ref.roll - pv.roll);
-    out.pitch = arm_pid_f32(&_llc_pid_pitch, ref.pitch - pv.pitch);
-    out.yaw = arm_pid_f32(&_llc_pid_yaw, ref.yaw - pv.yaw);
+    out.roll = arm_pid_f32(&_llcRollPid, ref.roll - pv.roll);
+    out.pitch = arm_pid_f32(&_llcPitchPid, ref.pitch - pv.pitch);
+    out.yaw = arm_pid_f32(&_llcYawPid, ref.yaw - pv.yaw);
 
     // tilt compensation
     float tr = tanf(pv.roll), tp = tanf(pv.pitch);
     float sq;
 
     if (arm_sqrt_f32(tr * tr + tp * tp, &sq) != ARM_MATH_SUCCESS) {
-        err_ignorable("Square root of negative number in dsp tilt compensation");
+        err_ignorable("Square root of negative number in llc tilt compensation");
         err_todo("???");
     }
 

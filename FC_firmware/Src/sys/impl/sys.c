@@ -66,6 +66,8 @@ static void _sys_init_modules(void) {
 }
 
 static void _sys_writeUart(uint32_t t, tel_Topic topic, const void* data, size_t len, tel_DataType type) {
+    (void) type;
+
     // TODO: move + packetize
     if (topic != config_LOG_TOPIC)
         return;
@@ -122,16 +124,13 @@ void sys_entry(void) {
         dsp_setInGyr(gyro);
 
         dsp_update();
-
-        imu_Vec3 a = dsp_getOutAng();
-
         if (nextGuide <= HAL_GetTick()) {
             ctrl_Mode ctrl_mode = ctrl_getMode();
             llc_ThrustVec guide_ref = guide_getRef(ctrl_mode);
+
             if (act_isArmed()) {
-                // llc_ThrustVec llc_out = llc_update(guide_ref);
-                // act_output(llc_out);
-                act_FinalSignalTelemetry act_out = act_output(guide_ref);
+                llc_ThrustVec llc_out = llc_update(guide_ref);
+                act_FinalSignalTelemetry act_out = act_output(llc_out);
 
                 log_raw(
                     "%.2f,%.2f,%.2f,%.2f,"
@@ -159,7 +158,8 @@ bool sys_initalized(void) {
 }
 
 void sys_abort(sys_AbortFn fn, void* arg) {
-    act_disarm();
+    if (act_isArmed())
+        act_disarm();
 
     if (fn != NULL) {
         fn(arg);

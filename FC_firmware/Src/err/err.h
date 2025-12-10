@@ -1,8 +1,10 @@
 #ifndef ERR_H
 #define ERR_H
 
-#include <stdbool.h>
 #include "utils/utils.h"
+
+#include <stdbool.h>
+#include <stdlib.h>
 
 #include "stm32f4xx_hal.h"
 
@@ -114,5 +116,10 @@ void err_handle_ignorable(const char* descr);
 #endif
 
 #define err_todo(...) err_fatal("TODO" __VA_OPT__(": " __VA_ARGS__))
+#define err_unreachable(...)                                   \
+    do {                                                       \
+        err_fatal("UNREACHABLE" __VA_OPT__(": " __VA_ARGS__)); \
+        unreachable();                                         \
+    } while (0)
 
 #endif // ERR_H

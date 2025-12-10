@@ -77,4 +77,6 @@ llc_ThrustVec guide_getRef(ctrl_Mode mode) {
         case ctrl_SoftLanding: err_todo(); break;
         case ctrl_GPS_Waypoint: err_todo(); break;
     }
+
+    err_unreachable();
 }

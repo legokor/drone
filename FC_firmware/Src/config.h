@@ -16,4 +16,6 @@
 #define config_RC_CHAN_YAW 3
 #define config_RC_CHAN_THRUST 2
 
+#define config_NO_RC_DISARM_MS 200
+
 #endif // CONFIG_H

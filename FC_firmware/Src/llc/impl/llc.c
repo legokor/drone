@@ -67,10 +67,10 @@ llc_ThrustVec llc_update(llc_ThrustVec ref) {
     float tr = tanf(pv.roll), tp = tanf(pv.pitch);
     float sq;
 
-    if (arm_sqrt_f32(tr * tr + tp * tp, &sq) != ARM_MATH_SUCCESS) {
-        err_ignorable("Square root of negative number in llc tilt compensation");
-        err_todo("???");
-    }
+    err_tryFatal(                                                 //
+        arm_sqrt_f32(tr * tr + tp * tp, &sq) != ARM_MATH_SUCCESS, //
+        "Square root of negative number in llc tilt compensation" //
+    );
 
     float inclanation = atanf(sq);
 

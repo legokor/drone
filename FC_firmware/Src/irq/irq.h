@@ -2,7 +2,6 @@
 #define INT_INT_H_
 
 #include <stdbool.h>
-#include <stdint.h>
 
 typedef enum [[nodiscard]] irq_IntEventType {
     irq_UART_TX_CPLT = 0,
@@ -14,6 +13,8 @@ typedef enum [[nodiscard]] irq_IntEventType {
     irq_SPI_RX_CPLT,
 
     irq_TIM_PERIOD_ELAPSED,
+
+    // irq_ADC_MEASUREMENT_COMPLETE,
 
     _irq_EVENT_TYPE_COUNT
 } irq_IntEventType;

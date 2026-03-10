@@ -30,6 +30,7 @@
 #include "err/err.h"
 #include "sys/sys.h"
 
+#include <inttypes.h>
 #include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
@@ -204,7 +205,7 @@ void assert_failed(uint8_t* file, uint32_t line) {
     /* USER CODE BEGIN 6 */
     char buf[128];
 
-    int ret = snprintf(buf, sizeof(buf), "HAL assert failed (%s:%lu)", (const char*) file, line);
+    int ret = snprintf(buf, sizeof(buf), "HAL assert failed (%s:%" PRIu32 ")", (const char*) file, line);
     if (ret > 0)
         err_handle_fatal(buf);
     else
@@ -212,41 +213,3 @@ void assert_failed(uint8_t* file, uint32_t line) {
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-#include "irq/impl/irq_list.h"
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-    void* tmp = (void*) huart;
-    _irq_triggerCbs(irq_UART_RX_CPLT, tmp);
-}
-
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
-    void* tmp = (void*) huart;
-    _irq_triggerCbs(irq_UART_TX_CPLT, tmp);
-}
-
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t pos) {
-    UNUSED(pos);
-    void* tmp = (void*) huart;
-    _irq_triggerCbs(irq_UART_RX_EVENT, tmp);
-}
-
-void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
-    void* tmp = (void*) huart;
-    _irq_triggerCbs(irq_UART_ERROR, tmp);
-}
-
-void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef* hspi) {
-    void* tmp = (void*) hspi;
-    _irq_triggerCbs(irq_SPI_TX_CPLT, tmp);
-}
-
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef* hspi) {
-    void* tmp = (void*) hspi;
-    _irq_triggerCbs(irq_SPI_RX_CPLT, tmp);
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
-    void* tmp = (void*) htim;
-    _irq_triggerCbs(irq_TIM_PERIOD_ELAPSED, tmp);
-}

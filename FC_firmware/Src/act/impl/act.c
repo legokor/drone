@@ -47,10 +47,10 @@ act_FinalSignalTelemetry act_output(llc_ThrustVec in) {
 
     // FIXME: motor matrix
     float tmp[act_MOTOR_COUNT] = {
-        in.thrust + 0.1f * (in.yaw + in.pitch - in.roll), //
-        in.thrust - 0.1f * (in.yaw + in.pitch + in.roll), //
-        in.thrust + 0.1f * (in.yaw - in.pitch + in.roll), //
-        in.thrust - 0.1f * (in.yaw - in.pitch - in.roll)  //
+        in.thrust + in.yaw + in.pitch - in.roll, //
+        in.thrust - in.yaw + in.pitch + in.roll, //
+        in.thrust + in.yaw - in.pitch + in.roll, //
+        in.thrust - in.yaw - in.pitch - in.roll  //
     };
 
     float speed[act_MOTOR_COUNT];

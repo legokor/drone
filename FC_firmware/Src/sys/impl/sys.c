@@ -28,6 +28,7 @@ rc_Rc sys_rcInstance;
 static imu_Imu _sys_imuInstance;
 
 static bool _sys_initalized = false;
+static bool _sys_wasArmed = false;
 
 static void _sys_init_drivers(void) {
     log_debug("Initalizing drivers...");
@@ -105,8 +106,10 @@ static void _sys_init(void) {
     ctrl_setMode(ctrl_RC);
 
     _sys_initalized = true;
+    _sys_wasArmed = act_isArmed();
 }
 
+static void _sys_guide(void);
 void sys_entry(void) {
     _sys_init();
 
@@ -125,32 +128,48 @@ void sys_entry(void) {
 
         dsp_update();
         if (nextGuide <= HAL_GetTick()) {
-            ctrl_Mode ctrl_mode = ctrl_getMode();
-            llc_ThrustVec guide_ref = guide_getRef(ctrl_mode);
-
-            if (act_isArmed()) {
-                llc_ThrustVec llc_out = llc_update(guide_ref);
-                act_FinalSignalTelemetry act_out = act_output(llc_out);
-
-                log_raw(
-                    "%.2f,%.2f,%.2f,%.2f,"
-                    "%u,%u,%u,%u",
-                    (double) guide_ref.roll, (double) guide_ref.pitch, //
-                    (double) guide_ref.yaw, (double) guide_ref.thrust, //
-                    (unsigned int) act_out.motorSignals[0],            //
-                    (unsigned int) act_out.motorSignals[1],            //
-                    (unsigned int) act_out.motorSignals[2],            //
-                    (unsigned int) act_out.motorSignals[3]);
-            } else {
-                log_raw("%.2f,%.2f,%.2f,%.2f,",                            //
-                        (double) guide_ref.roll, (double) guide_ref.pitch, //
-                        (double) guide_ref.yaw, (double) guide_ref.thrust  //
-                );
-            }
-
+            _sys_guide();
             nextGuide += guideLoopLengthMS;
         }
     }
+}
+
+static void _sys_guide(void) {
+    ctrl_Mode ctrl_mode = ctrl_getMode();
+    llc_ThrustVec guide_ref = guide_getRef(ctrl_mode);
+
+    // TODO:disarm if in rc mode and no sbus data has arrived in a while
+    if (HAL_GetTick() - sys_rcInstance.lastFrameTime < config_NO_RC_DISARM_MS)
+        act_disarm();
+
+    if (act_isArmed()) {
+        llc_ThrustVec llc_out = llc_update(guide_ref);
+
+        act_FinalSignalTelemetry act_out = act_output(llc_out);
+
+        if (!_sys_wasArmed)
+            log_raw("# rc_roll,rc_pitch,rc_yaw,rc_thrust,motor_0,motor_1,motor_2,motor_3");
+
+        log_raw(
+            "%.2f,%.2f,%.2f,%.2f,"
+            "%u,%u,%u,%u",
+            (double) guide_ref.roll, (double) guide_ref.pitch, //
+            (double) guide_ref.yaw, (double) guide_ref.thrust, //
+            (unsigned int) act_out.motorSignals[0],            //
+            (unsigned int) act_out.motorSignals[1],            //
+            (unsigned int) act_out.motorSignals[2],            //
+            (unsigned int) act_out.motorSignals[3]             //
+        );
+    } else {
+        if (_sys_wasArmed)
+            log_raw("# rc_roll,rc_pitch,rc_yaw,rc_thrust");
+
+        log_raw("%.2f,%.2f,%.2f,%.2f",                             //
+                (double) guide_ref.roll, (double) guide_ref.pitch, //
+                (double) guide_ref.yaw, (double) guide_ref.thrust  //
+        );
+    }
+    _sys_wasArmed = act_isArmed();
 }
 
 bool sys_initalized(void) {

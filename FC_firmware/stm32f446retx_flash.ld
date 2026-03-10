@@ -59,6 +59,8 @@ _estack = ORIGIN(RAM) + LENGTH(RAM);    /* end of RAM */
 _Min_Heap_Size = 0x200;  /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
+/* __persistent_storage_size = 1K; */
+
 /* Specify the memory areas */
 MEMORY {
 	RAM  (rw) : ORIGIN = 0x20000000, LENGTH = 128K
@@ -136,6 +138,15 @@ SECTIONS {
 		KEEP (*(.fini_array*))
 		PROVIDE_HIDDEN (__fini_array_end = .);
 	} >FLASH
+
+	/* we can use this as some persistent storage */
+	/* .persistent_storage : {
+		. = ALIGN(2K);
+		__persistent_storage = .;
+		. = . + __persistent_storage_size;
+
+		. = ALIGN(2K);
+	} >FLASH */
 
 	/* used by the startup to initialize data */
 	_sidata = LOADADDR(.data);

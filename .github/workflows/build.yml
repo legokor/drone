@@ -6,14 +6,14 @@ on:
       - "**"
     paths:
       - .github/workflows/build.yml
-      - stm32f446retx_flash.ld
-      - startup_stm32f446xx.s
-      - CMakePresets.json
-      - CMakeLists.txt
-      - Drivers/**
-      - cmake/**
-      - Core/**
-      - Src/**
+      - FC_firmware/stm32f446retx_flash.ld
+      - FC_firmware/startup_stm32f446xx.s
+      - FC_firmware/CMakePresets.json
+      - FC_firmware/CMakeLists.txt
+      - FC_firmware/Drivers/**
+      - FC_firmware/cmake/**
+      - FC_firmware/Core/**
+      - FC_firmware/Src/**
 
 jobs:
   build:

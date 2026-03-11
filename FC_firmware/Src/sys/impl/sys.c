@@ -19,8 +19,8 @@
 
 #include "stm32f4xx_hal.h"
 
+#include <inttypes.h>
 #include <stddef.h>
-#include <stdint.h>
 
 uart_Uart sys_uartInstance;
 rc_Rc sys_rcInstance;
@@ -139,8 +139,11 @@ static void _sys_guide(void) {
     llc_ThrustVec guide_ref = guide_getRef(ctrl_mode);
 
     // TODO:disarm if in rc mode and no sbus data has arrived in a while
-    if (HAL_GetTick() - sys_rcInstance.lastFrameTime < config_NO_RC_DISARM_MS)
+    uint32_t lastRc = HAL_GetTick() - sys_rcInstance.lastFrameTime;
+    if (ctrl_mode == ctrl_RC && act_isArmed() && lastRc > config_NO_RC_DISARM_MS) {
+        log_warn("last RC signal was " PRIu32 "ms ago, disarming", lastRc);
         act_disarm();
+    }
 
     if (act_isArmed()) {
         llc_ThrustVec llc_out = llc_update(guide_ref);
@@ -148,25 +151,32 @@ static void _sys_guide(void) {
         act_FinalSignalTelemetry act_out = act_output(llc_out);
 
         if (!_sys_wasArmed)
-            log_raw("# rc_roll,rc_pitch,rc_yaw,rc_thrust,motor_0,motor_1,motor_2,motor_3");
+            log_raw("# imu_roll,imu_pitch,imu_yaw,rc_roll,rc_pitch,rc_yaw,rc_thrust,motor_0,motor_1,motor_2,motor_3");
 
+        imu_Vec3 v3 = dsp_getOutAng();
         log_raw(
+            "%.2f,%.2f,%.2f,"
             "%.2f,%.2f,%.2f,%.2f,"
             "%u,%u,%u,%u",
-            (double) guide_ref.roll, (double) guide_ref.pitch, //
-            (double) guide_ref.yaw, (double) guide_ref.thrust, //
-            (unsigned int) act_out.motorSignals[0],            //
-            (unsigned int) act_out.motorSignals[1],            //
-            (unsigned int) act_out.motorSignals[2],            //
-            (unsigned int) act_out.motorSignals[3]             //
+            (double) v3.roll, (double) v3.pitch, (double) v3.yaw, //
+            (double) guide_ref.roll, (double) guide_ref.pitch,    //
+            (double) guide_ref.yaw, (double) guide_ref.thrust,    //
+            (unsigned int) act_out.motorSignals[0],               //
+            (unsigned int) act_out.motorSignals[1],               //
+            (unsigned int) act_out.motorSignals[2],               //
+            (unsigned int) act_out.motorSignals[3]                //
         );
     } else {
         if (_sys_wasArmed)
-            log_raw("# rc_roll,rc_pitch,rc_yaw,rc_thrust");
+            log_raw("# imu_roll,imu_pitch,imu_yaw,rc_roll,rc_pitch,rc_yaw,rc_thrust");
 
-        log_raw("%.2f,%.2f,%.2f,%.2f",                             //
-                (double) guide_ref.roll, (double) guide_ref.pitch, //
-                (double) guide_ref.yaw, (double) guide_ref.thrust  //
+        imu_Vec3 v3 = dsp_getOutAng();
+        log_raw(
+            "%.2f,%.2f,%.2f,"
+            "%.2f,%.2f,%.2f,%.2f",                                //
+            (double) v3.roll, (double) v3.pitch, (double) v3.yaw, //
+            (double) guide_ref.roll, (double) guide_ref.pitch,    //
+            (double) guide_ref.yaw, (double) guide_ref.thrust     //
         );
     }
     _sys_wasArmed = act_isArmed();

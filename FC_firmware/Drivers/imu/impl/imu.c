@@ -218,7 +218,7 @@ bool imu_setDefaultSettings(imu_Imu* imu) {
     err_try(imu_setGyroAndTempDLPF(imu, 3));
 
     // Set accelerometer sensitivity to +-4g
-    err_try(imu_setAccSensitivity(imu, 1));
+    err_try(imu_setAccSensitivity(imu, 3));
 
     // Enable DLPF for accelerometer (set fchoice_b to 0 -> fchoice to 1)
     err_try(imu_enableAccDLPF(imu, true));
@@ -306,7 +306,7 @@ bool imu_setGyroSensitivity(imu_Imu* imu, uint8_t sensitivity) {
 
     const int SENSITIVITY_TABLE[4] = { 250, 500, 1000, 2000 };
 
-    err_try(_imu_writeBlocking(imu, IMU_ACCEL_CONFIG, (sensitivity << 3) | gyroConfigTmp));
+    err_try(_imu_writeBlocking(imu, IMU_GYRO_CONFIG, (sensitivity << 3) | gyroConfigTmp));
     imu->gyroSensitivity = SENSITIVITY_TABLE[sensitivity] / (float) (1 << 15);
 
     return true;

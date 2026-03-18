@@ -1,5 +1,6 @@
 #include "sys/sys.h"
 #include "act/act.h"
+#include "adc/adc.h"
 #include "ctrl/ctrl.h"
 #include "dsp/dsp.h"
 #include "err/err.h"
@@ -12,6 +13,7 @@
 
 #include "config.h"
 
+#include "adc.h"
 #include "main.h"
 #include "spi.h"
 #include "tim.h"
@@ -21,6 +23,7 @@
 
 #include <inttypes.h>
 #include <stddef.h>
+#include <stdint.h>
 
 uart_Uart sys_uartInstance;
 rc_Rc sys_rcInstance;
@@ -36,6 +39,8 @@ static void _sys_init_drivers(void) {
     TIM_HandleTypeDef* ts[] = { &htim3, &htim3, &htim3, &htim3 };
     uint32_t chns[] = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3, TIM_CHANNEL_4 };
     act_init(ts, chns);
+
+    adc_init(&hadc1);
 
     err_tryFatal(rc_init(&sys_rcInstance, &huart5), "Failed to init rc");
 
@@ -109,31 +114,6 @@ static void _sys_init(void) {
     _sys_wasArmed = act_isArmed();
 }
 
-static void _sys_guide(void);
-void sys_entry(void) {
-    _sys_init();
-
-    int guideLoopLengthMS = 1000 / config_ACT_FREQ;
-
-    // TODO: use more precise timer
-    uint32_t nextGuide = HAL_GetTick() + guideLoopLengthMS;
-    while (true) {
-        imu_Vec3 acc;
-        err_tryFatal(imu_readAccData(&_sys_imuInstance, &acc), "Failed to read IMU acc");
-        dsp_setInAcc(acc);
-
-        imu_Vec3 gyro;
-        err_tryFatal(imu_readGyroData(&_sys_imuInstance, &gyro), "Failed to read IMU gyro");
-        dsp_setInGyr(gyro);
-
-        dsp_update();
-        if (nextGuide <= HAL_GetTick()) {
-            _sys_guide();
-            nextGuide += guideLoopLengthMS;
-        }
-    }
-}
-
 static void _sys_guide(void) {
     ctrl_Mode ctrl_mode = ctrl_getMode();
     llc_ThrustVec guide_ref = guide_getRef(ctrl_mode);
@@ -180,6 +160,50 @@ static void _sys_guide(void) {
         );
     }
     _sys_wasArmed = act_isArmed();
+}
+
+bool _sys_shouldLoop(void) {
+    // TODO: more sophisticated
+
+    static uint32_t batteryDippedMin = 0;
+
+    if (adc_getBatteryVoltage() < config_MIN_BATTERY_CELL_VOLTAGE * config_BATTERY_CELL_COUNT) {
+        if (batteryDippedMin == 0)
+            batteryDippedMin = HAL_GetTick();
+        else if (HAL_GetTick() - batteryDippedMin > config_BATTERY_CRITICAL_TIME_MS)
+            return true;
+    } else
+        batteryDippedMin = 0;
+
+    return false;
+}
+
+void _sys_loop(void) {
+    int guideLoopLengthMS = 1000 / config_ACT_FREQ;
+
+    // TODO: use more precise timer
+    uint32_t nextGuide = HAL_GetTick() + guideLoopLengthMS;
+    while (_sys_shouldLoop()) {
+        imu_Vec3 acc;
+        err_tryFatal(imu_readAccData(&_sys_imuInstance, &acc), "Failed to read IMU acc");
+        dsp_setInAcc(acc);
+
+        imu_Vec3 gyro;
+        err_tryFatal(imu_readGyroData(&_sys_imuInstance, &gyro), "Failed to read IMU gyro");
+        dsp_setInGyr(gyro);
+
+        dsp_update();
+        if (nextGuide <= HAL_GetTick()) {
+            _sys_guide();
+            nextGuide += guideLoopLengthMS;
+        }
+    }
+}
+
+void sys_entry(void) {
+    _sys_init();
+    _sys_loop();
+    sys_abort(NULL, NULL);
 }
 
 bool sys_initalized(void) {

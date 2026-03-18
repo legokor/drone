@@ -3,14 +3,12 @@
 
 #include "stm32f4xx_hal.h"
 
-typedef struct [[nodiscard]] adc_Adc {
-    ADC_HandleTypeDef* hadc;
-    bool oneshot;
-} adc_Adc;
-
-void adc_init(adc_Adc* adc, uint32_t pin, bool oneshot);
+void adc_init(ADC_HandleTypeDef* hadc);
 
 [[nodiscard]]
-float adc_getVoltage(adc_Adc* adc);
+float adc_getBatteryVoltage(void);
+
+[[nodiscard]]
+float adc_getESCTotalCurrent(void);
 
 #endif

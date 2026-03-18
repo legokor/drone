@@ -18,4 +18,8 @@
 
 #define config_NO_RC_DISARM_MS 200
 
+#define config_BATTERY_CELL_COUNT 4
+#define config_MIN_BATTERY_CELL_VOLTAGE 3.3f
+#define config_BATTERY_CRITICAL_TIME_MS 200
+
 #endif // CONFIG_H

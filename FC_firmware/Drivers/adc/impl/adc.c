@@ -1,10 +1,21 @@
 #include "adc/adc.h"
 
-#include "stm32f4xx_hal_adc.h"
+#include "adc/adc.h"
 
-void adc_init(adc_Adc* adc, uint32_t pin, bool oneshot) {}
+static ADC_HandleTypeDef* hadc;
 
-float adc_getVoltage(adc_Adc* adc) {
-    // TODO: this simple??
-    return HAL_ADC_GetValue(adc->hadc);
+void adc_init(ADC_HandleTypeDef* adc) {
+    hadc = adc;
+    HAL_ADC_Start(hadc);
+    // TODO: continuos
+}
+
+float adc_getBatteryVoltage(void) {
+    HAL_ADC_Start(hadc);
+    return HAL_ADC_GetValue(hadc);
+}
+
+float adc_getESCTotalCurrent(void) {
+    HAL_ADC_Start(hadc);
+    return HAL_ADC_GetValue(hadc);
 }

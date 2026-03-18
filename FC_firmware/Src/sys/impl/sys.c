@@ -167,15 +167,16 @@ bool _sys_shouldLoop(void) {
 
     static uint32_t batteryDippedMin = 0;
 
-    if (adc_getBatteryVoltage() < config_MIN_BATTERY_CELL_VOLTAGE * config_BATTERY_CELL_COUNT) {
+    float voltage = adc_getBatteryVoltage();
+    if (voltage < config_MIN_BATTERY_CELL_VOLTAGE * config_BATTERY_CELL_COUNT) {
         if (batteryDippedMin == 0)
             batteryDippedMin = HAL_GetTick();
         else if (HAL_GetTick() - batteryDippedMin > config_BATTERY_CRITICAL_TIME_MS)
-            return true;
+            return false;
     } else
         batteryDippedMin = 0;
 
-    return false;
+    return true;
 }
 
 void _sys_loop(void) {
@@ -198,6 +199,11 @@ void _sys_loop(void) {
             nextGuide += guideLoopLengthMS;
         }
     }
+
+    if (act_isArmed())
+        act_disarm();
+
+    log_error("battery critical, disarmed");
 }
 
 void sys_entry(void) {

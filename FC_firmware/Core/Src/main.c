@@ -27,14 +27,16 @@
 #include "usart.h"
 #include "usb_otg.h"
 
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include "err/err.h"
 #include "sys/sys.h"
 
 #include <inttypes.h>
 #include <stdio.h>
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+// ugly but needed
+#include "irq/impl/irq_handler.c"
 
 /* USER CODE END Includes */
 
@@ -192,7 +194,6 @@ void Error_Handler(void) {
     }
     /* USER CODE END Error_Handler_Debug */
 }
-
 #ifdef USE_FULL_ASSERT
 /**
  * @brief  Reports the name of the source file and the source line number
@@ -213,6 +214,3 @@ void assert_failed(uint8_t* file, uint32_t line) {
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-// ugly but needed
-#include "irq/impl/irq_handler.c"

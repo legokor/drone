@@ -20,7 +20,8 @@
 
 #define config_BATTERY_CELL_COUNT 4
 #define config_MIN_BATTERY_CELL_VOLTAGE 3.3f
-#define config_BATTERY_CRITICAL_TIME_MS 200
-#define config_BATTERY_ADC_CONVERSION_FACTOR 130
+#define config_BATTERY_CRITICAL_TIME_MS 1000
+#define config_BATTERY_ADC_CONVERSION_FACTOR 7.68e-3 // (1 / 130.0f)
+#define config_ESC_ADC_CONVERSION_FACTOR 1           // TODO: esc adc conversion factor
 
 #endif // CONFIG_H

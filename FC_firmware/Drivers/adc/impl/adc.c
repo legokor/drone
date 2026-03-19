@@ -2,21 +2,18 @@
 
 #include "config.h"
 
-static ADC_HandleTypeDef* hadc;
+static volatile uint32_t _adc_voltages[2];
 
 void adc_init(ADC_HandleTypeDef* adc) {
-    hadc = adc;
-    HAL_ADC_Start(hadc);
+    // hadc = adc;
+    HAL_ADC_Start_DMA(adc, (uint32_t*) _adc_voltages, 2);
     // TODO: continuos
 }
 
 float adc_getBatteryVoltage(void) {
-    HAL_ADC_Start(hadc);
-
-    return HAL_ADC_GetValue(hadc) * config_BATTERY_ADC_CONVERSION_FACTOR;
+    return _adc_voltages[0] * config_BATTERY_ADC_CONVERSION_FACTOR;
 }
 
 float adc_getESCTotalCurrent(void) {
-    HAL_ADC_Start(hadc);
-    return HAL_ADC_GetValue(hadc);
+    return _adc_voltages[1];
 }

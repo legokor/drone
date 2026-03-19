@@ -89,6 +89,8 @@ void act_arm(void) {
 }
 
 void act_disarm(void) {
+    // TODO: pwm min instead of stopping?
+
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
         _act_Motor m = _act_motors[i];
         HAL_TIM_PWM_Stop(m.timer, m.channel);

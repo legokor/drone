@@ -57,7 +57,7 @@ static llc_ThrustVec _guide_rcMode() {
                 act_arm();
         }
     } else {
-        // TODO: hower
+        // TODO: hover
         ref = (llc_ThrustVec) {
             .roll = 0.0f,
             .pitch = 0.0f,

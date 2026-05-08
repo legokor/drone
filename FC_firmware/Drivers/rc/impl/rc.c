@@ -73,10 +73,10 @@ bool rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
 // cddddddd
 // dddd
 
-// aaaaaaaaaaa
-// bbbbbbbbbbb
-// ccccccccccc
-// ddddddddddd
+// 00000aaaaaaaaaaa
+// 00000bbbbbbbbbbb
+// 00000ccccccccccc
+// 00000ddddddddddd
 static void _rc_parseData(const uint8_t* restrict buff, rc_RxPackage* data) {
     // same as the hard-coded version on O3
 

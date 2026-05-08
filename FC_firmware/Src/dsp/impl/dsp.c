@@ -1,6 +1,10 @@
 #include "dsp/dsp.h"
 #include "imu/imu.h"
 #include "log/log.h"
+#include "utils/utils.h"
+
+#include <stddef.h>
+#include <stdint.h>
 
 #include "arm_math.h"
 #include "stm32f4xx_hal.h"
@@ -32,6 +36,31 @@ void dsp_init(void) {
     _dsp_lastRun = HAL_GetTick();
 }
 
+static imu_Vec3 _dsp_avg(const imu_Vec3* buffer, size_t bufferSize) {
+    imu_Vec3 sum = (imu_Vec3){ .x = 0, .y = 0, .z = 0 };
+
+    for (size_t i = 0; i < bufferSize; i++) {
+        imu_Vec3 tmp = (imu_Vec3){ .x = 0, .y = 0, .z = 0 };
+        arm_add_f32(buffer[i].arr, sum.arr, tmp.arr, 3);
+        sum = tmp;
+    }
+
+    imu_Vec3 div = (imu_Vec3){
+        .x = 1.0f / bufferSize,
+        .y = 1.0f / bufferSize,
+        .z = 1.0f / bufferSize,
+    };
+
+    imu_Vec3 ret;
+    arm_mult_f32(sum.arr, div.arr, ret.arr, 3);
+
+    return ret;
+}
+
+static size_t _dsp_accAvgP = 0, _dsp_gyrAvgP = 0;
+static imu_Vec3 _dsp_accAvgData[32] = { 0 };
+static imu_Vec3 _dsp_gyrAvgData[32] = { 0 };
+
 void dsp_update(void) {
     // TODO: use a timer for usec resolution
     uint32_t now = HAL_GetTick();
@@ -40,6 +69,14 @@ void dsp_update(void) {
 
     imu_Vec3 inAcc = dsp_getInAcc();
     imu_Vec3 inGyr = dsp_getInGyr();
+
+    _dsp_accAvgData[_dsp_accAvgP++] = inAcc;
+    _dsp_accAvgP %= utils_arrayCount(_dsp_accAvgData);
+    inAcc = _dsp_avg(_dsp_accAvgData, utils_arrayCount(_dsp_accAvgData));
+
+    _dsp_gyrAvgData[_dsp_gyrAvgP++] = inGyr;
+    _dsp_gyrAvgP %= utils_arrayCount(_dsp_gyrAvgData);
+    inGyr = _dsp_avg(_dsp_gyrAvgData, utils_arrayCount(_dsp_gyrAvgData));
 
     static imu_Vec3 _dsp_gyrIntegral = { 0 };
 
@@ -68,5 +105,11 @@ void dsp_update(void) {
     _dps_rollComp = rollA * (1 - _dsp_alpha) + _dsp_alpha * (_dps_rollComp + inGyr.y);
     _dsp_pitchComp = pitchA * (1 - _dsp_alpha) + _dsp_alpha * (_dsp_pitchComp + inGyr.x);
 
-    dsp_setOutAng((imu_Vec3) { .roll = _dps_rollComp, .pitch = _dsp_pitchComp, .yaw = _dsp_gyrIntegral.yaw });
+    imu_Vec3 out = (imu_Vec3){
+        .roll = _dps_rollComp,
+        .pitch = _dsp_pitchComp,
+        .yaw = _dsp_gyrIntegral.yaw - utils_PI * 0.25f,
+    };
+
+    dsp_setOutAng(out);
 }

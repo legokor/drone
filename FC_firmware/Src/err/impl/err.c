@@ -1,6 +1,6 @@
 #include "err/err.h"
+#include "log/log.h"
 #include "sys/sys.h"
-#include "tel/tel.h"
 
 typedef struct [[nodiscard]] _err_abort_fn_params {
     const char* descr;
@@ -8,7 +8,7 @@ typedef struct [[nodiscard]] _err_abort_fn_params {
 
 static void _err_abort_fn(void* args) {
     _err_abort_fn_params* params = (_err_abort_fn_params*) args;
-    tel_writeString(0, params->descr);
+    log_error(params->descr);
 }
 
 [[noreturn]]
@@ -23,7 +23,7 @@ void err_handle_fatal(const char* descr) {
 
 void err_handle_ignorable(const char* descr) {
     if (sys_initalized()) {
-        tel_writeString(0, descr);
+        log_error(descr);
     } else {
         _err_abort(descr);
     }

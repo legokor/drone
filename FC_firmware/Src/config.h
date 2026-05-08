@@ -5,9 +5,9 @@
 
 #define config_ACT_FREQ 50
 
-#define config_LLC_ROLL_PID_CONSTS 0, 0, 0
-#define config_LLC_PITCH_PID_CONSTS 0, 0, 0
-#define config_LLC_YAW_PID_CONSTS 0, 0, 0
+#define config_LLC_ROLL_PID_CONSTS 0.5f, 0, 0
+#define config_LLC_PITCH_PID_CONSTS 0.5f, 0, 0
+#define config_LLC_YAW_PID_CONSTS 0.5f, 0, 0
 
 // TODO: arm channel
 #define config_RC_CHAN_ARM 6

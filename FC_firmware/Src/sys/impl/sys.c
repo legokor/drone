@@ -10,11 +10,11 @@
 #include "log/log.h"
 #include "rc/rc.h"
 #include "tel/tel.h"
+#include "uart/uart.h"
 
 #include "config.h"
 
 #include "adc.h"
-#include "main.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -73,6 +73,7 @@ static void _sys_init_modules(void) {
 
 static void _sys_writeUart(uint32_t t, tel_Topic topic, const void* data, size_t len, tel_DataType type) {
     (void) type;
+    (void) t;
 
     // TODO: move + packetize
     if (topic != config_LOG_TOPIC)
@@ -82,18 +83,15 @@ static void _sys_writeUart(uint32_t t, tel_Topic topic, const void* data, size_t
 }
 
 static void _sys_init(void) {
-    // init debug uart
-    (void) uart_init(      //
-        &sys_uartInstance, //
-        (uart_UartInitParams) {
-            //
-            .huart = &huart1,
-            .uartIrq = USART1_IRQn,
-            .txBufferLength = 2048,
-            .rxBufferLength = 256,
-            .ignorableChars = "\r",
-            .endOfMsgChar = '\n' //
-        });
+    uart_UartInitParams uartParams = (uart_UartInitParams){
+        .huart = &huart1,
+        .uartIrq = USART1_IRQn,
+        .txBufferLength = 1 << 14,
+        .rxBufferLength = 1 << 10,
+        .ignorableChars = "\r",
+        .endOfMsgChar = '\n',
+    };
+    err_tryIgnorable(uart_init(&sys_uartInstance, uartParams), "failed to init uart");
 
     tel_init();
     tel_addSource(_sys_writeUart);
@@ -117,6 +115,8 @@ static void _sys_init(void) {
 static void _sys_guide(void) {
     ctrl_Mode ctrl_mode = ctrl_getMode();
     llc_ThrustVec guide_ref = guide_getRef(ctrl_mode);
+
+    // TODO: use one rc channel to select what to print
 
     // TODO:disarm if in rc mode and no sbus data has arrived in a while
     uint32_t lastRc = HAL_GetTick() - sys_rcInstance.lastFrameTime;
@@ -197,7 +197,10 @@ void _sys_loop(void) {
         if (nextGuide <= HAL_GetTick()) {
             _sys_guide();
             nextGuide += guideLoopLengthMS;
-        }
+        } else
+            // because dsp was way faster than sensors
+            // TODO: something more sophisticated
+            HAL_Delay(1);
     }
 
     if (act_isArmed())

@@ -76,4 +76,6 @@ double utils_mapD(double val, double s1, double e1, double s2, double e2);
         float: utils_mapF,             \
         double: utils_mapD)(val, s1, s2, e1, e2)
 
+#define utils_arrayCount(arr) (sizeof(arr) / sizeof(arr[0]))
+
 #endif // UTILS_H

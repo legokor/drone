@@ -57,6 +57,31 @@ static imu_Vec3 _dsp_avg(const imu_Vec3* buffer, size_t bufferSize) {
     return ret;
 }
 
+static imu_Vec3 _rotate_vector(imu_Vec3 vec, imu_Vec3 angles) {
+    imu_Vec3 rotated;
+
+    float cosx = cos(angles.x); // Roll
+    float sinx = sin(angles.x);
+    float cosy = cos(angles.y); // Pitch
+    float siny = sin(angles.y);
+    float cosz = cos(angles.z); // Yaw
+    float sinz = sin(angles.z);
+    
+    rotated.x = vec.x * (cosy * cosz) 
+              + vec.y * (sinx * siny * cosz - cosx * sinz) 
+              + vec.z * (cosx * siny * cosz + sinx * sinz);
+
+    rotated.y = vec.x * (cosy * sinz) 
+              + vec.y * (sinx * siny * sinz + cosx * cosz) 
+              + vec.z * (cosx * siny * sinz - sinx * cosz);
+
+    rotated.z = vec.x * (-siny) 
+              + vec.y * (sinx * cosy) 
+              + vec.z * (cosx * cosy);
+
+    return rotated;
+}
+
 static size_t _dsp_accAvgP = 0, _dsp_gyrAvgP = 0;
 static imu_Vec3 _dsp_accAvgData[32] = { 0 };
 static imu_Vec3 _dsp_gyrAvgData[32] = { 0 };
@@ -69,6 +94,10 @@ void dsp_update(void) {
 
     imu_Vec3 inAcc = dsp_getInAcc();
     imu_Vec3 inGyr = dsp_getInGyr();
+
+    imu_Vec3 offsets = {0.0f, 0.0f, 0.7854f}; // 45 degrees in radians
+    inAcc = _rotate_vector(inAcc, offsets);
+    inGyr = _rotate_vector(inGyr, offsets);
 
     _dsp_accAvgData[_dsp_accAvgP++] = inAcc;
     _dsp_accAvgP %= utils_arrayCount(_dsp_accAvgData);

@@ -38,6 +38,9 @@ void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_
             .channel = channels[i],
             .timer = timers[i],
         };
+
+        _act_setMotorSpeed(i, _act_PWM_MIN);
+        HAL_TIM_PWM_Start(timers[i], channels[i]);
     }
 }
 
@@ -47,10 +50,10 @@ act_FinalSignalTelemetry act_output(llc_ThrustVec in) {
 
     // FIXME: motor matrix
     float tmp[act_MOTOR_COUNT] = {
-        in.thrust + in.yaw + in.pitch - in.roll, //
-        in.thrust - in.yaw + in.pitch + in.roll, //
-        in.thrust + in.yaw - in.pitch + in.roll, //
-        in.thrust - in.yaw - in.pitch - in.roll  //
+        in.thrust + in.roll + in.pitch + in.yaw, //
+        in.thrust + in.roll - in.pitch - in.yaw, //
+        in.thrust - in.roll + in.pitch - in.yaw, //
+        in.thrust - in.roll - in.pitch + in.yaw  //
     };
 
     float speed[act_MOTOR_COUNT];
@@ -64,12 +67,14 @@ act_FinalSignalTelemetry act_output(llc_ThrustVec in) {
     // clip from speed to tmp
     arm_clip_f32(tmp, speed, _act_PWM_MIN, _act_PWM_MAX, act_MOTOR_COUNT);
 
-    for (int i = 0; i < act_MOTOR_COUNT; i++)
+    for (int i = 0; i < act_MOTOR_COUNT; i++) {
         _act_setMotorSpeed(i, (uint16_t) speed[i]);
+    }
 
     act_FinalSignalTelemetry out;
-    for (int i = 0; i < act_MOTOR_COUNT; i++)
+    for (int i = 0; i < act_MOTOR_COUNT; i++) {
         out.motorSignals[i] = (uint16_t) speed[i];
+    }
 
     return out;
 }
@@ -78,22 +83,23 @@ void act_arm(void) {
     bool was_armed = _act_armed;
 
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
-        _act_Motor m = _act_motors[i];
+        // _act_Motor m = _act_motors[i];
         _act_setMotorSpeed(i, _act_PWM_MIN);
-        HAL_TIM_PWM_Start(m.timer, m.channel);
+        // HAL_TIM_PWM_Start(m.timer, m.channel);
     }
 
     _act_armed = true;
     err_assert(!was_armed);
-    log_info("Armed");
+    log_info("armed");
 }
 
 void act_disarm(void) {
     // TODO: pwm min instead of stopping?
 
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
-        _act_Motor m = _act_motors[i];
-        HAL_TIM_PWM_Stop(m.timer, m.channel);
+        _act_setMotorSpeed(i, _act_PWM_MIN);
+        // _act_Motor m = _act_motors[i];
+        // HAL_TIM_PWM_Stop(m.timer, m.channel);
     }
 
     // we assert later, to make sure that the motors get turned off no matter what
@@ -101,7 +107,7 @@ void act_disarm(void) {
     _act_armed = false;
     err_assert(was_armed);
 
-    log_info("Disarmed");
+    log_info("disarmed");
 }
 
 bool act_isArmed(void) {

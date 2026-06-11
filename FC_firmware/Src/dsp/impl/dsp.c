@@ -28,6 +28,8 @@ static uint32_t _dsp_lastRun = 0;
 
 // static imu_Vec3 _dsp_angleGyr = { 0 };
 
+// 0: full accel
+// 1: full gyro
 static float _dsp_alpha = 0.97;
 
 void dsp_init(void) {
@@ -60,13 +62,15 @@ static imu_Vec3 _dsp_avg(const imu_Vec3* buffer, size_t bufferSize) {
 static imu_Vec3 _rotate_vector(imu_Vec3 vec, imu_Vec3 angles) {
     imu_Vec3 rotated;
 
-    float cosx = cos(angles.x); // Roll
-    float sinx = sin(angles.x);
-    float cosy = cos(angles.y); // Pitch
-    float siny = sin(angles.y);
-    float cosz = cos(angles.z); // Yaw
-    float sinz = sin(angles.z);
-    
+    float cosx = cosf(angles.x); // Roll
+    float sinx = sinf(angles.x);
+
+    float cosy = cosf(angles.y); // Pitch
+    float siny = sinf(angles.y);
+
+    float cosz = cosf(angles.z); // Yaw
+    float sinz = sinf(angles.z);
+
     rotated.x = vec.x * (cosy * cosz) 
               + vec.y * (sinx * siny * cosz - cosx * sinz) 
               + vec.z * (cosx * siny * cosz + sinx * sinz);
@@ -95,7 +99,11 @@ void dsp_update(void) {
     imu_Vec3 inAcc = dsp_getInAcc();
     imu_Vec3 inGyr = dsp_getInGyr();
 
-    imu_Vec3 offsets = {0.0f, 0.0f, 0.7854f}; // 45 degrees in radians
+    imu_Vec3 offsets = (imu_Vec3){
+        .x = 0.0f,
+        .y = 0.0f,
+        .z = utils_degToRad(-45),
+    };
     inAcc = _rotate_vector(inAcc, offsets);
     inGyr = _rotate_vector(inGyr, offsets);
 
@@ -120,13 +128,13 @@ void dsp_update(void) {
     arm_add_f32(_dsp_gyrIntegral.arr, inGyr.arr, tmp.arr, 3);
     _dsp_gyrIntegral = tmp;
 
-    float rollA, pitchA;
-    arm_atan2_f32(inAcc.x, inAcc.z, &rollA);
-    arm_atan2_f32(inAcc.y, inAcc.z, &pitchA);
+    // float rollA, pitchA;
+    // arm_atan2_f32(inAcc.x, inAcc.z, &rollA);
+    // arm_atan2_f32(inAcc.y, inAcc.z, &pitchA);
 
     // TODO: worse?
-    // float rollA = atan2f(inAcc.x, inAcc.z);
-    // float pitchA = atan2f(inAcc.y, inAcc.z);
+    float rollA = atan2f(inAcc.x, inAcc.z);
+    float pitchA = atan2f(inAcc.y, inAcc.z);
 
     // complementary filter
     static float _dps_rollComp = 0, _dsp_pitchComp = 0;

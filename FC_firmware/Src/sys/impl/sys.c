@@ -52,6 +52,11 @@ static void _sys_init_drivers(void) {
 
     err_tryFatal(imu_setDefaultSettings(&_sys_imuInstance), "Couldn't set imu default params");
 
+    HAL_Delay(1);
+
+    err_tryFatal(imu_calculateGyroOffset(&_sys_imuInstance), "Couldn't calculate gyro offsets");
+    imu_enableGyroOffsetSubtraction(&_sys_imuInstance, true);
+
     // bar_init();
     // esc_init();
     // gps_init();
@@ -103,9 +108,6 @@ static void _sys_init(void) {
     HAL_Delay(20);
     _sys_init_modules();
 
-    err_tryFatal(imu_calculateGyroOffset(&_sys_imuInstance), "Couldn't calculate gyro offsets");
-    imu_enableGyroOffsetSubtraction(&_sys_imuInstance, true);
-
     ctrl_setMode(ctrl_RC);
 
     _sys_initalized = true;
@@ -130,33 +132,46 @@ static void _sys_guide(void) {
 
         act_FinalSignalTelemetry act_out = act_output(llc_out);
 
-        if (!_sys_wasArmed)
-            log_raw("# imu_roll,imu_pitch,imu_yaw,rc_roll,rc_pitch,rc_yaw,rc_thrust,motor_0,motor_1,motor_2,motor_3");
+        if (!_sys_wasArmed) {
+            log_raw(
+                "# vbat,imu_roll,imu_pitch,imu_yaw,"     //
+                "llc_roll,llc_pitch,llc_yaw,llc_thrust," //
+                "motor_0,motor_1,motor_2,motor_3"        //
+            );
+        }
 
         imu_Vec3 v3 = dsp_getOutAng();
         log_raw(
+            "%.2f,"
             "%.2f,%.2f,%.2f,"
             "%.2f,%.2f,%.2f,%.2f,"
             "%u,%u,%u,%u",
-            (double) v3.roll, (double) v3.pitch, (double) v3.yaw, //
-            (double) guide_ref.roll, (double) guide_ref.pitch,    //
-            (double) guide_ref.yaw, (double) guide_ref.thrust,    //
-            (unsigned int) act_out.motorSignals[0],               //
-            (unsigned int) act_out.motorSignals[1],               //
-            (unsigned int) act_out.motorSignals[2],               //
-            (unsigned int) act_out.motorSignals[3]                //
+            (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                         //
+            (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
+            (double) utils_radToDeg(llc_out.roll), (double) utils_radToDeg(llc_out.pitch),                        //
+            (double) utils_radToDeg(llc_out.yaw), (double) llc_out.thrust,                                        //
+            (unsigned int) act_out.motorSignals[0],                                                               //
+            (unsigned int) act_out.motorSignals[1],                                                               //
+            (unsigned int) act_out.motorSignals[2],                                                               //
+            (unsigned int) act_out.motorSignals[3]                                                                //
         );
     } else {
-        if (_sys_wasArmed)
-            log_raw("# imu_roll,imu_pitch,imu_yaw,rc_roll,rc_pitch,rc_yaw,rc_thrust");
+        if (_sys_wasArmed) {
+            log_raw(
+                "# vbat,imu_roll,imu_pitch,imu_yaw," //
+                "rc_roll,rc_pitch,rc_yaw,rc_thrust"  //
+            );
+        }
 
         imu_Vec3 v3 = dsp_getOutAng();
         log_raw(
+            "%.2f,"
             "%.2f,%.2f,%.2f,"
-            "%.2f,%.2f,%.2f,%.2f",                                //
-            (double) v3.roll, (double) v3.pitch, (double) v3.yaw, //
-            (double) guide_ref.roll, (double) guide_ref.pitch,    //
-            (double) guide_ref.yaw, (double) guide_ref.thrust     //
+            "%.2f,%.2f,%.2f,%.2f",
+            (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                         //
+            (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
+            (double) utils_radToDeg(guide_ref.roll), (double) utils_radToDeg(guide_ref.pitch),                    //
+            (double) utils_radToDeg(guide_ref.yaw), (double) guide_ref.thrust                                     //
         );
     }
     _sys_wasArmed = act_isArmed();
@@ -197,10 +212,11 @@ void _sys_loop(void) {
         if (nextGuide <= HAL_GetTick()) {
             _sys_guide();
             nextGuide += guideLoopLengthMS;
-        } else
+        } else {
             // because dsp was way faster than sensors
             // TODO: something more sophisticated
             HAL_Delay(1);
+        }
     }
 
     if (act_isArmed())

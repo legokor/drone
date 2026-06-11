@@ -1,4 +1,5 @@
 #include "imu/imu.h"
+#include "config.h"
 #include "err/err.h"
 #include "imu/impl/imu_registers.h"
 #include "irq/irq.h"
@@ -169,14 +170,14 @@ bool imu_init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint1
     return true;
 }
 
-#define _imu_GYRO_OFFSET_SAMPLE_SIZE 0xff
+#define _imu_GYRO_OFFSET_SAMPLE_SIZE 2000
 
 bool imu_calculateGyroOffset(imu_Imu* imu) {
     bool prevEnabled = imu->useGyroOffsets;
     imu->useGyroOffsets = false;
 
     imu->gyroOffset = (imu_Vec3) { .x = 0, .y = 0, .z = 0 };
-    for (int p = 0; p < _imu_GYRO_OFFSET_SAMPLE_SIZE; p++) {
+    for (size_t p = 0; p < _imu_GYRO_OFFSET_SAMPLE_SIZE; p++) {
         imu_Vec3 res;
         err_try(imu_readGyroData(imu, &res));
 
@@ -184,7 +185,7 @@ bool imu_calculateGyroOffset(imu_Imu* imu) {
         imu->gyroOffset.y += res.y;
         imu->gyroOffset.z += res.z;
 
-        HAL_Delay(10);
+        HAL_Delay(1);
     }
 
     imu->gyroOffset.x /= _imu_GYRO_OFFSET_SAMPLE_SIZE;
@@ -218,7 +219,7 @@ bool imu_setDefaultSettings(imu_Imu* imu) {
     err_try(imu_setGyroAndTempDLPF(imu, 6));
 
     // Set accelerometer sensitivity to +-4g
-    err_try(imu_setAccSensitivity(imu, 3));
+    err_try(imu_setAccSensitivity(imu, 1));
 
     // Enable DLPF for accelerometer (set fchoice_b to 0 -> fchoice to 1)
     err_try(imu_enableAccDLPF(imu, true));
@@ -328,15 +329,23 @@ bool imu_readGyroData(imu_Imu* imu, imu_Vec3* data) {
     HAL_NVIC_EnableIRQ(imu->readIrq);
 #endif
 
-    imu_Vec3 tmp = (imu_Vec3) { .x = x, .y = y, .z = z };
+    *data = (imu_Vec3){
+        .x = utils_degToRad(x) * imu->gyroSensitivity, //
+        .y = utils_degToRad(y) * imu->gyroSensitivity, //
+        .z = utils_degToRad(z) * imu->gyroSensitivity  //
+    };
 
-    arm_scale_f32(tmp.arr, (utils_PI / 180) * imu->gyroSensitivity, data->arr, 3);
+    // arm_scale_f32(tmp.arr, (utils_PI / 180) * imu->gyroSensitivity, data->arr, 3);
 
     if (imu->useGyroOffsets) {
-        arm_sub_f32(data->arr, imu->gyroOffset.arr, tmp.arr, 3);
+        // arm_sub_f32(data->arr, imu->gyroOffset.arr, tmp.arr, 3);
 
         // TODO: jobb?
-        *data = tmp;
+        // *data = tmp;
+
+        data->x -= imu->gyroOffset.x;
+        data->y -= imu->gyroOffset.y;
+        data->z -= imu->gyroOffset.z;
     }
 
     return true;

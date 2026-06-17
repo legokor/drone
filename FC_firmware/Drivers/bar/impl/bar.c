@@ -8,7 +8,11 @@
 void bar_init(bar_Bar* bar) {
     log_debug("Initalizing bar...");
 
-    bar->mode = Standby;
+    bar_setMode(bar, Standby);
+    // bar_setPressureMeasurementRate(bar, );
+    // bar_setTemperatureMeasurementRate(bar, );
+    // bar_setPressurePrecision(bar, );
+    // bar_setTemperaturePrecision(bar, );
 }
 
 bar_Mode bar_getMode(bar_Bar* bar) {

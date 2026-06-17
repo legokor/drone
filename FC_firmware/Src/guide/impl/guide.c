@@ -40,6 +40,8 @@ static llc_ThrustVec _guide_rcMode() {
         };
 
         // FIXME: max thrust clamped
+        if (ref.thrust > 0.80f)
+            ref.thrust = 1;
 
 #define L 1
         ref.roll = utils_clamp(ref.roll, -L, L);

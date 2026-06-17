@@ -44,10 +44,10 @@ static void _sys_init_drivers(void) {
 
     err_tryFatal(rc_init(&sys_rcInstance, &huart5), "Failed to init rc");
 
-    HAL_TIM_Base_Start_IT(&htim9);
+    HAL_TIM_Base_Start_IT(&htim10);
     HAL_GPIO_WritePin(IMU_CS_GPIO_Port, IMU_CS_Pin, 1);
 
-    err_tryFatal(imu_init(&_sys_imuInstance, &hspi2, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, &htim9),
+    err_tryFatal(imu_init(&_sys_imuInstance, &hspi2, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, &htim10),
                  "Couldn't init imu");
 
     err_tryFatal(imu_setDefaultSettings(&_sys_imuInstance), "Couldn't set imu default params");
@@ -167,11 +167,30 @@ static void _sys_guide(void) {
             // (double) utils_radToDeg(guide_ref.yaw), (double) guide_ref.thrust                                     //
         );
     }
+
+    // {
+    //     imu_Vec3 a = dsp_getInAcc();
+    //     imu_Vec3 g = dsp_getInGyr();
+
+    //     imu_Vec3 af = dsp_getOutFilteredAcc();
+    //     imu_Vec3 gf = dsp_getOutFilteredGyr();
+
+    //     log_raw(
+    //         "%.2f,%.2f,%.2f,"
+    //         "%.2f,%.2f,%.2f,"
+    //         "%.2f,%.2f,%.2f,"
+    //         "%.2f,%.2f,%.2f",
+    //         (double) a.x, (double) a.y, (double) a.z,          //
+    //         (double) g.roll, (double) g.pitch, (double) g.yaw, //
+    //         (double) af.x, (double) af.y, (double) af.z,       //
+    //         (double) gf.roll, (double) gf.pitch, (double) gf.yaw);
+    // }
     _sys_wasArmed = act_isArmed();
 }
 
 bool _sys_shouldLoop(void) {
     // TODO: more sophisticated
+    return true;
 
     static uint32_t batteryDippedMin = 0;
 
@@ -188,7 +207,7 @@ bool _sys_shouldLoop(void) {
 }
 
 void _sys_loop(void) {
-    int guideLoopLengthMS = 1000 / config_ACT_FREQ;
+    int guideLoopLengthMS = 1000 / config_ACT_LOOP_FREQ;
 
     // TODO: use more precise timer
     uint32_t nextGuide = HAL_GetTick() + guideLoopLengthMS;

@@ -26,6 +26,8 @@
     /* output */                          \
     _dsp_DATA_ITEM(imu_Vec3, OutAng) /**/ \
     _dsp_DATA_ITEM(imu_Vec3, OutVel) /**/ \
+    _dsp_DATA_ITEM(imu_Vec3, OutFilteredAcc) /**/ \
+    _dsp_DATA_ITEM(imu_Vec3, OutFilteredGyr) /**/ \
     _dsp_DATA_ITEM(float, OutHeight)
 
 _dsp_DATA

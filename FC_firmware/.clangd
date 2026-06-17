@@ -1,0 +1,10 @@
+CompileFlags:
+  CompilationDatabase: build/
+  BuiltinHeaders: QueryDriver
+  Add: 
+    # Specify the toolchain being used
+    - --target=arm-none-eabi
+
+    # C headers
+    - -isystem
+    - /usr/arm-none-eabi/include

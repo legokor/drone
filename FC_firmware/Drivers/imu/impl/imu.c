@@ -6,6 +6,8 @@
 #include "log/log.h"
 #include "utils/utils.h"
 
+#include "spi.h"
+
 #include "stm32f4xx_hal.h"
 
 #include "arm_math.h"
@@ -18,6 +20,8 @@
 static void _imu_spiTransmitCpltCallback(void* context) {
     imu_Imu* imu = (imu_Imu*) context;
 
+    // __HAL_SPI_DISABLE(hspi);
+    imu->hspi->Init.Mode = SPI_DIRECTION_2LINES_RXONLY;
     HAL_SPI_Receive_DMA(imu->hspi, (uint8_t*) imu->imuBuffer, sizeof(imu->imuBuffer));
 }
 

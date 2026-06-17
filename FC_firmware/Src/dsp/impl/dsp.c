@@ -6,6 +6,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "tim.h"
+
 #include "arm_math.h"
 #include "stm32f4xx_hal.h"
 
@@ -87,14 +89,16 @@ static imu_Vec3 _rotate_vector(imu_Vec3 vec, imu_Vec3 angles) {
 }
 
 static size_t _dsp_accAvgP = 0, _dsp_gyrAvgP = 0;
-static imu_Vec3 _dsp_accAvgData[32] = { 0 };
-static imu_Vec3 _dsp_gyrAvgData[32] = { 0 };
+static imu_Vec3 _dsp_accAvgData[16] = { 0 };
+static imu_Vec3 _dsp_gyrAvgData[16] = { 0 };
 
 void dsp_update(void) {
     // TODO: use a timer for usec resolution
     uint32_t now = HAL_GetTick();
     float dt = 0.001 * (now - _dsp_lastRun);
     _dsp_lastRun = now;
+
+    // uint32_t a = htim3.Instance->CNT;
 
     imu_Vec3 inAcc = dsp_getInAcc();
     imu_Vec3 inGyr = dsp_getInGyr();
@@ -114,6 +118,9 @@ void dsp_update(void) {
     _dsp_gyrAvgData[_dsp_gyrAvgP++] = inGyr;
     _dsp_gyrAvgP %= utils_arrayCount(_dsp_gyrAvgData);
     inGyr = _dsp_avg(_dsp_gyrAvgData, utils_arrayCount(_dsp_gyrAvgData));
+
+    dsp_setOutFilteredAcc(inAcc);
+    dsp_setOutFilteredGyr(inGyr);
 
     static imu_Vec3 _dsp_gyrIntegral = { 0 };
 

@@ -59,13 +59,13 @@ typedef struct [[nodiscard]] imu_Imu {
  *
  * @return 1 on success, else 0
  */
-[[nodiscard]] bool imu_init(
+[[nodiscard]] bool imu_init( //
     imu_Imu* imu,
-    SPI_HandleTypeDef* hspi,
-    GPIO_TypeDef* csPort,
+    SPI_HandleTypeDef* const hspi,
+    GPIO_TypeDef* const csPort,
     uint16_t csPin,
     IRQn_Type readIrq,
-    TIM_HandleTypeDef* htim
+    TIM_HandleTypeDef* const htim //
 );
 #else
 /**
@@ -75,12 +75,7 @@ typedef struct [[nodiscard]] imu_Imu {
  *
  * @return 1 on success, else 0
  */
-[[nodiscard]] bool imu_init(
-    imu_Imu* imu,
-    SPI_HandleTypeDef* hspi,
-    GPIO_TypeDef* csPort,
-    uint16_t csPin
-);
+[[nodiscard]] bool imu_init(imu_Imu* imu, SPI_HandleTypeDef* const hspi, GPIO_TypeDef* const csPort, uint16_t csPin);
 #endif
 
 /**

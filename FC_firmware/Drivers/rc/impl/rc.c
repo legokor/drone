@@ -2,6 +2,7 @@
 #include "err/err.h"
 #include "irq/irq.h"
 #include "log/log.h"
+#include "sys/sys.h"
 #include "utils/utils.h"
 
 #include "stm32f4xx_hal_dma.h"
@@ -14,7 +15,7 @@
 #define _rc_SBUS_FAILSAFE_MASK 0x20
 #define _rc_SBUS_FRAME_START 0x0F
 #define _rc_SBUS_FRAME_END 0x00
-#define _rc_SBUS_MIN_TIME_BETWEEN_FRAMES 6
+#define _rc_SBUS_MIN_TIME_BETWEEN_FRAMES_US (6 * 1000)
 
 #define _rc_SBUS_CHAN_BITS 11
 #define _rc_SBUS_CHAN_BYTES (_rc_SBUS_CHAN_BITS / 8 + utils_min(_rc_SBUS_CHAN_BITS % 8, 2))
@@ -22,12 +23,12 @@
 #define _rc_SBUS_MASK ((1 << _rc_SBUS_CHAN_BITS) - 1)
 
 static void _rc_handleRxCplt(void* context) {
-    uint32_t currentTime = HAL_GetTick();
+    sys_TimeStampUS currentTime = sys_time();
     rc_Rc* rc = (rc_Rc*) context;
 
     if (rc->state == rc_STATE_WAIT_FOR_START) {
         bool frameStart = rc->rxDMABuffer[0] == _rc_SBUS_FRAME_START;
-        bool inTime = currentTime - rc->lastFrameTime >= _rc_SBUS_MIN_TIME_BETWEEN_FRAMES;
+        bool inTime = currentTime - rc->lastFrameTime >= _rc_SBUS_MIN_TIME_BETWEEN_FRAMES_US;
         if (frameStart && inTime) {
             rc->state = rc_STATE_RECEIVING;
 
@@ -51,13 +52,13 @@ static void _rc_handleRxCplt(void* context) {
     rc->lastFrameTime = currentTime;
 }
 
-bool rc_init(rc_Rc* rc, UART_HandleTypeDef* huart) {
+bool rc_init(rc_Rc* const rc, UART_HandleTypeDef* const huart) {
     log_debug("Initializing rc...");
 
     rc->huart = huart;
     rc->frameValid = false;
     rc->state = rc_STATE_WAIT_FOR_START;
-    rc->lastFrameTime = HAL_GetTick();
+    rc->lastFrameTime = sys_time();
 
     irq_subscribeToIrq(irq_UART_RX_CPLT, _rc_handleRxCplt, rc, huart);
 

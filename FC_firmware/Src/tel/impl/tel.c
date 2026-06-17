@@ -1,6 +1,7 @@
 #include "tel/tel.h"
 #include "err/err.h"
 #include "log/log.h"
+#include "sys/sys.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -52,7 +53,7 @@ static void _tel_writeMessage(tel_Topic topic, const void* data, size_t len, tel
         if (fn == NULL)
             break;
 
-        fn(HAL_GetTick(), topic, data, len, type);
+        fn(sys_time(), topic, data, len, type);
     }
 }
 

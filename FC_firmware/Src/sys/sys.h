@@ -4,15 +4,16 @@
 #include "rc/rc.h"
 #include "uart/uart.h"
 
+typedef void (*sys_AbortFn)(void*);
+
 extern uart_Uart sys_uartInstance;
 extern rc_Rc sys_rcInstance;
 
 void sys_entry(void);
 
-typedef void (*sys_AbortFn)(void*);
 [[noreturn]]
 void sys_abort(sys_AbortFn fn, void* arg);
 
-bool sys_initalized(void);
+bool sys_isInitalized(void);
 
 #endif // SYS_H

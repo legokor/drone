@@ -4,7 +4,7 @@
 
 static volatile uint32_t _adc_voltages[2];
 
-void adc_init(ADC_HandleTypeDef* adc) {
+void adc_init(ADC_HandleTypeDef* const adc) {
     // hadc = adc;
     HAL_ADC_Start_DMA(adc, (uint32_t*) _adc_voltages, 2);
     // TODO: continuos

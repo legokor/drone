@@ -11,7 +11,7 @@
 
 static volatile bool _act_armed = false;
 
-void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_MOTOR_COUNT]) {
+void act_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t channels[act_MOTOR_COUNT]) {
     log_debug("Initializing act...");
 
 #if config_ACT_MODE == config_ACT_MODE_PWM

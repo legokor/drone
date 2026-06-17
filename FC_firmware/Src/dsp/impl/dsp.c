@@ -1,6 +1,7 @@
 #include "dsp/dsp.h"
 #include "imu/imu.h"
 #include "log/log.h"
+#include "sys/sys.h"
 #include "utils/utils.h"
 
 #include <stddef.h>
@@ -26,7 +27,7 @@ _dsp_DATA
 
 #undef _dsp_DATA_IMPL
 
-static uint32_t _dsp_lastRun = 0;
+    static sys_TimeStampUS _dsp_lastRun = 0;
 
 // static imu_Vec3 _dsp_angleGyr = { 0 };
 
@@ -37,7 +38,7 @@ static float _dsp_alpha = 0.97;
 void dsp_init(void) {
     log_debug("Initializing dsp...");
 
-    _dsp_lastRun = HAL_GetTick();
+    _dsp_lastRun = sys_time();
 }
 
 static imu_Vec3 _dsp_avg(const imu_Vec3* buffer, size_t bufferSize) {
@@ -94,11 +95,9 @@ static imu_Vec3 _dsp_gyrAvgData[16] = { 0 };
 
 void dsp_update(void) {
     // TODO: use a timer for usec resolution
-    uint32_t now = HAL_GetTick();
-    float dt = 0.001 * (now - _dsp_lastRun);
+    sys_TimeStampUS now = sys_time();
+    float dt = 1e-6 * (now - _dsp_lastRun);
     _dsp_lastRun = now;
-
-    // uint32_t a = htim3.Instance->CNT;
 
     imu_Vec3 inAcc = dsp_getInAcc();
     imu_Vec3 inGyr = dsp_getInGyr();

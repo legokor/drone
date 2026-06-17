@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "stm32f4xx_hal.h"
+#include "sys/time.h"
 
 #define rc_CHANNEL_COUNT 18
 
@@ -31,11 +32,11 @@ typedef struct [[nodiscard]] rc_Rc {
     volatile uint8_t rxDataBuffer[_rc_SBUS_FRAME_SIZE];
     volatile bool frameValid;
 
-    uint32_t lastFrameTime;
+    sys_TimeStampUS lastFrameTime;
     rc_SbusState state;
 } rc_Rc;
 
-[[nodiscard]] bool rc_init(rc_Rc* rc, UART_HandleTypeDef* huart);
+[[nodiscard]] bool rc_init(rc_Rc* const rc, UART_HandleTypeDef* const huart);
 
 [[nodiscard]] bool rc_getData(const rc_Rc* rc, rc_RxPackage* data);
 

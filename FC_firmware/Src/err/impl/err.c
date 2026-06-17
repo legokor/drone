@@ -22,7 +22,7 @@ void err_handle_fatal(const char* descr) {
 }
 
 void err_handle_ignorable(const char* descr) {
-    if (sys_initalized()) {
+    if (sys_isInitalized()) {
         log_error(descr);
     } else {
         _err_abort(descr);

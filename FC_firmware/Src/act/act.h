@@ -9,7 +9,7 @@
 
 #define act_MOTOR_COUNT 4
 
-void act_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_MOTOR_COUNT]);
+void act_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t channels[act_MOTOR_COUNT]);
 
 void act_arm(void);
 bool act_isArmed(void);

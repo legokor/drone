@@ -21,7 +21,7 @@ static void _imu_spiTransmitCpltCallback(void* context) {
     imu_Imu* imu = (imu_Imu*) context;
 
     // __HAL_SPI_DISABLE(hspi);
-    imu->hspi->Init.Mode = SPI_DIRECTION_2LINES_RXONLY;
+    // imu->hspi->Init.Mode = SPI_DIRECTION_2LINES_RXONLY;
     HAL_SPI_Receive_DMA(imu->hspi, (uint8_t*) imu->imuBuffer, sizeof(imu->imuBuffer));
 }
 
@@ -47,7 +47,7 @@ static void _imu_timPeriodElapsedCallback(void* context) {
     imu->readInProgress = true;
     imu->readMemAddress = IMU_ACCEL_XOUT_H | 0x80;
 
-    HAL_SPI_Transmit_IT(imu->hspi, &imu->readMemAddress, 1);
+    HAL_SPI_Transmit_DMA(imu->hspi, &imu->readMemAddress, 1);
 }
 
 bool imu_newDataAvailable(imu_Imu* imu) {
@@ -125,11 +125,11 @@ static bool _imu_readBlocking(imu_Imu* imu, uint8_t regAddress, uint8_t numBytes
 
 #ifdef ASYNC_IMU
 bool imu_init(imu_Imu* imu,
-              SPI_HandleTypeDef* hspi,
-              GPIO_TypeDef* csPort,
+              SPI_HandleTypeDef* const hspi,
+              GPIO_TypeDef* const csPort,
               uint16_t csPin,
               IRQn_Type readIrq,
-              TIM_HandleTypeDef* htim) {
+              TIM_HandleTypeDef* const htim) {
 
     imu->readIrq = readIrq;
     imu->newData = false;
@@ -137,7 +137,7 @@ bool imu_init(imu_Imu* imu,
     imu->readInProgress = false;
 
 #else
-bool imu_init(imu_Imu* imu, SPI_HandleTypeDef* hspi, GPIO_TypeDef* csPort, uint16_t csPin) {
+bool imu_init(imu_Imu* imu, SPI_HandleTypeDef* const hspi, GPIO_TypeDef* const csPort, uint16_t csPin) {
 #endif
 
     imu->hspi = hspi;

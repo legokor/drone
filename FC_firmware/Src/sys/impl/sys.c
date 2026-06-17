@@ -6,9 +6,11 @@
 #include "err/err.h"
 #include "guide/guide.h"
 #include "imu/imu.h"
+#include "irq/irq.h"
 #include "llc/llc.h"
 #include "log/log.h"
 #include "rc/rc.h"
+#include "sys/time.h"
 #include "tel/tel.h"
 #include "uart/uart.h"
 
@@ -28,26 +30,41 @@
 uart_Uart sys_uartInstance;
 rc_Rc sys_rcInstance;
 
+static uint32_t _sys_bootTimerOverflows = 0;
+
 static imu_Imu _sys_imuInstance;
 
-static bool _sys_initalized = false;
+static bool _sys_isInitalized = false;
 static bool _sys_wasArmed = false;
+
+static imu_Imu _sys_imuInstance;
+
+static TIM_HandleTypeDef* const _sys_usTimer = &htim2;
+static TIM_HandleTypeDef* const _sys_imuTimer = &htim10;
+
+static TIM_HandleTypeDef* const _sys_actTimers[] = { &htim3, &htim3, &htim3, &htim3 };
+static const uint32_t _sys_actTimersChannels[] = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3, TIM_CHANNEL_4 };
+
+static ADC_HandleTypeDef* const _sys_batteryADC = &hadc1;
+
+static UART_HandleTypeDef* const _sys_rcUsart = &huart5;
+static UART_HandleTypeDef* const _sys_telUart = &huart1;
+
+static SPI_HandleTypeDef* const _sys_imuSpi = &hspi2;
 
 static void _sys_init_drivers(void) {
     log_debug("Initalizing drivers...");
 
-    TIM_HandleTypeDef* ts[] = { &htim3, &htim3, &htim3, &htim3 };
-    uint32_t chns[] = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3, TIM_CHANNEL_4 };
-    act_init(ts, chns);
+    act_init(_sys_actTimers, _sys_actTimersChannels);
 
-    adc_init(&hadc1);
+    adc_init(_sys_batteryADC);
 
-    err_tryFatal(rc_init(&sys_rcInstance, &huart5), "Failed to init rc");
+    err_tryFatal(rc_init(&sys_rcInstance, _sys_rcUsart), "Failed to init rc");
 
-    HAL_TIM_Base_Start_IT(&htim10);
+    HAL_TIM_Base_Start_IT(_sys_imuTimer);
     HAL_GPIO_WritePin(IMU_CS_GPIO_Port, IMU_CS_Pin, 1);
 
-    err_tryFatal(imu_init(&_sys_imuInstance, &hspi2, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, &htim10),
+    err_tryFatal(imu_init(&_sys_imuInstance, _sys_imuSpi, IMU_CS_GPIO_Port, IMU_CS_Pin, SPI2_IRQn, _sys_imuTimer),
                  "Couldn't init imu");
 
     err_tryFatal(imu_setDefaultSettings(&_sys_imuInstance), "Couldn't set imu default params");
@@ -87,9 +104,19 @@ static void _sys_writeUart(uint32_t t, tel_Topic topic, const void* data, size_t
     err_tryIgnorable(uart_transmit(&sys_uartInstance, data, len), "failed to write through debug uart");
 }
 
+static void _sys_timPeriodElapsedCallback(void* context) {
+    (void) context;
+
+    _sys_bootTimerOverflows++;
+}
+
 static void _sys_init(void) {
+
+    HAL_TIM_Base_Start_IT(_sys_usTimer);
+    irq_subscribeToIrq(irq_TIM_PERIOD_ELAPSED, _sys_timPeriodElapsedCallback, NULL, _sys_usTimer);
+
     uart_UartInitParams uartParams = (uart_UartInitParams){
-        .huart = &huart1,
+        .huart = _sys_telUart,
         .uartIrq = USART1_IRQn,
         .txBufferLength = 1 << 14,
         .rxBufferLength = 1 << 10,
@@ -110,8 +137,10 @@ static void _sys_init(void) {
 
     ctrl_setMode(ctrl_RC);
 
-    _sys_initalized = true;
+    _sys_isInitalized = true;
     _sys_wasArmed = act_isArmed();
+
+    log_debug("Init done");
 }
 
 static void _sys_guide(void) {
@@ -121,8 +150,8 @@ static void _sys_guide(void) {
     // TODO: use one rc channel to select what to print
 
     // TODO:disarm if in rc mode and no sbus data has arrived in a while
-    uint32_t lastRc = HAL_GetTick() - sys_rcInstance.lastFrameTime;
-    if (ctrl_mode == ctrl_RC && act_isArmed() && lastRc > config_RC_IDLE_DISARM_MS) {
+    sys_TimeStampUS lastRc = sys_time() - sys_rcInstance.lastFrameTime;
+    if (ctrl_mode == ctrl_RC && act_isArmed() && lastRc > config_RC_IDLE_DISARM_MS * 1000) {
         log_warn("last RC signal was " PRIu32 "ms ago, disarming", lastRc);
         act_disarm();
     }
@@ -192,42 +221,52 @@ bool _sys_shouldLoop(void) {
     // TODO: more sophisticated
     return true;
 
-    static uint32_t batteryDippedMin = 0;
+    static sys_TimeStampUS batteryDippedMinT = 0;
 
     float voltage = adc_getBatteryVoltage();
     if (voltage < config_MIN_BATTERY_CELL_VOLTAGE * config_BATTERY_CELL_COUNT) {
-        if (batteryDippedMin == 0)
-            batteryDippedMin = HAL_GetTick();
-        else if (HAL_GetTick() - batteryDippedMin > config_BATTERY_CRITICAL_TIME_MS)
+        if (batteryDippedMinT == 0)
+            batteryDippedMinT = sys_time();
+        else if (sys_time() - batteryDippedMinT > config_BATTERY_CRITICAL_TIME_MS * 1000)
             return false;
     } else
-        batteryDippedMin = 0;
+        batteryDippedMinT = 0;
 
     return true;
 }
 
+static bool _sys_shouldDoDsp(void) {
+    return imu_newDataAvailable(&_sys_imuInstance);
+}
+
+static void _sys_doDsp(void) {
+    imu_Vec3 acc;
+    err_tryFatal(imu_readAccData(&_sys_imuInstance, &acc), "Failed to read IMU acc");
+    dsp_setInAcc(acc);
+
+    imu_Vec3 gyro;
+    err_tryFatal(imu_readGyroData(&_sys_imuInstance, &gyro), "Failed to read IMU gyro");
+    dsp_setInGyr(gyro);
+
+    dsp_update();
+}
+
 void _sys_loop(void) {
-    int guideLoopLengthMS = 1000 / config_ACT_LOOP_FREQ;
+    sys_TimeStampUS guideLoopLengthUS = 1 * 1000 * 1000 / config_ACT_LOOP_FREQ;
 
     // TODO: use more precise timer
-    uint32_t nextGuide = HAL_GetTick() + guideLoopLengthMS;
+    sys_TimeStampUS nextGuide = sys_time() + guideLoopLengthUS;
     while (_sys_shouldLoop()) {
-        imu_Vec3 acc;
-        err_tryFatal(imu_readAccData(&_sys_imuInstance, &acc), "Failed to read IMU acc");
-        dsp_setInAcc(acc);
+        sys_TimeStampUS now = sys_time();
 
-        imu_Vec3 gyro;
-        err_tryFatal(imu_readGyroData(&_sys_imuInstance, &gyro), "Failed to read IMU gyro");
-        dsp_setInGyr(gyro);
+        if (_sys_shouldDoDsp())
+            _sys_doDsp();
 
-        dsp_update();
-        if (nextGuide <= HAL_GetTick()) {
+        log_debug("time: %u", now);
+
+        if (nextGuide <= now) {
             _sys_guide();
-            nextGuide += guideLoopLengthMS;
-        } else {
-            // because dsp was way faster than sensors
-            // TODO: something more sophisticated
-            HAL_Delay(1);
+            nextGuide += guideLoopLengthUS;
         }
     }
 
@@ -243,8 +282,8 @@ void sys_entry(void) {
     sys_abort(NULL, NULL);
 }
 
-bool sys_initalized(void) {
-    return _sys_initalized;
+bool sys_isInitalized(void) {
+    return _sys_isInitalized;
 }
 
 void sys_abort(sys_AbortFn fn, void* arg) {
@@ -257,5 +296,29 @@ void sys_abort(sys_AbortFn fn, void* arg) {
 
     while (true) {
         __NOP();
+    }
+}
+
+typedef uint32_t sys_TimeStampUS;
+
+sys_TimeStampUS sys_time(void) {
+    return _sys_usTimer->Instance->CNT;
+}
+
+uint64_t sys_totalTimeSinceBootUS(void) {
+    return sys_time() + UINT32_MAX * _sys_bootTimerOverflows;
+}
+
+sys_TimeStampUS sys_timeDiff(sys_TimeStampUS earlier, sys_TimeStampUS later) {
+    if (earlier < later) [[likely]]
+        return later - earlier;
+
+    // there was an overlow between the two, earlier was before overflow
+    return (UINT32_MAX - earlier) + later;
+}
+
+void sys_sleepUntill(sys_TimeStampUS untill) {
+    while (sys_time() < untill) {
+        /* __NOP(); */
     }
 }

@@ -3,7 +3,7 @@
 
 #include "stm32f4xx_hal.h"
 
-void adc_init(ADC_HandleTypeDef* hadc);
+void adc_init(ADC_HandleTypeDef* const hadc);
 
 [[nodiscard]]
 float adc_getBatteryVoltage(void);

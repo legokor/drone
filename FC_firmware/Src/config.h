@@ -1,7 +1,13 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// LOG
 #define config_LOG_TOPIC 0
+// LOG
+
+// DSP
+#define config_DSP_LOOP_FREQ 4000
+// DSP
 
 // ACT
 #define config_ACT_MODE_PWM 1

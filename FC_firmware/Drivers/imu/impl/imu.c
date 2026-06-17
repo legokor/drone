@@ -210,25 +210,25 @@ bool imu_detectImu(imu_Imu* imu) {
 
 bool imu_setDefaultSettings(imu_Imu* imu) {
     // Set gyro full scale range (+-2000DPS)
-    err_try(imu_setGyroSensitivity(imu, 3));
+    err_try(imu_setGyroSensitivity(imu, 2));
 
     // Enable DLPF for the gyro and temp sensors (set fchoice_b's to 0 -> fchoice's to 1)
-    err_try(imu_enableGyroAndTempDLPF(imu, true));
+    // err_try(imu_enableGyroAndTempDLPF(imu, true));
 
     // Set gyro and temp DLPF to 41Hz (results in a 5.9ms delay and a 1kHz sample rate)
-    err_try(imu_setGyroAndTempDLPF(imu, 6));
+    // err_try(imu_setGyroAndTempDLPF(imu, 6));
 
     // Set accelerometer sensitivity to +-4g
-    err_try(imu_setAccSensitivity(imu, 1));
+    err_try(imu_setAccSensitivity(imu, 2));
 
     // Enable DLPF for accelerometer (set fchoice_b to 0 -> fchoice to 1)
     err_try(imu_enableAccDLPF(imu, true));
 
     // Set accelerometer DLPF to 44.8Hz (results in a 4.88ms delay and a 1kHz sample rate)
-    err_try(imu_setAccDLPF(imu, 3));
+    // err_try(imu_setAccDLPF(imu, 3));
 
     // Set the sample rate divider to 4+1=5 (so that the gyro/temp and accelerometer data rate is 200Hz)
-    err_try(imu_setSampleRateDivider(imu, 0));
+    // err_try(imu_setSampleRateDivider(imu, 0));
 
     return true;
 }

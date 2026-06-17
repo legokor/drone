@@ -16,6 +16,8 @@ typedef enum [[nodiscard]] irq_IntEventType {
 
     // irq_ADC_MEASUREMENT_COMPLETE,
 
+    irq_TIM_PWM_DMA_CPLT,
+
     _irq_EVENT_TYPE_COUNT
 } irq_IntEventType;
 

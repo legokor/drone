@@ -122,7 +122,7 @@ static void _sys_guide(void) {
 
     // TODO:disarm if in rc mode and no sbus data has arrived in a while
     uint32_t lastRc = HAL_GetTick() - sys_rcInstance.lastFrameTime;
-    if (ctrl_mode == ctrl_RC && act_isArmed() && lastRc > config_NO_RC_DISARM_MS) {
+    if (ctrl_mode == ctrl_RC && act_isArmed() && lastRc > config_RC_IDLE_DISARM_MS) {
         log_warn("last RC signal was " PRIu32 "ms ago, disarming", lastRc);
         act_disarm();
     }
@@ -133,27 +133,20 @@ static void _sys_guide(void) {
         act_FinalSignalTelemetry act_out = act_output(llc_out);
 
         if (!_sys_wasArmed) {
-            log_raw(
-                "# vbat,imu_roll,imu_pitch,imu_yaw,"     //
-                "llc_roll,llc_pitch,llc_yaw,llc_thrust," //
-                "motor_0,motor_1,motor_2,motor_3"        //
+            log_raw("# vbat,imu_roll,imu_pitch,imu_yaw"
+                    // "llc_roll,llc_pitch,llc_yaw,llc_thrust" //
             );
         }
 
         imu_Vec3 v3 = dsp_getOutAng();
         log_raw(
             "%.2f,"
-            "%.2f,%.2f,%.2f,"
-            "%.2f,%.2f,%.2f,%.2f,"
-            "%u,%u,%u,%u",
-            (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                         //
-            (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
-            (double) utils_radToDeg(llc_out.roll), (double) utils_radToDeg(llc_out.pitch),                        //
-            (double) utils_radToDeg(llc_out.yaw), (double) llc_out.thrust,                                        //
-            (unsigned int) act_out.motorSignals[0],                                                               //
-            (unsigned int) act_out.motorSignals[1],                                                               //
-            (unsigned int) act_out.motorSignals[2],                                                               //
-            (unsigned int) act_out.motorSignals[3]                                                                //
+            "%.2f,%.2f,%.2f,",
+            // "%.2f,%.2f,%.2f,%.2f",
+            (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                        //
+            (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw) //
+            // (double) utils_radToDeg(llc_out.roll), (double) utils_radToDeg(llc_out.pitch),                        //
+            // (double) utils_radToDeg(llc_out.yaw), (double) llc_out.thrust                                         //
         );
     } else {
         if (_sys_wasArmed) {
@@ -166,12 +159,12 @@ static void _sys_guide(void) {
         imu_Vec3 v3 = dsp_getOutAng();
         log_raw(
             "%.2f,"
-            "%.2f,%.2f,%.2f,"
-            "%.2f,%.2f,%.2f,%.2f",
-            (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                         //
-            (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
-            (double) utils_radToDeg(guide_ref.roll), (double) utils_radToDeg(guide_ref.pitch),                    //
-            (double) utils_radToDeg(guide_ref.yaw), (double) guide_ref.thrust                                     //
+            "%.2f,%.2f,%.2f,",
+            // "%.2f,%.2f,%.2f,%.2f",
+            (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                        //
+            (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw) //
+            // (double) utils_radToDeg(guide_ref.roll), (double) utils_radToDeg(guide_ref.pitch),                    //
+            // (double) utils_radToDeg(guide_ref.yaw), (double) guide_ref.thrust                                     //
         );
     }
     _sys_wasArmed = act_isArmed();

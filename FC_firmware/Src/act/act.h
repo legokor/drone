@@ -16,7 +16,7 @@ bool act_isArmed(void);
 void act_disarm(void);
 
 typedef struct act_FinalSignalTelemetry {
-    uint16_t motorSignals[act_MOTOR_COUNT];
+    float motorSignals[act_MOTOR_COUNT];
 } act_FinalSignalTelemetry;
 
 act_FinalSignalTelemetry act_output(llc_ThrustVec tv);

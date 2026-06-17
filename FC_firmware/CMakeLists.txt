@@ -51,6 +51,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Drivers/usb/impl/usb.c
 
     Src/act/impl/act.c
+    Src/act/impl/pwm.c
+    Src/act/impl/dshot.c
     Src/ctrl/impl/ctrl.c
     Src/dsp/impl/dsp.c
     Src/err/impl/err.c

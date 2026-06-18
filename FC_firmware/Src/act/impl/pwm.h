@@ -3,7 +3,7 @@
 
 #include "act/act.h"
 
-void act_pwm_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_MOTOR_COUNT]);
+void act_pwm_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t channels[act_MOTOR_COUNT]);
 
 void act_pwm_arm(void);
 void act_pwm_disarm(void);

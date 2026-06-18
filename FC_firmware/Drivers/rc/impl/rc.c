@@ -2,7 +2,7 @@
 #include "err/err.h"
 #include "irq/irq.h"
 #include "log/log.h"
-#include "sys/sys.h"
+#include "sys/time.h"
 #include "utils/utils.h"
 
 #include "stm32f4xx_hal_dma.h"

@@ -12,13 +12,13 @@
 // ACT
 #define config_ACT_MODE_PWM 1
 #define config_ACT_MODE_DSHOT 2
-#define config_ACT_MODE config_ACT_MODE_DSHOT
+#define config_ACT_MODE config_ACT_MODE_PWM
 
 #define config_ACT_LOOP_FREQ 800
 
 #if config_ACT_MODE == config_ACT_MODE_PWM
 
-// #define config_ACT_NO_PWM_ON_DISARM
+#define config_ACT_PWM_ON_DISARM
 
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
 

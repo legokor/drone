@@ -1,6 +1,7 @@
-
 #include "act/act.h"
 #include "err/err.h"
+
+#include "config.h"
 
 #include <stdint.h>
 
@@ -48,8 +49,9 @@ void act_pwm_output(float speed[act_MOTOR_COUNT]) {
 void act_pwm_arm(void) {
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
         _act_pwm_setMotorSpeed(i, _act_pwm_PWM_MIN);
-#ifdef config_ACT_NO_PWM_ON_DISARM
-        _act_Motor m = _act_motors[i];
+
+#ifndef config_ACT_PWM_ON_DISARM
+        _act_pwm_Motor m = _act_pwm_motors[i];
         HAL_TIM_PWM_Start(m.timer, m.channel);
 #endif
     }
@@ -58,23 +60,23 @@ void act_pwm_arm(void) {
 void act_pwm_disarm(void) {
 
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
-#ifdef config_ACT_NO_PWM_ON_DISARM
-        _act_Motor m = _act_motors[i];
-        HAL_TIM_PWM_Stop(m.timer, m.channel);
-#else
+#ifdef config_ACT_PWM_ON_DISARM
         _act_pwm_setMotorSpeed(i, _act_pwm_PWM_MIN);
+#else
+        _act_pwm_Motor m = _act_pwm_motors[i];
+        HAL_TIM_PWM_Stop(m.timer, m.channel);
 #endif
     }
 }
 
-void act_pwm_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t channels[act_MOTOR_COUNT]) {
+void act_pwm_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t channels[act_MOTOR_COUNT]) {
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
         _act_pwm_motors[i] = (_act_pwm_Motor){
             .channel = channels[i],
             .timer = timers[i],
         };
 
-#ifndef config_ACT_NO_PWM_ON_DISARM
+#ifdef config_ACT_PWM_ON_DISARM
         _act_pwm_setMotorSpeed(i, _act_pwm_PWM_MIN);
         HAL_TIM_PWM_Start(timers[i], channels[i]);
 #endif

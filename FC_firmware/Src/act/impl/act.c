@@ -1,10 +1,15 @@
 #include "act/act.h"
-#include "act/impl/dshot.h"
-#include "act/impl/pwm.h"
-#include "config.h"
 #include "err/err.h"
 #include "llc/llc.h"
 #include "log/log.h"
+
+#include "config.h"
+
+#if config_ACT_MODE == config_ACT_MODE_PWM
+#include "act/impl/pwm.h"
+#elif config_ACT_MODE == config_ACT_MODE_DSHOT
+#include "act/impl/dshot.h"
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>

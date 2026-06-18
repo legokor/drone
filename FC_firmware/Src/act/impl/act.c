@@ -22,7 +22,7 @@ void act_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t c
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_init(timers, channels);
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    // dshot_init(timers, channels);
+    dshot_init(timers, channels);
 #endif
 }
 
@@ -58,7 +58,7 @@ void act_arm(void) {
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_arm();
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    // dshot_disarm();
+    dshot_disarm();
 #endif
 
     _act_armed = true;
@@ -72,7 +72,7 @@ void act_disarm(void) {
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_disarm();
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    // dshot_arm();
+    dshot_arm();
 #endif
 
     // we assert later, to make sure that the motors get turned off no matter what

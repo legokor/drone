@@ -7,6 +7,7 @@
 #include "stm32f4xx_hal_tim.h"
 
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 typedef uint16_t _act_dshotFrame;
@@ -18,13 +19,13 @@ static uint32_t _dshot_timerChannels[act_MOTOR_COUNT];
 
 // for DMA
 static volatile bool _dshot_dmaActive[act_MOTOR_COUNT] = { false };
-static uint16_t _act_dshotDmaBufferFront[act_MOTOR_COUNT][_dshot_FRAME_BITS];
+static volatile uint32_t _act_dshotDmaBufferFront[act_MOTOR_COUNT][_dshot_FRAME_BITS];
 
 // for next frame
 static volatile bool _dshot_speedBackBufferFilled[act_MOTOR_COUNT] = { false };
 static volatile bool _dshot_commandBackBufferFilled[act_MOTOR_COUNT] = { false };
-static uint16_t _act_dshotDmaSpeedBufferBack[act_MOTOR_COUNT][_dshot_FRAME_BITS];
-static uint16_t _act_dshotDmaCommandBufferBack[act_MOTOR_COUNT][_dshot_FRAME_BITS];
+static volatile uint32_t _act_dshotDmaSpeedBufferBack[act_MOTOR_COUNT][_dshot_FRAME_BITS];
+static volatile uint32_t _act_dshotDmaCommandBufferBack[act_MOTOR_COUNT][_dshot_FRAME_BITS];
 
 static _act_dshotFrame _dshot_createDshotFrameFromRaw(_act_dshotFrame throttleRaw) {
     bool telemetry = 0;
@@ -70,7 +71,10 @@ static void _dshot_dmaCpltCallback(void* context) {
 
 static void _dshot_dshotFrameToDmaPwmSignals(_act_dshotFrame frame, uint16_t buffer[_dshot_FRAME_BITS]) {
     for (size_t b = 0; b < _dshot_FRAME_BITS; b++) {
-        buffer[b] = ((frame >> b) & 1) ? dshot_T1H : dshot_T0H;
+        float us = ((frame >> b) & 1) ? dshot_T1H : dshot_T0H;
+        uint32_t duty = UINT32_MAX * (us / dshot_TBIT);
+
+        buffer[b] = duty;
     }
 }
 
@@ -126,19 +130,17 @@ void dshot_outputSpeed(float speeds[act_MOTOR_COUNT]) {
     _dshot_output(frames, false);
 }
 
-void dshot_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t timerChannels[act_MOTOR_COUNT]) {
-    dshot_Command cmds[act_MOTOR_COUNT];
+void dshot_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t timerChannels[act_MOTOR_COUNT]) {
 
     for (size_t i = 0; i < act_MOTOR_COUNT; i++) {
         irq_subscribeToIrq(irq_TIM_PWM_DMA_CPLT, _dshot_dmaCpltCallback, (void*) i, timers[i]);
+        HAL_TIM_PWM_Start(timers[i], timerChannels[i]);
 
         _dshot_timerChannels[i] = timerChannels[i];
         _dshot_timers[i] = timers[i];
-
-        cmds[i] = DSHOT_CMD_DISARM;
     }
 
-    dshot_outputCommand(cmds);
+    dshot_disarm();
 }
 
 void dshot_arm(void) {

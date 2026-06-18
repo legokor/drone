@@ -100,7 +100,7 @@ typedef enum act_DShotCommand {
     Silent = 31,
 } dshot_Command;
 
-void dshot_init(TIM_HandleTypeDef* timers[act_MOTOR_COUNT], uint32_t timerChannels[act_MOTOR_COUNT]);
+void dshot_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t timerChannels[act_MOTOR_COUNT]);
 
 void dshot_outputSpeed(float speeds[act_MOTOR_COUNT]);
 void dshot_outputCommand(dshot_Command cmds[act_MOTOR_COUNT]);

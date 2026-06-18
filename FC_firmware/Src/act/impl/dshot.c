@@ -19,13 +19,13 @@ static uint32_t _dshot_timerChannels[act_MOTOR_COUNT];
 
 // for DMA
 static volatile bool _dshot_dmaActive[act_MOTOR_COUNT] = { false };
-static volatile uint32_t _act_dshotDmaBufferFront[act_MOTOR_COUNT][_dshot_FRAME_BITS];
+static volatile uint32_t _act_dshotDmaBufferFront[act_MOTOR_COUNT][_dshot_FRAME_BITS] = { 0 };
 
 // for next frame
 static volatile bool _dshot_speedBackBufferFilled[act_MOTOR_COUNT] = { false };
 static volatile bool _dshot_commandBackBufferFilled[act_MOTOR_COUNT] = { false };
-static volatile uint32_t _act_dshotDmaSpeedBufferBack[act_MOTOR_COUNT][_dshot_FRAME_BITS];
-static volatile uint32_t _act_dshotDmaCommandBufferBack[act_MOTOR_COUNT][_dshot_FRAME_BITS];
+static volatile uint32_t _act_dshotDmaSpeedBufferBack[act_MOTOR_COUNT][_dshot_FRAME_BITS] = { 0 };
+static volatile uint32_t _act_dshotDmaCommandBufferBack[act_MOTOR_COUNT][_dshot_FRAME_BITS] = { 0 };
 
 static _act_dshotFrame _dshot_createDshotFrameFromRaw(_act_dshotFrame throttleRaw) {
     bool telemetry = 0;
@@ -69,10 +69,10 @@ static void _dshot_dmaCpltCallback(void* context) {
     );
 }
 
-static void _dshot_dshotFrameToDmaPwmSignals(_act_dshotFrame frame, uint16_t buffer[_dshot_FRAME_BITS]) {
+static void _dshot_dshotFrameToDmaPwmSignals(_act_dshotFrame frame, uint32_t buffer[_dshot_FRAME_BITS]) {
     for (size_t b = 0; b < _dshot_FRAME_BITS; b++) {
         float us = ((frame >> b) & 1) ? dshot_T1H : dshot_T0H;
-        uint32_t duty = UINT32_MAX * (us / dshot_TBIT);
+        uint32_t duty = UINT32_MAX * (us / (float) dshot_TBIT);
 
         buffer[b] = duty;
     }
@@ -134,10 +134,11 @@ void dshot_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t
 
     for (size_t i = 0; i < act_MOTOR_COUNT; i++) {
         irq_subscribeToIrq(irq_TIM_PWM_DMA_CPLT, _dshot_dmaCpltCallback, (void*) i, timers[i]);
-        HAL_TIM_PWM_Start(timers[i], timerChannels[i]);
 
         _dshot_timerChannels[i] = timerChannels[i];
         _dshot_timers[i] = timers[i];
+
+        HAL_TIM_PWM_Start(timers[i], timerChannels[i]);
     }
 
     dshot_disarm();

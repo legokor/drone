@@ -2,6 +2,7 @@
 #define DSHOT_H
 
 #include "act/act.h"
+#include "config.h"
 
 #if config_DSHOT_MODE == 150
 

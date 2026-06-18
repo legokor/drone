@@ -41,7 +41,7 @@ act_FinalSignalTelemetry act_output(llc_ThrustVec in) {
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_output(speeds);
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    // dshot_outputSpeed(speeds);
+    dshot_outputSpeed(speeds);
 #endif
 
     act_FinalSignalTelemetry out;

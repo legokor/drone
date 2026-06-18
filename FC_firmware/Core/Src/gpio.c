@@ -38,6 +38,7 @@
         * Output
         * EVENT_OUT
         * EXTI
+     PC8   ------> S_TIM8_CH3
 */
 void MX_GPIO_Init(void)
 {
@@ -72,6 +73,14 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(IMU_IRQN_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : GEN_TIM8_CH3_Pin */
+  GPIO_InitStruct.Pin = GEN_TIM8_CH3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
+  HAL_GPIO_Init(GEN_TIM8_CH3_GPIO_Port, &GPIO_InitStruct);
 
 }
 

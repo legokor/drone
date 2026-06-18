@@ -174,11 +174,12 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     hdma_spi2_tx.Init.Mode = DMA_NORMAL;
     hdma_spi2_tx.Init.Priority = DMA_PRIORITY_HIGH;
     hdma_spi2_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    if (HAL_DMA_Init(&hdma_spi2_tx) != HAL_OK) {
-        Error_Handler();
+    if (HAL_DMA_Init(&hdma_spi2_tx) != HAL_OK)
+    {
+      Error_Handler();
     }
 
-    __HAL_LINKDMA(spiHandle, hdmatx, hdma_spi2_tx);
+    __HAL_LINKDMA(spiHandle,hdmatx,hdma_spi2_tx);
 
     /* SPI2 interrupt Init */
     HAL_NVIC_SetPriority(SPI2_IRQn, 0, 0);
@@ -241,3 +242,4 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
+

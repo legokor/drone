@@ -262,8 +262,6 @@ void _sys_loop(void) {
         if (_sys_shouldDoDsp())
             _sys_doDsp();
 
-        log_debug("time: %u", now);
-
         if (nextGuide <= now) {
             _sys_guide();
             nextGuide += guideLoopLengthUS;

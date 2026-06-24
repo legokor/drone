@@ -3,12 +3,14 @@
 
 #include <stdint.h>
 
-typedef uint32_t sys_TimeStampUS;
+typedef uint32_t sys_TimeUS;
 
-sys_TimeStampUS sys_time(void);
-sys_TimeStampUS sys_timeDiff(sys_TimeStampUS earlier, sys_TimeStampUS later);
-void sys_sleepUntill(sys_TimeStampUS untill);
+[[nodiscard]] sys_TimeUS sys_time(void);
+[[nodiscard]] sys_TimeUS sys_timeDiff(sys_TimeUS earlier, sys_TimeUS later);
 
-uint64_t sys_totalTimeSinceBootUS(void);
+void sys_busyWaitUntil(sys_TimeUS until);
+void sys_busyWait(sys_TimeUS t);
+
+[[nodiscard]] uint64_t sys_totalTimeSinceBootUS(void);
 
 #endif // TIME_H

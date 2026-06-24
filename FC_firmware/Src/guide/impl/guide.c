@@ -44,18 +44,18 @@ static llc_ThrustVec _guide_rcMode() {
             ref.thrust = 1;
 
 #define L 1
-        ref.roll = utils_clamp(ref.roll, -L, L);
-        ref.pitch = utils_clamp(ref.pitch, -L, L);
-        ref.yaw = utils_clamp(ref.yaw, -L, L);
+        ref.roll = 0;  // utils_clamp(ref.roll, -L, L);
+        ref.pitch = 0; // utils_clamp(ref.pitch, -L, L);
+        ref.yaw = 0;   // utils_clamp(ref.yaw, -L, L);
         ref.thrust = utils_clamp(ref.thrust, 0, L);
 #undef L
 
         // FIXME: arm value
         if (act_isArmed()) {
-            if (d.channels[config_RC_CHAN_ARM] < 1700)
+            if (!(d.channels[config_RC_CHAN_ARM] < 1700))
                 act_disarm();
         } else {
-            if (!(d.channels[config_RC_CHAN_ARM] < 1700))
+            if (d.channels[config_RC_CHAN_ARM] < 1700)
                 act_arm();
         }
     } else {

@@ -28,11 +28,11 @@ typedef struct [[nodiscard]] rc_Rc {
     // not volatile, becase we only access it from the interrupt
     uint8_t rxDMABuffer[_rc_SBUS_FRAME_SIZE];
 
-    // but we access this from both interrupts and normal code
+    // but we access these from both interrupts and normal code
     volatile uint8_t rxDataBuffer[_rc_SBUS_FRAME_SIZE];
     volatile bool frameValid;
 
-    sys_TimeStampUS lastFrameTime;
+    volatile sys_TimeUS lastFrameTime;
     rc_SbusState state;
 } rc_Rc;
 

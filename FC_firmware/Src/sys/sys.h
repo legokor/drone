@@ -9,6 +9,7 @@ typedef void (*sys_AbortFn)(void*);
 extern uart_Uart sys_uartInstance;
 extern rc_Rc sys_rcInstance;
 
+[[noreturn]]
 void sys_entry(void);
 
 [[noreturn]]

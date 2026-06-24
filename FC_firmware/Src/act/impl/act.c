@@ -4,6 +4,7 @@
 #include "log/log.h"
 
 #include "config.h"
+#include "sys/time.h"
 
 #if config_ACT_MODE == config_ACT_MODE_PWM
 #include "act/impl/pwm.h"
@@ -22,7 +23,7 @@ void act_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t c
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_init(timers, channels);
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    dshot_init(timers, channels);
+    act_dshot_init(timers, channels);
 #endif
 }
 
@@ -32,33 +33,40 @@ act_FinalSignalTelemetry act_output(llc_ThrustVec in) {
 
     // FIXME: motor matrix
     float speeds[act_MOTOR_COUNT] = {
-        in.thrust + in.roll + in.pitch + in.yaw, //
-        in.thrust + in.roll - in.pitch - in.yaw, //
-        in.thrust - in.roll + in.pitch - in.yaw, //
-        in.thrust - in.roll - in.pitch + in.yaw  //
+        utils_clamp(in.thrust + in.roll + in.pitch + in.yaw, 0, 1), //
+        utils_clamp(in.thrust + in.roll - in.pitch - in.yaw, 0, 1), //
+        utils_clamp(in.thrust - in.roll + in.pitch - in.yaw, 0, 1), //
+        utils_clamp(in.thrust - in.roll - in.pitch + in.yaw, 0, 1)  //
     };
 
+    act_FinalSignalTelemetry out;
+
 #if config_ACT_MODE == config_ACT_MODE_PWM
-    act_pwm_output(speeds);
+    act_pwm_output(speeds, &out);
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    dshot_outputSpeed(speeds);
+    act_dshot_outputSpeed(speeds, &out);
 #endif
 
-    act_FinalSignalTelemetry out;
-    for (int i = 0; i < act_MOTOR_COUNT; i++) {
+    for (int i = 0; i < act_MOTOR_COUNT; i++)
         out.motorSignals[i] = speeds[i];
-    }
 
     return out;
 }
 
+static sys_TimeUS _act_armedT = 0;
+
+sys_TimeUS act_getArmTime(void) {
+    return _act_armedT;
+}
+
 void act_arm(void) {
+    _act_armedT = sys_time();
     bool was_armed = _act_armed;
 
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_arm();
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    dshot_disarm();
+    act_dshot_arm();
 #endif
 
     _act_armed = true;
@@ -72,7 +80,7 @@ void act_disarm(void) {
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_disarm();
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    dshot_arm();
+    act_dshot_disarm();
 #endif
 
     // we assert later, to make sure that the motors get turned off no matter what

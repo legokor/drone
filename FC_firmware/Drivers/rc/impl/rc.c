@@ -23,12 +23,12 @@
 #define _rc_SBUS_MASK ((1 << _rc_SBUS_CHAN_BITS) - 1)
 
 static void _rc_handleRxCplt(void* context) {
-    sys_TimeStampUS currentTime = sys_time();
+    sys_TimeUS now = sys_time();
     rc_Rc* rc = (rc_Rc*) context;
 
     if (rc->state == rc_STATE_WAIT_FOR_START) {
         bool frameStart = rc->rxDMABuffer[0] == _rc_SBUS_FRAME_START;
-        bool inTime = currentTime - rc->lastFrameTime >= _rc_SBUS_MIN_TIME_BETWEEN_FRAMES_US;
+        bool inTime = sys_timeDiff(rc->lastFrameTime, now) >= _rc_SBUS_MIN_TIME_BETWEEN_FRAMES_US;
         if (frameStart && inTime) {
             rc->state = rc_STATE_RECEIVING;
 
@@ -49,7 +49,7 @@ static void _rc_handleRxCplt(void* context) {
         HAL_UART_Receive_IT(rc->huart, (uint8_t*) rc->rxDMABuffer, 1);
     }
 
-    rc->lastFrameTime = currentTime;
+    rc->lastFrameTime = now;
 }
 
 bool rc_init(rc_Rc* const rc, UART_HandleTypeDef* const huart) {

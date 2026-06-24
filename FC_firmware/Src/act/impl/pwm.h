@@ -8,6 +8,6 @@ void act_pwm_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32
 void act_pwm_arm(void);
 void act_pwm_disarm(void);
 
-void act_pwm_output(float speed[act_MOTOR_COUNT]);
+void act_pwm_output(float speed[act_MOTOR_COUNT], act_FinalSignalTelemetry* out);
 
 #endif // ACT_PWM_H

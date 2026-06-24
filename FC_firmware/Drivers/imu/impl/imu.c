@@ -9,6 +9,7 @@
 #include "spi.h"
 
 #include "stm32f4xx_hal.h"
+#include "stm32f4xx_ll_spi.h"
 
 #include "arm_math.h"
 
@@ -22,7 +23,7 @@ static void _imu_spiTransmitCpltCallback(void* context) {
 
     // __HAL_SPI_DISABLE(hspi);
     // imu->hspi->Init.Mode = SPI_DIRECTION_2LINES_RXONLY;
-    HAL_SPI_Receive_DMA(imu->hspi, (uint8_t*) imu->imuBuffer, sizeof(imu->imuBuffer));
+    // HAL_SPI_Receive_IT(imu->hspi, (uint8_t*) imu->imuBuffer, sizeof(imu->imuBuffer));
 }
 
 static void _imu_spiReceiveCpltCallback(void* context) {
@@ -47,7 +48,7 @@ static void _imu_timPeriodElapsedCallback(void* context) {
     imu->readInProgress = true;
     imu->readMemAddress = IMU_ACCEL_XOUT_H | 0x80;
 
-    HAL_SPI_Transmit_DMA(imu->hspi, &imu->readMemAddress, 1);
+    // HAL_SPI_Transmit_DMA(imu->hspi, &imu->readMemAddress, 1);
 }
 
 bool imu_newDataAvailable(imu_Imu* imu) {

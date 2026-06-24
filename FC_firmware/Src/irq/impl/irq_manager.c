@@ -10,7 +10,7 @@ void irq_subscribeToIrq(irq_IntEventType eventType, irq_CallbackFn cbFnHandle, v
     err_assert(eventType < _irq_EVENT_TYPE_COUNT);
 
     for (int p = 0; p < _irq_MAX_SUBSCR_COUNT; p++) {
-        if (_irq_callbackList[eventType][p].cbFn == NULL) {
+        if (_irq_callbackList[eventType][p].cbFn == nullptr) {
             __disable_irq();
 
             _irq_callbackList[eventType][p] = (_irq_CallbackListEntry) {
@@ -30,7 +30,7 @@ void irq_subscribeToIrq(irq_IntEventType eventType, irq_CallbackFn cbFnHandle, v
 void _irq_triggerCbs(irq_IntEventType eventType, void* handle) {
     _irq_CallbackListEntry* eventCbList = _irq_callbackList[eventType];
 
-    for (uint32_t i = 0; eventCbList[i].cbFn != NULL; i++) {
+    for (uint32_t i = 0; eventCbList[i].cbFn != nullptr; i++) {
         if (eventCbList[i].halHandle == handle)
             eventCbList[i].cbFn(eventCbList[i].context);
     }

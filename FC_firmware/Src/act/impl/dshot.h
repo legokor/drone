@@ -6,27 +6,27 @@
 
 #if config_DSHOT_MODE == 150
 
-#define dshot_T1H 5.00
-#define dshot_T0H 2.50
-#define dshot_TBIT 6.67
+#define act_dshot_1_T_US 5.00f
+#define act_dshot_0_T_US 2.50f
+#define act_dshot_BIT_T_US 6.67f
 
 #elif config_DSHOT_MODE == 300
 
-#define dshot_TBIT 3.33
-#define dshot_T1H 2.50
-#define dshot_T0H 1.25
+#define act_dshot_BIT_T_US 3.33f
+#define act_dshot_1_T_US 2.50f
+#define act_dshot_0_T_US 1.25f
 
 #elif config_DSHOT_MODE == 600
 
-#define dshot_TBIT 1.67
-#define dshot_T1H 1.25
-#define dshot_T0H 0.625
+#define act_dshot_BIT_T_US 1.67f
+#define act_dshot_1_T_US 1.25f
+#define act_dshot_0_T_US 0.625f
 
 #elif config_DSHOT_MODE == 1200
 
-#define dshot_TBIT 0.83
-#define dshot_T1H 0.625
-#define dshot_T0H 0.313
+#define act_dshot_BIT_T_US 0.83f
+#define act_dshot_1_T_US 0.625f
+#define act_dshot_0_T_US 0.313f
 
 #elif config_MODE != config_DSHOT_MODE
 
@@ -34,79 +34,79 @@
 
 #else // for auto complete
 
-#define dshot_TBIT 0
-#define dshot_T1H 0
-#define dshot_T0H 0
+#define act_dshot_BIT_T_US 0.0f
+#define act_dshot_1_T_US 0.0f
+#define act_dshot_0_T_US 0.0f
 
 #endif
 
-#define dshot_BIT_FREQ (1.0f / dshot_TBIT)
+#define dshot_BIT_FREQ (1.0f / act_dshot_BIT_T_US)
 
 // https://betaflight.com/docs/development/API/Dshot#special-commands
-typedef enum act_DShotCommand {
-    DSHOT_CMD_DISARM = 0,
+typedef enum act_dshot_Command {
+    act_dshot_CMD_DISARM = 0,
 
     // Wait at least length of beep (260ms) before next command
-    DSHOT_CMD_BEEP1 = 1,
+    act_dshot_CMD_BEEP1 = 1,
 
     // Wait at least length of beep (260ms) before next command
-    DSHOT_CMD_BEEP2 = 2,
+    act_dshot_CMD_BEEP2 = 2,
 
     // Wait at least length of beep (260ms) before next command
-    DSHOT_CMD_BEEP3 = 3,
+    act_dshot_CMD_BEEP3 = 3,
 
     // Wait at least length of beep (260ms) before next command
-    DSHOT_CMD_BEEP4 = 4,
+    act_dshot_CMD_BEEP4 = 4,
 
     // Wait at least length of beep (260ms) before next command
-    DSHOT_CMD_BEEP5 = 5,
+    act_dshot_CMD_BEEP5 = 5,
 
     // Wait at least 12ms before next command
-    DSHOT_CMD_ESC_INFO = 6,
+    act_dshot_CMD_ESC_INFO = 6,
 
     // Need 6x
-    DSHOT_CMD_SPIN_DIRECTION_1 = 7,
+    act_dshot_CMD_SPIN_DIRECTION_1 = 7,
 
     // Need 6x
-    DSHOT_CMD_SPIN_DIRECTION_2 = 8,
+    act_dshot_CMD_SPIN_DIRECTION_2 = 8,
 
     // Need 6x
-    DSHOT_CMD_3D_MODE_OFF = 9,
+    act_dshot_CMD_3D_MODE_OFF = 9,
 
     // Need 6x
-    DSHOT_CMD_3D_MODE_ON = 10,
+    act_dshot_CMD_3D_MODE_ON = 10,
 
     // Need 6x, wait at least 35ms before next command
-    DSHOT_CMD_SAVE_SETTINGS = 12,
+    act_dshot_CMD_SAVE_SETTINGS = 12,
 
     // Need 6x
-    DSHOT_CMD_SPIN_DIRECTION_NORMAL = 20,
+    act_dshot_CMD_SPIN_DIRECTION_NORMAL = 20,
 
     // Need 6x
-    DSHOT_CMD_SPIN_DIRECTION_REVERSED = 21,
+    act_dshot_CMD_SPIN_DIRECTION_REVERSED = 21,
 
-    DSHOT_CMD_LED0_ON = 22,
-    DSHOT_CMD_LED1_ON = 23,
-    DSHOT_CMD_LED2_ON = 24,
-    DSHOT_CMD_LED3_ON = 25,
-    DSHOT_CMD_LED0_OFF = 26,
-    DSHOT_CMD_LED1_OFF = 27,
-    DSHOT_CMD_LED2_OFF = 28,
-    DSHOT_CMD_LED3_OFF = 29,
+    act_dshot_CMD_LED0_ON = 22,
+    act_dshot_CMD_LED1_ON = 23,
+    act_dshot_CMD_LED2_ON = 24,
+    act_dshot_CMD_LED3_ON = 25,
+    act_dshot_CMD_LED0_OFF = 26,
+    act_dshot_CMD_LED1_OFF = 27,
+    act_dshot_CMD_LED2_OFF = 28,
+    act_dshot_CMD_LED3_OFF = 29,
 
     // mode on/Off
-    Audio_Stream = 30,
+    act_dshot_CMD_AUDIO_STREAM = 30,
 
     // Mode on/Off
-    Silent = 31,
+    act_dshot_CMD_SILENT = 31,
 } dshot_Command;
 
-void dshot_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t timerChannels[act_MOTOR_COUNT]);
+void act_dshot_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t timerChannels[act_MOTOR_COUNT]);
 
-void dshot_outputSpeed(float speeds[act_MOTOR_COUNT]);
-void dshot_outputCommand(dshot_Command cmds[act_MOTOR_COUNT]);
+void act_dshot_outputSpeed(float speeds[act_MOTOR_COUNT], act_FinalSignalTelemetry* out);
+void act_dshot_outputCommand(dshot_Command cmds[act_MOTOR_COUNT]);
 
-void dshot_arm(void);
-void dshot_disarm(void);
+void act_dshot_arm(void);
+void act_dshot_disarm(void);
 
 #endif // DSHOT_H

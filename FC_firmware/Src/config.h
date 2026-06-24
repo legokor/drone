@@ -12,9 +12,9 @@
 // ACT
 #define config_ACT_MODE_PWM 1
 #define config_ACT_MODE_DSHOT 2
-#define config_ACT_MODE config_ACT_MODE_PWM
+#define config_ACT_MODE config_ACT_MODE_DSHOT
 
-#define config_ACT_LOOP_FREQ 800
+#define config_ACT_LOOP_FREQ 1500
 
 #if config_ACT_MODE == config_ACT_MODE_PWM
 
@@ -48,5 +48,6 @@
 #define config_BATTERY_CRITICAL_TIME_MS 1000
 #define config_BATTERY_ADC_CONVERSION_FACTOR 7.68e-3 // (1 / 130.0f)
 #define config_ESC_ADC_CONVERSION_FACTOR 1           // TODO: esc adc conversion factor
+#define config_TELEMETRY_FREQ 50
 
 #endif // CONFIG_H

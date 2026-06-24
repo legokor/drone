@@ -1,7 +1,9 @@
+#include "config.h"
+
+#if config_ACT_MODE == config_ACT_MODE_PWM
+
 #include "act/act.h"
 #include "err/err.h"
-
-#include "config.h"
 
 #include <stdint.h>
 
@@ -25,23 +27,14 @@ static void _act_pwm_setMotorSpeed(uint8_t idx, uint16_t value) {
     __HAL_TIM_SET_COMPARE(m.timer, m.channel, value);
 }
 
-void act_pwm_output(float speed[act_MOTOR_COUNT]) {
-
-    // dshot_output(speed);
-
-    // float speed[act_MOTOR_COUNT];
-
-    // // scale in place
-    // arm_scale_f32(tmp, _act_PWM_RANGE, tmp, act_MOTOR_COUNT);
-
-    // // offset in place
-    // arm_offset_f32(tmp, _act_PWM_MIN, tmp, act_MOTOR_COUNT);
-
-    // // clip from speed to tmp
-    // arm_clip_f32(tmp, speed, _act_PWM_MIN, _act_PWM_MAX, act_MOTOR_COUNT);
-
+void act_pwm_output(float speed[act_MOTOR_COUNT], act_FinalSignalTelemetry* out) {
     for (int i = 0; i < act_MOTOR_COUNT; i++) {
-        uint16_t s = utils_clamp(_act_pwm_PWM_MIN + _act_pwm_PWM_RANGE * speed[0], _act_pwm_PWM_MIN, _act_pwm_PWM_MAX);
+        uint16_t s = utils_clamp(_act_pwm_PWM_MIN + _act_pwm_PWM_RANGE * speed[i], _act_pwm_PWM_MIN, _act_pwm_PWM_MAX);
+
+        if (out != nullptr) {
+            out->pwmDuties[i] = s;
+        }
+
         _act_pwm_setMotorSpeed(i, s);
     }
 }
@@ -82,3 +75,5 @@ void act_pwm_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32
 #endif
     }
 }
+
+#endif

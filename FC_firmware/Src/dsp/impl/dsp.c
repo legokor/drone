@@ -2,6 +2,7 @@
 #include "imu/imu.h"
 #include "log/log.h"
 #include "sys/sys.h"
+#include "sys/time.h"
 #include "utils/utils.h"
 
 #include <stddef.h>
@@ -27,7 +28,7 @@ _dsp_DATA
 
 #undef _dsp_DATA_IMPL
 
-    static sys_TimeStampUS _dsp_lastRun = 0;
+    static sys_TimeUS _dsp_lastRun;
 
 // static imu_Vec3 _dsp_angleGyr = { 0 };
 
@@ -95,8 +96,8 @@ static imu_Vec3 _dsp_gyrAvgData[16] = { 0 };
 
 void dsp_update(void) {
     // TODO: use a timer for usec resolution
-    sys_TimeStampUS now = sys_time();
-    float dt = 1e-6 * (now - _dsp_lastRun);
+    sys_TimeUS now = sys_time();
+    float dt = 1e-6 * sys_timeDiff(_dsp_lastRun, now);
     _dsp_lastRun = now;
 
     imu_Vec3 inAcc = dsp_getInAcc();

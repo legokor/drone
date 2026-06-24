@@ -3,6 +3,9 @@
 
 #include "llc/llc.h"
 
+#include "config.h"
+
+#include "sys/time.h"
 #include "tim.h"
 
 #include <stdint.h>
@@ -15,8 +18,16 @@ void act_arm(void);
 bool act_isArmed(void);
 void act_disarm(void);
 
+sys_TimeUS act_getArmTime(void);
+
 typedef struct act_FinalSignalTelemetry {
     float motorSignals[act_MOTOR_COUNT];
+
+#if config_ACT_MODE == config_ACT_MODE_DSHOT
+    uint32_t dshotThrottles[act_MOTOR_COUNT];
+#elif config_ACT_MODE == config_ACT_MODE_PWM
+    uint32_t pwmDuties[act_MOTOR_COUNT];
+#endif
 } act_FinalSignalTelemetry;
 
 act_FinalSignalTelemetry act_output(llc_ThrustVec tv);

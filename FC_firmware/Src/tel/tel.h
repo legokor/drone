@@ -80,7 +80,7 @@ typedef enum tel_DataType {
     tel_TYPE_ARRAY
 } tel_DataType;
 
-typedef void (*tel_WriteFn)(sys_TimeStampUS, tel_Topic, const void*, size_t, tel_DataType);
+typedef void (*tel_WriteFn)(sys_TimeUS, tel_Topic, const void*, size_t, tel_DataType);
 
 void tel_init(void);
 

@@ -12,7 +12,11 @@
 
 #define act_MOTOR_COUNT 4
 
+#if config_ACT_MODE == config_ACT_MODE_PWM
 void act_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t channels[act_MOTOR_COUNT]);
+#elif config_ACT_MODE == config_ACT_MODE_DSHOT
+void act_init(TIM_HandleTypeDef* timer);
+#endif
 
 void act_arm(void);
 bool act_isArmed(void);

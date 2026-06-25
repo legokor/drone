@@ -43,8 +43,7 @@ static imu_Imu _sys_imuInstance;
 static TIM_HandleTypeDef* const _sys_usTimer = &htim2;
 static TIM_HandleTypeDef* const _sys_imuTimer = &htim10;
 
-static TIM_HandleTypeDef* const _sys_actTimers[] = { &htim3, &htim3, &htim3, &htim3 };
-static const uint32_t _sys_actTimersChannels[] = { TIM_CHANNEL_1, TIM_CHANNEL_2, TIM_CHANNEL_3, TIM_CHANNEL_4 };
+static TIM_HandleTypeDef* const _sys_actTimer = &htim3;
 
 static ADC_HandleTypeDef* const _sys_batteryADC = &hadc1;
 
@@ -56,29 +55,8 @@ static SPI_HandleTypeDef* const _sys_imuSpi = &hspi2;
 static void _sys_init_drivers(void) {
     log_debug("Initalizing drivers...");
 
-    // HAL_Delay(1000);
+    act_init(_sys_actTimer);
 
-    act_init(_sys_actTimers, _sys_actTimersChannels);
-    /*
-        sys_busyWait(1000);
-
-        for (size_t i = 0; i < 2; i++) {
-            act_arm();
-
-            sys_busyWait(100);
-
-            act_output((llc_ThrustVec){ .roll = 0, .pitch = 0, .yaw = 0, .thrust = 0.5f });
-
-            sys_busyWait(100);
-
-            act_disarm();
-
-            sys_busyWait(1000);
-        }
-
-        while (true) {
-        }
-     */
     adc_init(_sys_batteryADC);
 
     err_tryFatal(rc_init(&sys_rcInstance, _sys_rcUsart), "Failed to init rc");

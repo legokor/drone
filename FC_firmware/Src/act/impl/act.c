@@ -17,13 +17,18 @@
 
 static volatile bool _act_armed = false;
 
-void act_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t channels[act_MOTOR_COUNT]) {
+#if config_ACT_MODE == config_ACT_MODE_PWM
+void act_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t channels[act_MOTOR_COUNT])
+#elif config_ACT_MODE == config_ACT_MODE_DSHOT
+void act_init(TIM_HandleTypeDef* timer)
+#endif
+{
     log_debug("Initializing act...");
 
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_init(timers, channels);
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
-    act_dshot_init(timers, channels);
+    act_dshot_init(timer);
 #endif
 }
 

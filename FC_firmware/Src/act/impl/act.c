@@ -17,6 +17,9 @@
 
 static volatile bool _act_armed = false;
 
+static sys_TimeUS _act_armedT = 0;
+static sys_TimeUS _act_disarmedT = 0;
+
 #if config_ACT_MODE == config_ACT_MODE_PWM
 void act_init(TIM_HandleTypeDef* const timers[act_MOTOR_COUNT], const uint32_t channels[act_MOTOR_COUNT])
 #elif config_ACT_MODE == config_ACT_MODE_DSHOT
@@ -58,10 +61,12 @@ act_FinalSignalTelemetry act_output(llc_ThrustVec in) {
     return out;
 }
 
-static sys_TimeUS _act_armedT = 0;
-
 sys_TimeUS act_getArmTime(void) {
     return _act_armedT;
+}
+
+sys_TimeUS act_getDisarmTime(void) {
+    return _act_disarmedT;
 }
 
 void act_arm(void) {
@@ -81,6 +86,7 @@ void act_arm(void) {
 
 void act_disarm(void) {
     // TODO: pwm min instead of stopping?
+    _act_disarmedT = sys_time();
 
 #if config_ACT_MODE == config_ACT_MODE_PWM
     act_pwm_disarm();

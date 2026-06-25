@@ -36,7 +36,6 @@ static uint32_t _sys_bootTimerOverflows = 0;
 static imu_Imu _sys_imuInstance;
 
 static bool _sys_isInitalized = false;
-static bool _sys_wasArmed = false;
 
 static imu_Imu _sys_imuInstance;
 
@@ -138,7 +137,6 @@ static void _sys_init(void) {
     ctrl_setMode(ctrl_RC);
 
     _sys_isInitalized = true;
-    _sys_wasArmed = act_isArmed();
 
     log_debug("Init done");
     HAL_GPIO_WritePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_SET);
@@ -155,9 +153,22 @@ static _sys_Telemetry _sys_lastTel = { 0 };
 static void _sys_doTelemetry(sys_TimeUS now) {
     const uint32_t telemetryPeriodUS = 1e6 / config_TELEMETRY_FREQ;
     static sys_TimeUS lastTelemetry = 0;
+    static sys_TimeUS lastKnownArmChange = 0;
 
     if (now < lastTelemetry + telemetryPeriodUS)
         return;
+
+    bool isArmed = act_isArmed();
+    sys_TimeUS armChangeT = act_getArmTime();
+    if (isArmed)
+        armChangeT = act_getArmTime();
+    else
+        armChangeT = act_getDisarmTime();
+
+    bool armingChanged = lastKnownArmChange != armChangeT || (lastTelemetry == 0 && lastKnownArmChange == 0);
+    if (armingChanged) {
+        lastKnownArmChange = armChangeT;
+    }
 
     lastTelemetry = now;
 
@@ -166,12 +177,12 @@ static void _sys_doTelemetry(sys_TimeUS now) {
     llc_ThrustVec llcOut = _sys_lastTel.llcOut;
     act_FinalSignalTelemetry actOut = _sys_lastTel.actOut;
 
-    if (act_isArmed()) {
-        if (!_sys_wasArmed) {
+    if (isArmed) {
+        if (armingChanged) {
             log_raw(
-                "# vbat,imu_roll,imu_pitch,imu_yaw"
-                "llc_roll,llc_pitch,llc_yaw,llc_thrust" //
-                "motor0,motor1,motor2,motor3"           //
+                "# vbat,imu_roll,imu_pitch,imu_yaw,"
+                "llc_roll,llc_pitch,llc_yaw,llc_thrust," //
+                "motor0,motor1,motor2,motor3"            //
             );
         }
 
@@ -199,7 +210,7 @@ static void _sys_doTelemetry(sys_TimeUS now) {
 #endif
         );
     } else {
-        if (_sys_wasArmed) {
+        if (armingChanged) {
             log_raw(
                 "# vbat,imu_roll,imu_pitch,imu_yaw," //
                 "rc_roll,rc_pitch,rc_yaw,rc_thrust"  //
@@ -247,8 +258,6 @@ static void _sys_guide(void) {
     }
 
     _sys_doTelemetry(now);
-
-    _sys_wasArmed = act_isArmed();
 }
 
 bool _sys_shouldLoop(void) {
@@ -344,7 +353,7 @@ uint64_t sys_totalTimeSinceBootUS(void) {
 }
 
 sys_TimeUS sys_timeDiff(sys_TimeUS earlier, sys_TimeUS later) {
-    if (earlier <= later) [[likely]]
+    if (earlier <= later)
         return later - earlier;
 
     // there was an overlow between the two, earlier was before overflow

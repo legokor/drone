@@ -23,6 +23,7 @@ bool act_isArmed(void);
 void act_disarm(void);
 
 sys_TimeUS act_getArmTime(void);
+sys_TimeUS act_getDisarmTime(void);
 
 typedef struct act_FinalSignalTelemetry {
     float motorSignals[act_MOTOR_COUNT];

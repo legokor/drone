@@ -24,6 +24,10 @@
 
 #define config_DSHOT_MODE 300
 
+#else
+
+#error Unknown act mode
+
 #endif
 // ACT
 
@@ -41,6 +45,22 @@
 #define config_RC_CHAN_THRUST 2
 
 #define config_RC_IDLE_DISARM_MS 200
+
+#define config_RC_ARM_THRESHOLD 1700
+
+#define config_RC_ROLL_PITCH_YAW_MIN -1
+#define config_RC_ROLL_PITCH_YAW_MAX 1
+#define config_RC_ROLL_PITCH_YAW_RANGE config_RC_ROLL_PITCH_YAW_MIN, config_RC_ROLL_PITCH_YAW_MAX
+
+#define config_RC_THRUST_MIN 0
+#define config_RC_THRUST_MAX 1
+#define config_RC_THRUST_RANGE config_RC_THRUST_MIN, config_RC_THRUST_MAX
+
+#define config_RC_ROLL_CALIB_RANGE 212, 1811
+#define config_RC_PITCH_CALIB_RANGE 212, 1811
+#define config_RC_YAW_CALIB_RANGE 215, 1811
+#define config_RC_THRUST_CALIB_RANGE 174, 1702
+
 // RC
 
 #define config_BATTERY_CELL_COUNT 4

@@ -1,34 +1,35 @@
 #ifndef TEL_H
 #define TEL_H
 
+#include "sys/time.h"
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "sys/sys.h"
 
 /**
  * Data flow of the system:
  *
- *   +----------+--------+--------+---------+----------+
- *   | What     | From   | To     | Through | Priority |
- *   +----------+--------+--------+---------+----------+
- * 1 | Commands | ground | drone  | LoRa    | High     |
- *   +----------+--------+--------+---------+----------+
- * 2 | Sensors  | drone  | ground | LoRa    | Medium   |
- *   +----------+--------+--------+---------+----------+
- * 3 | Sensors  | drone  | drone  | SD card | Medium   |
- *   +----------+--------+--------+---------+----------+
- * 4 | Logs     | drone  | ground | LoRa    | Low      |
- *   +----------+--------+--------+---------+----------+
- * 5 | Logs     | drone  | drone  | SD card | Low      |
- *   +----------+--------+--------+---------+----------+
- * 6 | Logs     | drone  | ground | USB     | Very Low |
- *   +----------+--------+--------+---------+----------+
- * 7 | Sensors  | drone  | ground | USB     | Very Low |
- *   +----------+--------+--------+---------+----------+
+ *   +----------+--------+--------+--------------+----------+
+ *   | What     | From   | To     | Through      | Priority |
+ *   +----------+--------+--------+--------------+----------+
+ * 1 | Commands | ground | drone  | LoRa         | High     |
+ *   +----------+--------+--------+--------------+----------+
+ * 2 | Sensors  | drone  | ground | LoRa         | Medium   |
+ *   +----------+--------+--------+--------------+----------+
+ * 3 | Sensors  | drone  | drone  | SD card      | Medium   |
+ *   +----------+--------+--------+--------------+----------+
+ * 4 | Logs     | drone  | ground | LoRa         | Low      |
+ *   +----------+--------+--------+--------------+----------+
+ * 5 | Logs     | drone  | drone  | SD card      | Low      |
+ *   +----------+--------+--------+--------------+----------+
+ * 6 | Logs     | drone  | ground | serial / USB | Very Low |
+ *   +----------+--------+--------+--------------+----------+
+ * 7 | Sensors  | drone  | ground | serial / USB | Very Low |
+ *   +----------+--------+--------+--------------+----------+
  *
  * Usecases:
- *  - critical: sending / recieving commands from the ground station
+ *  - critical: sending/recieving commands/sensor data from the ground station
  *  - non-critical: logging
  *
  * The telemetry system works by sending / writing messages. Messages can be of different datatypes and topics.

@@ -115,6 +115,7 @@ int main(void) {
     MX_UART5_Init();
     MX_USB_OTG_FS_PCD_Init();
     /* USER CODE BEGIN 2 */
+    // TODO: disable USB OTG?
     sys_entry();
     /* USER CODE END 2 */
 

@@ -181,8 +181,8 @@ static void _sys_doTelemetry(sys_TimeUS now) {
         if (armingChanged) {
             log_raw(
                 "# vbat,imu_roll,imu_pitch,imu_yaw,"
-                "llc_roll,llc_pitch,llc_yaw,llc_thrust," //
-                "motor0,motor1,motor2,motor3"            //
+                // "llc_roll,llc_pitch,llc_yaw,llc_thrust," //
+                "motor0,motor1,motor2,motor3" //
             );
         }
 
@@ -194,8 +194,8 @@ static void _sys_doTelemetry(sys_TimeUS now) {
             "%u,%u,%u,%u",
             (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                         //
             (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
-        // (double) utils_radToDeg(llcOut.roll), (double) utils_radToDeg(llcOut.pitch),                          //
-        // (double) utils_radToDeg(llcOut.yaw), (double) llcOut.thrust,                                          //
+            // (double) llcOut.roll, (double) llcOut.pitch,                                                       //
+            // (double) llcOut.yaw, (double) llcOut.thrust,                                                       //
 
 #if config_ACT_MODE == config_ACT_MODE_DSHOT
             actOut.dshotThrottles[0], //
@@ -224,8 +224,8 @@ static void _sys_doTelemetry(sys_TimeUS now) {
             "%.2f,%.2f,%.2f,%.2f",
             (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                         //
             (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
-            (double) utils_radToDeg(guideRef.roll), (double) utils_radToDeg(guideRef.pitch),                      //
-            (double) utils_radToDeg(guideRef.yaw), (double) guideRef.thrust                                       //
+            (double) guideRef.roll, (double) guideRef.pitch,                                                      //
+            (double) guideRef.yaw, (double) guideRef.thrust                                                       //
         );
     }
 }
@@ -299,7 +299,7 @@ static void _sys_doDsp(void) {
 void _sys_loop(void) {
     sys_TimeUS guideLoopLengthUS = 1 * 1000 * 1000 / config_ACT_LOOP_FREQ;
 
-    // TODO: use more precise timer
+    // TODO: only disable motors after min voltage
     sys_TimeUS nextGuide = sys_time() + guideLoopLengthUS;
     while (_sys_shouldLoop()) {
         sys_TimeUS now = sys_time();

@@ -40,13 +40,13 @@ bool uart_init(uart_Uart* uart, uart_UartInitParams uartInitParams) {
     uart->endOfMsgChar = uartInitParams.endOfMsgChar;
     uart->rxStartOfData = 0;
 
-    uart->txCircularBuffer = (char*) malloc(uartInitParams.txBufferLength + 1);
+    uart->txCircularBuffer = (uint8_t*) malloc(uartInitParams.txBufferLength + 1);
     if (uart->txCircularBuffer == NULL) {
         log_error("Failed to allocate memory for txCircularBuffer");
         return false;
     }
 
-    uart->rxCircularBuffer = (char*) malloc(uartInitParams.rxBufferLength);
+    uart->rxCircularBuffer = (uint8_t*) malloc(uartInitParams.rxBufferLength);
     if (uart->rxCircularBuffer == NULL) {
         log_error("Failed to allocate memory for rxCircularBuffer");
         return false;
@@ -64,7 +64,7 @@ bool uart_init(uart_Uart* uart, uart_UartInitParams uartInitParams) {
     return true;
 }
 
-bool uart_transmit(uart_Uart* uart, const char* data, const uint32_t size) {
+bool uart_transmit(uart_Uart* uart, const uint8_t* data, const uint32_t size) {
     if (size > uart->txBufferLength || size == 0)
         return false;
 
@@ -131,7 +131,7 @@ bool uart_transmit(uart_Uart* uart, const char* data, const uint32_t size) {
     return ok;
 }
 
-uart_ReceiveStatus uart_receive(uart_Uart* uart, char* data, uint32_t maxSize) {
+uart_ReceiveStatus uart_receive(uart_Uart* uart, uint8_t* data, uint32_t maxSize) {
     uint32_t dmaPtr = uart->rxBufferLength - uart->huart->hdmarx->Instance->NDTR;
 
     uart_ReceiveStatus status = { .size = 0, .eomReached = false };

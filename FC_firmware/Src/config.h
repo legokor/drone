@@ -14,7 +14,7 @@
 #define config_ACT_MODE_DSHOT 2
 #define config_ACT_MODE config_ACT_MODE_DSHOT
 
-#define config_ACT_LOOP_FREQ 1500
+#define config_ACT_LOOP_FREQ 4000
 
 #if config_ACT_MODE == config_ACT_MODE_PWM
 
@@ -32,9 +32,14 @@
 // ACT
 
 // LLC
-#define config_LLC_ROLL_PID_CONSTS 0.18f, 0, 0
-#define config_LLC_PITCH_PID_CONSTS 0.18f, 0, 0
-#define config_LLC_YAW_PID_CONSTS 0, 0, 0
+#define config_LLC_ROLL_PID_CONSTS 0.005f, 0.000f, 0
+#define config_LLC_PITCH_PID_CONSTS 0.005f, 0.000f, 0
+#define config_LLC_YAW_PID_CONSTS -0.015f, -0.020f, 0
+
+// checkpoint
+// #define config_LLC_ROLL_PID_CONSTS 0.001f, 0, 0
+// #define config_LLC_PITCH_PID_CONSTS 0.001f, 0, 0
+// #define config_LLC_YAW_PID_CONSTS -0.015f, -0.020f, 0
 // LLC
 
 // RC
@@ -63,11 +68,14 @@
 
 // RC
 
+// usb
+#define config_BATTERRY_DISCONNECTED_VOLTAGE 3.0f
+
 #define config_BATTERY_CELL_COUNT 4
 #define config_MIN_BATTERY_CELL_VOLTAGE 3.3f
 #define config_BATTERY_CRITICAL_TIME_MS 1000
 #define config_BATTERY_ADC_CONVERSION_FACTOR 7.68e-3 // (1 / 130.0f)
 #define config_ESC_ADC_CONVERSION_FACTOR 1           // TODO: esc adc conversion factor
-#define config_TELEMETRY_FREQ 50
+#define config_TELEMETRY_FREQ 10
 
 #endif // CONFIG_H

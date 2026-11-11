@@ -25,12 +25,12 @@ typedef struct [[nodiscard]] uart_Uart {
 
     uint16_t rxBufferLength, txBufferLength;
 
-    volatile char* txCircularBuffer;
+    volatile uint8_t* txCircularBuffer;
     volatile int32_t txStartOfData;
     volatile int32_t txEndOfData;
     volatile bool txInProgress;
 
-    volatile char* rxCircularBuffer;
+    volatile uint8_t* rxCircularBuffer;
     uint32_t rxStartOfData;
 
     const char* ignorableChars;
@@ -59,7 +59,7 @@ typedef struct [[nodiscard]] uart_ReceiveStatus {
  *
  * @return true on success, else false
  */
-[[nodiscard]] bool uart_transmit(uart_Uart* uart, const char* data, uint32_t size);
+[[nodiscard]] bool uart_transmit(uart_Uart* uart, const uint8_t* data, uint32_t size);
 
 /**
  * @brief Writes the received data to the data buffer
@@ -69,6 +69,6 @@ typedef struct [[nodiscard]] uart_ReceiveStatus {
  *
  * @return the size of the data received and a flag indicating if the end of message character was reached
  */
-[[nodiscard]] uart_ReceiveStatus uart_receive(uart_Uart* uart, char* data, uint32_t maxSize);
+[[nodiscard]] uart_ReceiveStatus uart_receive(uart_Uart* uart, uint8_t* data, uint32_t maxSize);
 
 #endif // UART_H

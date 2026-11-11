@@ -5,8 +5,8 @@
 
 #if config_ACT_MODE == config_ACT_MODE_DSHOT
 
-#include "act/impl/dshot.h"
 #include "act/act.h"
+#include "act/impl/dshot.h"
 #include "err/err.h"
 #include "irq/irq.h"
 #include "utils/utils.h"
@@ -48,15 +48,14 @@ static _act_dshot_Frame _dshot_createDshotFrameFromRaw(_act_dshot_Frame raw) {
     return frame;
 }
 
-#define _act_dshot_MIN_RAW_THROTTLE 48
-#define _act_dshot_MAX_RAW_THROTTLE 2047
+#define _act_dshot_MIN_THROTTLE 48
+#define _act_dshot_MAX_THROTTLE 2047
 
 static uint16_t _act_dshot_calculateRawThrottle(float motor) {
-    return utils_clamp( //
-        (uint16_t) roundf(_act_dshot_MIN_RAW_THROTTLE + motor * _act_dshot_MAX_RAW_THROTTLE),
-        _act_dshot_MIN_RAW_THROTTLE, //
-        _act_dshot_MAX_RAW_THROTTLE  //
-    );
+    float raw_throttle_f = _act_dshot_MIN_THROTTLE + motor * (_act_dshot_MAX_THROTTLE - _act_dshot_MIN_THROTTLE);
+    uint16_t raw_throttle = roundf(raw_throttle_f);
+
+    return utils_clamp(raw_throttle, _act_dshot_MIN_THROTTLE, _act_dshot_MAX_THROTTLE);
 }
 
 static _act_dshot_Frame _dshot_createDshotSpeedFrame(uint16_t throttle) {
@@ -179,7 +178,7 @@ void act_dshot_outputSpeed(float speeds[act_MOTOR_COUNT], act_FinalSignalTelemet
         uint16_t throttle = _act_dshot_calculateRawThrottle(ready ? speeds[i] : 0);
 
         if (out != nullptr) {
-            out->dshotThrottles[i] = throttle - _act_dshot_MIN_RAW_THROTTLE;
+            out->dshotThrottles[i] = throttle - _act_dshot_MIN_THROTTLE;
         }
 
         frames[i] = _dshot_createDshotSpeedFrame(throttle);

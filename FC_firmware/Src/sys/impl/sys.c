@@ -27,6 +27,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 uart_Uart sys_uartInstance;
 rc_Rc sys_rcInstance;
@@ -47,7 +48,7 @@ static TIM_HandleTypeDef* const _sys_actTimer = &htim3;
 static ADC_HandleTypeDef* const _sys_batteryADC = &hadc1;
 
 static UART_HandleTypeDef* const _sys_rcUsart = &huart5;
-static UART_HandleTypeDef* const _sys_telUart = &huart1;
+static UART_HandleTypeDef* const _sys_telUart = &huart2;
 
 static SPI_HandleTypeDef* const _sys_imuSpi = &hspi2;
 
@@ -116,6 +117,7 @@ static void _sys_init(void) {
 
     uart_UartInitParams uartParams = (uart_UartInitParams){
         .huart = _sys_telUart,
+        // TODO: uart2 for radio telem
         .uartIrq = USART1_IRQn,
         .txBufferLength = 1 << 14,
         .rxBufferLength = 1 << 10,
@@ -125,6 +127,7 @@ static void _sys_init(void) {
     err_tryIgnorable(uart_init(&sys_uartInstance, uartParams), "failed to init uart");
 
     tel_init();
+
     tel_addSource(_sys_writeUart);
     log_init();
 
@@ -150,6 +153,8 @@ typedef struct _sys_Telemetry {
 } _sys_Telemetry;
 
 static _sys_Telemetry _sys_lastTel = { 0 };
+static uint8_t _sys_telemetryBuffer[512];
+static uint8_t _sys_telemetryBufferEscaped[512];
 static void _sys_doTelemetry(sys_TimeUS now) {
     const uint32_t telemetryPeriodUS = 1e6 / config_TELEMETRY_FREQ;
     static sys_TimeUS lastTelemetry = 0;
@@ -172,62 +177,162 @@ static void _sys_doTelemetry(sys_TimeUS now) {
 
     lastTelemetry = now;
 
-    // ctrl_Mode ctrl_mode = _sys_lastTel.ctrlMode;
+    ctrl_Mode ctrl_mode = _sys_lastTel.ctrlMode;
     llc_ThrustVec guideRef = _sys_lastTel.guideRef;
     llc_ThrustVec llcOut = _sys_lastTel.llcOut;
     act_FinalSignalTelemetry actOut = _sys_lastTel.actOut;
 
-    if (isArmed) {
-        if (armingChanged) {
-            log_raw(
-                "# vbat,imu_roll,imu_pitch,imu_yaw,"
-                // "llc_roll,llc_pitch,llc_yaw,llc_thrust," //
-                "motor0,motor1,motor2,motor3" //
-            );
-        }
+    const uint8_t START_BYTE = 0x69;
+    const uint8_t ESCAPE_BYTE = 0xdd;
+    const uint8_t END_BYTE = 0x42;
+    const uint16_t DATA_TYPE_VBAT_BIT = 1 << 0;
+    const uint16_t DATA_TYPE_ATTITUDE_BIT = 1 << 1;
+    const uint16_t DATA_TYPE_POSITION_BIT = 1 << 2;
+    const uint16_t DATA_TYPE_VELOCITY_LINEAR_BIT = 1 << 3;
+    const uint16_t DATA_TYPE_VELOCITY_ANGULAR_BIT = 1 << 4;
+    const uint16_t DATA_TYPE_RC_INPUT_BIT = 1 << 5;
+    const uint16_t DATA_TYPE_LLC_OUTPUT_BIT = 1 << 6;
+    const uint16_t DATA_TYPE_ACT_OUTPUT_BIT = 1 << 7;
+    const uint16_t DATA_TYPE_CTRL_MODE_BIT = 1 << 8;
+    const uint16_t DATA_TYPE_IBAT_BIT = 1 << 9;
+    const uint16_t DATA_TYPE_GUIDE_REF_BIT = 1 << 10;
 
-        imu_Vec3 v3 = dsp_getOutAng();
-        log_raw(
-            "%.2f,"
-            "%.2f,%.2f,%.2f,"
-            // "%.2f,%.2f,%.2f,%.2f,",
-            "%u,%u,%u,%u",
-            (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                         //
-            (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
-            // (double) llcOut.roll, (double) llcOut.pitch,                                                       //
-            // (double) llcOut.yaw, (double) llcOut.thrust,                                                       //
+    // packet structure:
+    // - [START_BYTE]
+    // - repeat: [DATA_TYPE_BYTE] [DATA_BYTES]
+    // - [END_BYTE]
 
-#if config_ACT_MODE == config_ACT_MODE_DSHOT
-            actOut.dshotThrottles[0], //
-            actOut.dshotThrottles[1], //
-            actOut.dshotThrottles[2], //
-            actOut.dshotThrottles[3]  //
-#elif config_ACT_MODE == config_ACT_MODE_PWM
-            actOut.pwmDuties[0], //
-            actOut.pwmDuties[1], //
-            actOut.pwmDuties[2], //
-            actOut.pwmDuties[3]  //
-#endif
-        );
-    } else {
-        if (armingChanged) {
-            log_raw(
-                "# vbat,imu_roll,imu_pitch,imu_yaw," //
-                "rc_roll,rc_pitch,rc_yaw,rc_thrust"  //
-            );
-        }
+    _sys_telemetryBuffer[0] = START_BYTE;
+    size_t offset = 1;
 
-        imu_Vec3 v3 = dsp_getOutAng();
-        log_raw(
-            "%.2f,"
-            "%.2f,%.2f,%.2f,"
-            "%.2f,%.2f,%.2f,%.2f",
-            (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT,                                         //
-            (double) utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
-            (double) guideRef.roll, (double) guideRef.pitch,                                                      //
-            (double) guideRef.yaw, (double) guideRef.thrust                                                       //
-        );
+    uint16_t dataTypeBits = DATA_TYPE_VBAT_BIT | DATA_TYPE_RC_INPUT_BIT | DATA_TYPE_LLC_OUTPUT_BIT |
+                            DATA_TYPE_ACT_OUTPUT_BIT | DATA_TYPE_CTRL_MODE_BIT | DATA_TYPE_IBAT_BIT;
+    memcpy(&_sys_telemetryBuffer[offset], &dataTypeBits, sizeof(dataTypeBits));
+    offset += sizeof(dataTypeBits);
+
+    // order:
+    // ctrl_mode
+    // vbat
+    // ibat
+    // attitude
+    // position
+    // velocity_linear
+    // velocity_angular
+    // guide_ref
+    // rc_input
+    // llc_output
+    // act_output
+
+    {
+        memcpy(&_sys_telemetryBuffer[offset], &ctrl_mode, sizeof(ctrl_mode));
+        offset += sizeof(ctrl_mode);
     }
+
+    {
+        float vbat = adc_getBatteryVoltage();
+        memcpy(&_sys_telemetryBuffer[offset], &vbat, sizeof(vbat));
+        offset += sizeof(vbat);
+    }
+
+    {
+        float ibat = adc_getESCTotalCurrent();
+        memcpy(&_sys_telemetryBuffer[offset], &ibat, sizeof(ibat));
+        offset += sizeof(ibat);
+    }
+
+    {
+        memcpy(&_sys_telemetryBuffer[offset], &llcOut, sizeof(llcOut));
+        offset += sizeof(llcOut);
+    }
+
+    {
+        memcpy(&_sys_telemetryBuffer[offset], &actOut, sizeof(actOut));
+        offset += sizeof(actOut);
+    }
+
+    {
+        rc_RxPackage rcData;
+        bool gotRC;
+        err_tryIgnorable(gotRC = rc_getData(&sys_rcInstance, &rcData), "Failed to get rc data");
+
+        if (gotRC) {
+            memcpy(&_sys_telemetryBuffer[offset], &rcData, sizeof(rcData));
+            offset += sizeof(rcData);
+        }
+    }
+
+    {
+        memcpy(&_sys_telemetryBuffer[offset], &END_BYTE, sizeof(END_BYTE));
+        offset += sizeof(END_BYTE);
+    }
+
+    // don't escape first and last byte, they are always start and end
+    size_t escapedOffset = 1;
+    _sys_telemetryBufferEscaped[0] = START_BYTE;
+    for (size_t i = 1; i < offset - 1; i++) {
+        uint8_t b = _sys_telemetryBuffer[i];
+        if (b == START_BYTE || b == ESCAPE_BYTE || b == END_BYTE) {
+            _sys_telemetryBufferEscaped[escapedOffset++] = ESCAPE_BYTE;
+        }
+
+        _sys_telemetryBufferEscaped[escapedOffset++] = b;
+    }
+    _sys_telemetryBufferEscaped[escapedOffset++] = END_BYTE;
+
+    (void) uart_transmit(&sys_uartInstance, _sys_telemetryBufferEscaped, escapedOffset);
+    // err_tryIgnorable(, "failed to write telemetry through debug uart");
+
+    //     if (isArmed) {
+    //         if (armingChanged) {
+    //             log_raw(
+    //                 "# vbat,imu_roll,imu_pitch,imu_yaw,"
+    //                 // "llc_roll,llc_pitch,llc_yaw,llc_thrust," //
+    //                 "motor0,motor1,motor2,motor3" //
+    //             );
+    //         }
+
+    //         imu_Vec3 v3 = dsp_getOutAng();
+    //         log_raw(
+    //             "%.2f,"
+    //             "%.2f,%.2f,%.2f,"
+    //             // "%.2f,%.2f,%.2f,%.2f,",
+    //             "%u,%u,%u,%u",
+    //             (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT, // (double)
+    //             utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
+    //         // (double) llcOut.roll, (double) llcOut.pitch, //
+    //         // (double) llcOut.yaw, (double) llcOut.thrust, //
+
+    // #if config_ACT_MODE == config_ACT_MODE_DSHOT
+    //             actOut.dshotThrottles[0], //
+    //             actOut.dshotThrottles[1], //
+    //             actOut.dshotThrottles[2], //
+    //             actOut.dshotThrottles[3]  //
+    // #elif config_ACT_MODE == config_ACT_MODE_PWM
+    //             actOut.pwmDuties[0], //
+    //             actOut.pwmDuties[1], //
+    //             actOut.pwmDuties[2], //
+    //             actOut.pwmDuties[3]  //
+    // #endif
+    //         );
+    //     } else {
+    //         if (armingChanged) {
+    //             log_raw(
+    //                 "# vbat,imu_roll,imu_pitch,imu_yaw," //
+    //                 "rc_roll,rc_pitch,rc_yaw,rc_thrust"  //
+    //             );
+    //         }
+
+    //         imu_Vec3 v3 = dsp_getOutAng();
+    //         log_raw(
+    //             "%.2f,"
+    //             "%.2f,%.2f,%.2f,"
+    //             "%.2f,%.2f,%.2f,%.2f",
+    //             (double) adc_getBatteryVoltage() / config_BATTERY_CELL_COUNT, // (double)
+    //             utils_radToDeg(v3.roll), (double) utils_radToDeg(v3.pitch), (double) utils_radToDeg(v3.yaw), //
+    //             (double) guideRef.roll, (double) guideRef.pitch, // (double) guideRef.yaw, (double)
+    //             guideRef.thrust                                                       //
+    //         );
+    //     }
 }
 
 static void _sys_guide(void) {
@@ -269,11 +374,12 @@ bool _sys_shouldLoop(void) {
     sys_TimeUS now = sys_time();
 
     float voltage = adc_getBatteryVoltage();
-    if (voltage < config_MIN_BATTERY_CELL_VOLTAGE * config_BATTERY_CELL_COUNT) {
+    if (voltage > config_BATTERRY_DISCONNECTED_VOLTAGE &&
+        voltage < config_MIN_BATTERY_CELL_VOLTAGE * config_BATTERY_CELL_COUNT) {
         if (batteryDippedMinT == 0)
             batteryDippedMinT = now;
         else if (sys_timeDiff(batteryDippedMinT, now) > config_BATTERY_CRITICAL_TIME_MS * 1000)
-            return false;
+            return false; // FIXME: false
     } else
         batteryDippedMinT = 0;
 
@@ -336,6 +442,8 @@ void sys_abort(sys_AbortFn fn, void* arg) {
     if (fn != NULL) {
         fn(arg);
     }
+
+    HAL_GPIO_WritePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_RESET);
 
     while (true) {
         __NOP();
